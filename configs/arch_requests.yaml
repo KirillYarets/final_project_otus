@@ -1,0 +1,1167 @@
+﻿  "tab_card":
+    analitdb_table: 
+            select * from oplati_stage_level.stg_card
+
+    select_columns:
+      - 'profile_id'
+      - 'purse_id'
+      - 'card_id'
+      - 'pan_suffix'
+      - 'cardholder_name'
+      - 'card_product_id'
+      - 'default_card'
+      - 'ms_card_id'
+
+
+ ###################################################################################################################################################################
+  "tab_card_request":
+     analitdb_table: 
+            select * from oplati_stage_level.stg_card_request
+     
+     select_columns:
+      - 'card_request_id'
+      - 'card_request_date'
+      - 'profile_id'
+      - 'card_product_id'
+      - 'provider'
+      - 'status'
+
+ ###################################################################################################################################################################
+  "tab_transactions":
+    analitdb_table:  
+            select * from oplati_stage_level.stg_transactions
+
+    select_columns:
+      - 'trans_id'
+      - 'account_id'
+      - 'trans_type'
+      - 'trans_date'
+      - 'sum'
+      - 'message_id'
+      - 'ops_id'
+      - 'details'
+
+####################################################################################################################################################################
+
+  "tab_autopark":
+    analitdb_table: 
+            select * from oplati_stage_level.stg_autopark
+  
+    select_columns:
+      - 'id'
+      - 'num'
+      - 'name'
+      - 'unn'
+      - 'city'
+      - 'status'
+      - 'org_id'
+      - 'reg_num'
+      - 'parent_id'
+      - 'type'
+      - 'location_source'
+      - 'region'
+      - 'area'
+####################################################################################################################################################################
+
+  "tab_vehicle":
+    analitdb_table: 
+            select * from oplati_stage_level.stg_vehicle
+
+    select_columns:
+      - 'id'
+      - 'autopark_id'
+      - 'num'
+      - 'type'
+      - 'status'
+      - 'block_date_time'
+      - 'block_code'
+      - 'qr_add'
+      - 'req_num'
+
+####################################################################################################################################################################
+
+  "tab_close_wallet":
+    analitdb_table: 
+            select * from oplati_stage_level.stg_close_wallet
+
+    select_columns:
+      - 'closed_on'
+      - 'wallet_id'
+      - 'profile_id'
+
+####################################################################################################################################################################
+
+  "tab_customer_individual":
+    analitdb_table: 
+            select * from oplati_stage_level.stg_customer_individual
+
+    select_columns:
+      - 'open_date'
+      - 'profile_id'
+      - 'customer_type'
+      - 'age'
+      - 'region_cod'
+      - 'region_name'
+      - 'locality_type'
+      - 'locality_name'
+      - 'operator_cod'
+      - 'operator_name'
+      - 'soato'
+      - 'info'
+      - 'resident'
+      - 'country'
+      - 'document_issuer'
+      - 'sex'
+
+####################################################################################################################################################################
+
+  "tab_customer_children":
+    analitdb_table:
+            select * from oplati_stage_level.stg_customer_children
+
+    select_columns:
+      - 'open_date'
+      - 'profile_id'
+      - 'customer_type'
+      - 'age'
+      - 'region_cod'
+      - 'region_name'
+      - 'locality_type'
+      - 'locality_name'
+      - 'operator_cod'
+      - 'operator_name'
+      - 'soato'
+      - 'info'
+      - 'resident'
+      - 'country'
+      - 'document_issuer'
+      - 'sex'
+      - 'adult_profile'
+      - 'child_purse'
+      
+
+####################################################################################################################################################################
+
+  "tab_customer_organisation":
+    analitdb_table: 
+            select * from oplati_stage_level.stg_customer_organisation
+
+    select_columns:
+      - 'open_date'
+      - 'profile_id'
+      - 'customer_type'
+      - 'organization_name'
+      - 'adress'
+      - 'region_cod'
+      - 'region_name'
+      - 'locality_type'
+      - 'locality_name'
+      - 'operator_cod'
+      - 'pan'
+      - 'soato'
+      - 'info'
+
+####################################################################################################################################################################
+
+  "tab_customer_ticket":
+    analitdb_table: 
+            select * from oplati_stage_level.stg_customer_ticket
+                   
+    select_columns:
+      - 'id'
+      - 'vehicle_id'
+      - 'num'
+      - 'price'
+      - 'date_time'
+      - 'profile_id'
+      - 'operator_cod'
+      - 'route_id'
+      - 'issuer'
+      - 'details'
+      - 'route_name'
+      - 'autopark_id'
+      - 'location_source'
+      - 'operator_name'
+      - 'vehicle_type'
+      - 'status'   
+   
+####################################################################################################################################################################
+
+  "tab_erip":
+    analitdb_table: 
+            select * from oplati_stage_level.stg_erip
+
+    select_columns:
+      - 'id'
+      - 'transaction_id'
+      - 'agent_transaction_id'
+      - 'service_id'
+      - 'service_info_id'
+      - 'sum'
+      - 'status'
+      - 'parameter_list'
+      - 'payment_date'
+      - 'confirm_date'
+      - 'check_header'
+      - 'check_footer'
+      - 'error'
+      - 'profile_id'
+      - 'purse_transaction_id'
+      - 'extra_info'
+      - 'purse_number'
+
+####################################################################################################################################################################
+
+  "tab_gift":
+    analitdb_table: 
+            select * from oplati_stage_level.stg_gift
+ 
+    select_columns:
+      - 'gift_id'
+      - 'gift_num'
+      - 'cashbox_regnum'
+      - 'profile_id'
+      - 'create_date'
+      - 'expire_date'
+      - 'name'
+      - 'description'
+      - 'gift_image_url'
+      - 'price'
+      - 'details'
+      - 'payment_id'
+      - 'external_id'
+      - 'cancel_date'
+      - 'redeem_date'
+
+####################################################################################################################################################################
+
+  "tab_merchant_cashbox":
+    analitdb_table: 
+        select * from oplati_stage_level.stg_merchant_cashbox
+
+    select_columns:
+      - 'cash_id'
+      - 'name'
+      - 'manufacturer_num'
+      - 'reg_num'
+      - 'open_date'
+      - 'close_date'
+      - 'pos_id'
+      - 'dep_id'
+      - 'cashbox_type'
+      - 'cashbox_vendor'
+      - 'mcc_code'
+      - 'mcc_status'
+####################################################################################################################################################################
+
+  "tab_merchant_department":
+    analitdb_table: 
+            select * from oplati_stage_level.stg_merchant_department
+
+    select_columns:
+      - 'dep_id'
+      - 'pos_id'
+      - 'name'
+      - 'open_date'
+      - 'close_date'
+####################################################################################################################################################################
+
+  "tab_merchant_pos":
+    analitdb_table: 
+            select * from oplati_stage_level.stg_merchant_pos
+
+    select_columns:
+      - 'pos_id'
+      - 'org_id'
+      - 'name'
+      - 'open_date'
+      - 'close_date'
+      - 'latitude'
+      - 'longitude'
+####################################################################################################################################################################
+
+  "tab_organisation":
+    analitdb_table: 
+            select * from oplati_stage_level.stg_organisation
+ 
+    select_columns:
+      - 'org_id'
+      - 'name'
+      - 'open_date'
+      - 'close_date'
+      - 'address'
+      - 'vat_payer'
+      - 'itn'
+      - 'status'
+      - 'eds_public_key'
+      - 'eds_serial'
+      - 'bank_agr_id'
+      - 'soato'
+      - 'ownership_form'
+      - 'private_number'
+      - 'document_type'
+      - 'document_number'
+      - 'document_issue_date'
+      - 'document_issuer'
+      - 'eds_first_name'
+      - 'eds_last_name'
+      - 'phone'
+      - 'org_type'
+      - 'bank_client_id'
+
+####################################################################################################################################################################
+
+  "tab_pos_payment":
+    analitdb_table: 
+            select * from oplati_stage_level.stg_pos_payment
+
+    select_columns:
+          - 'purchase_id'
+          - 'purse_id'
+          - 'authcode'
+          - 'merchant_id'
+          - 'device_id'
+          - 'sum'
+          - 'status'
+          - 'created_date'
+          - 'paid_date'
+          - 'order_number'
+          - 'description'
+          - 'details'
+          - 'expired_date'
+          - 'pos_id'
+          - 'dep_id'
+          - 'shift'
+          - 'payment_type'
+          - 'p2p_id'
+          - 'ref_purchase_id'
+          - 'reg_num'
+          - 'profile_id'
+
+####################################################################################################################################################################
+
+  "tab_travel_card":
+    analitdb_table: 
+            select * from oplati_stage_level.stg_travel_card
+   
+    select_columns:
+          - 'id'
+          - 'type'
+          - 'period'
+          - 'num'
+          - 'date_time'
+          - 'vehicle_id'
+          - 'profile_id'
+          - 'autopark_id'
+          - 'details'
+          - 'price'
+          - 'operator_code'
+          - 'operator_name'
+          - 'date_begin'
+          - 'date_end'
+          - 'status'
+
+####################################################################################################################################################################
+
+  "tab_virtual_mdes":
+    analitdb_table: 
+            select * from oplati_stage_level.stg_virtual_mdes
+
+    select_columns:
+      - 'date'
+      - 'profile_id'
+      - 'purse_id'
+      - 'ms_card_id'
+      - 'pan_suffix'
+      - 'cardholder_name'
+
+####################################################################################################################################################################
+  "tab_virtual_mdes_bc":
+    analitdb_table: 
+            select * from oplati_stage_level.stg_virtual_mdes
+ 
+    select_columns:
+      - 'date'
+      - 'profile_id'
+      - 'purse_id'
+      - 'ms_card_id'
+      - 'pan_suffix'
+      - 'cardholder_name'
+                     
+
+####################################################################################################################################################################
+  "tab_wallet":
+    analitdb_table: 
+            select * from oplati_stage_level.stg_wallet
+                    
+    select_columns:
+      - 'public_id'
+      - 'profile_id'
+      - 'bpay_bank_code'
+      - 'bic'
+      - 'bank_account_number'
+      - 'opened_on'
+      - 'closed_on'
+      - 'wallet_type'
+      - 'wallet_id'
+      - 'type_name'
+      - 'currency'
+####################################################################################################################################################################
+
+  "tab_order":
+    analitdb_table: 
+            select * from oplati_stage_level.stg_order
+                  
+    select_columns:
+      - 'order_id'
+      - 'merchant_id'
+      - 'device_id'
+      - 'reg_num'
+      - 'sum'
+      - 'status'
+      - 'created_date'
+      - 'order_number'
+      - 'expired_date'
+      - 'purchase_id'
+      - 'paid_date'
+      - 'order_hash'
+####################################################################################################################################################################
+  "tab_referral":
+    analitdb_table: 
+            select * from oplati_stage_level.stg_referral
+
+    select_columns:
+      - 'referral_id'
+      - 'partner_id'
+      - 'profile_id'
+      - 'reg_date'
+      - 'invite_hash'
+
+  ####################################################################################################################################################################
+  "tab_partner":
+    analitdb_table:
+            select * from oplati_stage_level.stg_partner
+    
+    select_columns:
+      - 'partner_id'
+      - 'profile_id'
+      - 'name'
+      - 'url'
+      - 'create_date'
+      - 'invite_hash'
+      - 'partner_type'
+
+####################################################################################################################################################################
+  "tab_training_condition":
+    analitdb_table:
+            select * from oplati_stage_level.stg_training_condition
+    
+    select_columns:
+      - 'training_condition_id'
+      - 'referral_id'
+      - 'condition_code'
+      - 'transaction_id'
+      - 'complete_date'
+      - 'status'
+
+####################################################################################################################################################################
+  "tab_referral_training":
+    analitdb_table: 
+            select * from oplati_stage_level.stg_referral_training
+
+    select_columns:
+      - 'referral_id'
+      - 'status'
+      - 'reward_sum'
+      - 'reward_date'
+####################################################################################################################################################################
+
+  "tab_petrol_sale":
+    analitdb_table: 
+            select * from oplati_stage_level.stg_azs_petrol_sale
+
+    select_columns:
+          - 'sale_id'
+          - 'company_id'
+          - 'create_date'
+          - 'station_id'
+          - 'pump'
+          - 'nozzle'
+          - 'loyal_card'
+          - 'alg_calc'
+          - 'sum'
+          - 'discount'
+          - 'dose'
+          - 'profile_id'
+          - 'purse_id'
+          - 'transaction_id'
+          - 'status'
+          - 'refund_sum'
+          - 'refund_transaction_id'
+          - 'fuel'
+          - 'phone'
+          - 'purse_number'
+          - 'price'
+          - 'details'
+
+####################################################################################################################################################################
+
+  "tab_azs_station":
+    analitdb_table: 
+            select * from oplati_stage_level.stg_azs_station
+
+    select_columns:
+          - 'station_id'
+          - 'company_id'
+          - 'external_id'
+          - 'name'
+          - 'address'
+          - 'lat'
+          - 'lng'
+          - 'status'
+          - 'update_date'
+          - 'raw_data'
+          - 'parent'
+####################################################################################################################################################################
+
+  "tab_intertaiment_station":
+    analitdb_table: 
+            select * from oplati_stage_level.stg_entertainment
+
+    select_columns:
+          - 'id'
+          - 'company_id'
+          - 'regnum'
+          - 'cash_id'
+          - 'category_id'
+          - 'name'
+          - 'active'
+          - 'address'
+          - 'site'
+          - 'latitude'
+          - 'longtitude'
+          - 'deleted'
+          - 'company_name'
+####################################################################################################################################################################
+
+  "tab_intertaiment_ticket":
+    analitdb_table: 
+            select * from oplati_stage_level.stg_entertainment_ticket
+
+    select_columns:
+          - 'id'
+          - 'profile_id'
+          - 'purse_id'
+          - 'object_id'
+          - 'object_name'
+          - 'tarif_id'
+          - 'tarif_name'
+          - 'regnum'
+          - 'cashid'
+          - 'transaction_id'
+          - 'price'
+          - 'buy_date'
+          - 'activate_up_to'
+          - 'use_up_to'
+          - 'use_no'
+          - 'visitors_no'
+          - 'use_left'
+          - 'expire_date'
+          - 'activate_date'
+          - 'last_verify'
+          - 'status'
+          - 'company_id'
+          - 'client_name'
+          - 'client_phone'
+          - 'itrg_akova'
+          - 'itrg_akova_id'
+          - 'itrg_akova_qr'
+          - 'payment_id'
+          - 'refund_id'
+          - 'refund_date'
+          - 'refund_status'
+####################################################################################################################################################################
+
+  "tab_intertaiment_tarif":
+    analitdb_table: 
+            select * from oplati_stage_level.stg_entertainment_tarif
+
+    select_columns:
+          - 'id'
+          - 'name'
+          - 'description'
+          - 'type_id'
+          - 'cost'
+          - 'discount'
+          - 'activate_up_to'
+          - 'use_up_to'
+          - 'use_no'
+          - 'visitors_no'
+          - 'active'
+          - 'active_from'
+          - 'active_to'
+          - 'pub'
+          - 'deleted'
+          - 'position'
+          - 'itrg_akova'
+          - 'itrg_akova_id'
+          - 'itrg_akova_object_id'
+          - 'zone_id'
+          - 'object_id'
+####################################################################################################################################################################
+
+  "tab_intertaiment_zone":
+    analitdb_table: 
+            select * from oplati_stage_level.stg_entertainment_zone
+
+    select_columns:
+          - 'id'
+          - 'name'
+          - 'description'
+          - 'active'
+          - 'object_id'
+          - 'deleted'
+          - 'position'
+####################################################################################################################################################################
+
+  "tab_carwash":
+    analitdb_table: 
+            select * from oplati_stage_level.stg_carwash
+
+    select_columns:
+          - 'id'
+          - 'external_id'
+          - 'company_name'
+          - 'name'
+          - 'address'
+          - 'lat'
+          - 'lon'
+          - 'status'
+          - 'updated'
+          - 'original_data'
+          - 'provider'
+          - 'company_id'
+          - 'regnum'
+          - 'cash_id'
+####################################################################################################################################################################
+
+  "tab_sub_payments":
+    analitdb_table: 
+            select * from oplati_stage_level.stg_subscribe_payments
+
+    select_columns:
+          - 'payment_id'
+          - 'external_account_id'
+          - 'profile_id'
+          - 'purse_id'
+          - 'provider_id'
+          - 'external_service_id'
+          - 'sum'
+          - 'created_at'
+          - 'state'
+          - 'state_message'
+          - 'transaction_id'
+          - 'parameters'
+          - 'external_payment_id'
+####################################################################################################################################################################
+
+  "tab_sub_provider":
+    analitdb_table: 
+            select * from oplati_stage_level.stg_subscribe_provider
+
+
+    select_columns:
+          - 'provider_id'
+          - 'code'
+          - 'name'
+          - 'unn'
+          - 'status'
+          - 'org_id'
+          - 'cash_id'
+          - 'reg_num'
+          - 'image'
+####################################################################################################################################################################
+
+  "tab_sub_provider_user":
+    analitdb_table: select * from oplati_stage_level.stg_subscribe_provider_user
+
+
+    select_columns:
+          - 'provider_user_id'
+          - 'provider_id'
+          - 'profile_id'
+          - 'external_account_id'
+          - 'external_account_type'
+
+####################################################################################################################################################################
+
+  "tab_sub_subscriptions":
+    analitdb_table: 
+            select * from oplati_stage_level.stg_subscribe_subscriptions
+
+
+    select_columns:
+          - 'subscription_id'
+          - 'provider_id'
+          - 'profile_id'
+          - 'external_account_id'
+          - 'external_account_type'
+          - 'external_service_id'
+          - 'activate_date'
+          - 'expiry_date'
+          - 'status'
+          - 'parameters'
+          - 'deactivate_date'
+
+####################################################################################################################################################################
+  "tab_request_data":
+    analitdb_table: 
+            select * from oplati_stage_level.stg_request_data_rezidency
+
+
+    select_columns:
+          - 'request_data_id'
+          - 'request_id'
+          - 'request_date'
+          - 'request_type'
+          - 'request_data'
+          - 'customer_profile_request'
+          - 'profile_id'
+          - 'request_identity_type'
+          - 'status'
+          - 'media_data_link'
+          - 'residency'
+####################################################################################################################################################################
+  "tab_operation":
+    analitdb_table:
+            select * from oplati_stage_level.stg_operations
+
+
+    select_columns:
+          - 'id'
+          - 'profile_id'
+          - 'purse_id'
+          - 'purse_transaction_id'
+          - 'bank_card_transaction_id'
+          - 'sum'
+          - 'status'
+          - 'operation_type'
+          - 'created_date'
+          - 'description'
+          - 'source'
+          - 'error'
+####################################################################################################################################################################
+  "tab_profile_package":
+    analitdb_table: 
+             select * from oplati_stage_level.stg_profile_package
+
+
+    select_columns:
+          - 'id'
+          - 'profile_id'
+          - 'package_code'
+          - 'activate_date'
+          - 'expire_date'
+          - 'promo_code'
+####################################################################################################################################################################
+  "tab_mcc_code":
+    analitdb_table: 
+            select * from oplati_stage_level.stg_mcc_code
+
+
+    select_columns:
+          - 'dim_id'
+          - 'parent_id'
+          - 'dim_type_code'
+          - 'code'
+          - 'name'
+          - 'open_date'
+          - 'close_date'
+
+####################################################################################################################################################################
+  "tab_log_history":
+    analitdb_table: 
+            select * from oplati_stage_level.stg_log_history
+
+
+    select_columns:
+          - 'log_history_id'
+          - 'login'
+          - 'profile_id'
+          - 'action'
+          - 'action_date'
+          - 'action_person'
+          - 'action_reason'
+          - 'action_detail'
+####################################################################################################################################################################
+
+  "tab_credit_request":
+    analitdb_table: 
+            select * from oplati_stage_level.stg_credit_request
+
+
+    select_columns:
+          - 'request_id'
+          - 'product_id'
+          - 'profile_id'
+          - 'provider'
+          - 'provider_client_id'
+          - 'create_date'
+          - 'sum'
+          - 'status'
+####################################################################################################################################################################
+
+  "tab_credit_product":
+    analitdb_table: 
+            select * from oplati_stage_level.stg_credit_product
+
+    select_columns:
+          - 'product_id'
+          - 'product_code'
+          - 'provider'
+          - 'product_name'
+          - 'image_url'
+          - 'status'
+          - 'update_date'
+          - 'rate'
+          - 'product_url'
+####################################################################################################################################################################
+
+  "tab_purse_settings":
+    analitdb_table: 
+            select * from oplati_stage_level.stg_purse_settings
+
+    select_columns:
+        - 'purse_id'
+        - 'profile_id'
+        - 'purse_card_view'
+        - 'is_notify'
+        - 'day_payment_count'
+        - 'day_payment_sum'
+####################################################################################################################################################################
+
+  "tab_acc_balance":
+    analitdb_table: 
+           select * from oplati_stage_level.stg_account_balance
+
+    select_columns:
+        - 'id'
+        - 'account_id'
+        - 'balance_date'
+        - 'balance_sum'
+####################################################################################################################################################################
+
+  "tab_azs_company":
+    analitdb_table:  
+            select * from oplati_stage_level.stg_azs_company
+
+    select_columns:
+          - 'company_id'
+          - 'name'
+          - 'unn'
+          - 'status'
+          - 'org_id'
+          - 'cash_id'
+          - 'reg_num'
+          - 'center_number'
+          - 'code'
+
+####################################################################################################################################################################
+
+  "tab_catalog_order":
+    analitdb_table:  
+            select * from oplati_stage_level.stg_catalog_order
+
+    select_columns:
+      - 'id'
+      - 'sum'
+      - 'appid'
+      - 'products'
+      - 'zoneid'
+      - 'created_at'
+      - 'updated_at'
+      - 'statusid'
+      - 'courierid'
+      - 'deliveryid'
+      - 'paymentid'
+      - 'ispaid'
+      - 'guestinfo'
+      - 'externalorderinfo'
+      - 'externalstatus'
+      - 'discount'
+      - 'comment'
+      - 'bpayuserid'
+####################################################################################################################################################################
+
+  "tab_wending_machine":
+    analitdb_table:  
+            select * from oplati_stage_level.stg_wending_machine
+
+
+    select_columns:
+      - 'id'
+      - 'name'
+      - 'terminal_id'
+      - 'merchant_id'
+      - 'cash_id'
+      - 'uuid'
+      - 'reg_num'
+####################################################################################################################################################################
+
+  "tab_water_machine":
+    analitdb_table:
+            select * from oplati_stage_level.stg_water_machine
+
+
+    select_columns:
+      - 'id'
+      - 'imei'
+      - 'address'
+      - 'latitude'
+      - 'longitude'
+      - 'price'
+      - 'cashbox_id'
+      - 'merchant_id'
+      - 'uuid'
+####################################################################################################################################################################
+
+  "tab_poi_chanel":
+    analitdb_table: 
+            select * from oplati_stage_level.stg_poi_app_channels
+
+    select_columns:
+      - 'id'
+      - 'cashbox_number'
+      - 'cashbox_password'
+      - 'channel_type_id'
+      - 'default_client_id'
+      - 'app_id'
+      - 'telegram_token'
+####################################################################################################################################################################
+
+  "tab_poi_app":
+    analitdb_table:  
+            select * from oplati_stage_level.stg_poi_app
+
+    select_columns:
+      - 'id'
+      - 'name'
+      - 'bot_url'
+      - 'deleted_at'
+      - 'active'
+      - 'user_id'
+      - 'company_id'
+      - 'order_type_id'
+      - 'img'
+      - 'system_id'
+      - 'category_id'
+      - 'cropped_img'
+      - 'cropp_coordinates'
+      - 'order_index'
+####################################################################################################################################################################
+
+  "tab_poi_app_category":
+    analitdb_table:
+            select * from oplati_stage_level.stg_poi_app_category
+
+    select_columns:
+      - 'id'
+      - 'name'
+      - 'code'
+      - 'is_popular'
+      - 'order'
+      - 'name_en'
+      - 'name_deu'
+      - 'name_by'
+      - 'name_ua'
+      - 'name_cn'
+      - 'name_es'
+      - 'name_it'
+      - 'name_fr'
+####################################################################################################################################################################
+
+  "tab_poi_app_city":
+    analitdb_table:  
+        select * from oplati_stage_level.stg_poi_app_city
+
+    select_columns:
+      - 'id'
+      - 'app_id'
+      - 'city_id'
+####################################################################################################################################################################
+
+  "tab_poi_city":
+    analitdb_table: 
+            select * from oplati_stage_level.stg_city
+
+    select_columns:
+      - 'id'
+      - 'name'
+      - 'region_id'
+      - 'latitude'
+      - 'longitude'
+      - 'radius'
+      - 'name_en'
+      - 'name_by'
+      - 'ercom_city_id'
+
+####################################################################################################################################################################
+
+  "tab_poi_user_cities":
+    analitdb_table: 
+            select * from oplati_stage_level.stg_user_city
+
+    select_columns:
+      - 'id'
+      - 'bpay_user_id'
+      - 'city_id'
+      - 'slivki_city_id'
+      - 'ercom_city_id'
+
+####################################################################################################################################################################
+  "tab_subscribtions":
+    analitdb_table:  
+        select * from oplati_stage_level.stg_subscribe_payments_keys
+
+    select_columns:
+        - 'id' 
+        - 'provider_id'
+        - 'profile_id'
+        - 'external_account_type'
+        - 'external_account_id' 
+        - 'service_id' 
+        - 'create_date' 
+        - 'expire_date' 
+        - 'status' 
+        - 'payment_date'
+        - 'payment_id' 
+        - 'activation_type' 
+        - 'sum' 
+        - 'tariff' 
+        - 'tariff_description' 
+
+####################################################################################################################################################################
+  "tab_subscribtions_provider":
+    analitdb_table: 
+            select * from oplati_stage_level.stg_subscribe_provider_keys
+
+    select_columns:
+        - 'id' 
+        - 'code'
+        - 'name'
+        - 'status'
+        - 'unn' 
+        - 'org_id' 
+        - 'cash_id' 
+        - 'reg_num' 
+        - 'image' 
+        - 'details'
+####################################################################################################################################################################
+  "tab_subscribtions_provider_user":
+    analitdb_table:    
+            select * from oplati_stage_level.stg_subscribe_provider_user_keys
+
+
+    select_columns:
+        - 'id' 
+        - 'provider_id'
+        - 'provider_user_id'
+        - 'account_id'
+        - 'account_type' 
+
+
+####################################################################################################################################################################
+  "tab_subscribtions_services":
+    analitdb_table:  
+            select * from oplati_stage_level.stg_subscribe_services_keys
+
+
+    select_columns:
+        - 'id' 
+        - 'provider_id'
+        - 'service_id'
+        - 'status'
+        - 'created_at' 
+        - 'name'
+        - 'description'
+        - 'tariff'
+        - 'activation_type'
+####################################################################################################################################################################
+
+
+  "tab_b_user":
+    analitdb_table: 
+            select * from oplati_stage_level.stg_managers
+   
+    select_columns:
+      - 'id'
+      - 'first_name'
+      - 'last_name'
+      - 'work_position'
+####################################################################################################################################################################
+
+  "tab_b_crm_deal":
+    analitdb_table: 
+            select * from oplati_stage_level.stg_organisation_type
+
+    select_columns:
+      - 'id'
+      - 'date_create'
+      - 'company_id'
+      - 'assigned_by_id'
+      - 'title'
+      - 'comments'
+      - 'type_id'
+      - 'category_id'
+      - 'stage_id'
+
+####################################################################################################################################################################
+
+
+  "tab_b_crm_stg_types":
+    analitdb_table: 
+            select * from oplati_stage_level.stg_types
+
+    select_columns:
+      - 'id'
+      - 'entity_id'
+      - 'status_id'
+      - 'name'
+      - 'name_init'
+####################################################################################################################################################################
+
+
+  "tab_b_crm_status":
+    analitdb_table: 
+            select * from oplati_stage_level.stg_unp
+
+
+    select_columns:
+      - 'value_id'
+      - 'unp'
+####################################################################################################################################################################
+
+
+  "tab_b_uts_crm_company":
+    analitdb_table: 
+            select * from oplati_stage_level.stg_company
+    
+    select_columns:
+      - 'company_id'
+      - 'unp'
+      - 'assigned_by_id'
+      - 'bitrix_date'
+      - 'type_id'
+      - 'contract_status'
+
+####################################################################################################################################################################
+
+  "tab_json":
+    analitdb_table: 
+            select * from oplati_stage_level.stg_json
+
+    select_columns:
+      - 'data_json'
+
+
+####################################################################################################################################################################

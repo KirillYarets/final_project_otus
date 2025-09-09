@@ -1,0 +1,583 @@
+  "tab_order":
+    postgres_out_table: select * from (select
+                          id::text,
+                          sum::text,
+                          "appId"::text as appid,
+                          btrim(btrim(text(products), '['),']')::text as products,
+                          "zoneId"::text as zoneid,
+                          created_at::text,
+                          updated_at::text,
+                          "statusId"::text as statusid,
+                          "courierId"::text as courierid,
+                          "deliveryId"::text as deliveryid,
+                          "paymentId"::text as paymentid,
+                          "isPaid"::text as ispaid,
+                          text("guestInfo") as  guestinfo,
+                          text("externalOrderInfo") as externalorderinfo,
+                          "externalStatus"::text as externalstatus,
+                          discount::text,
+                          "comment"::text as comment,
+                          "bpayUserId"::text as bpayuserid
+
+                        from "order" where date(created_at) = date(current_date) - 1) sss
+
+    select_columns:
+      - 'id'
+      - 'sum'
+      - 'appid'
+      - 'products'
+      - 'zoneid'
+      - 'created_at'
+      - 'updated_at'
+      - 'statusid'
+      - 'courierid'
+      - 'deliveryid'
+      - 'paymentid'
+      - 'ispaid'
+      - 'guestinfo'
+      - 'externalorderinfo'
+      - 'externalstatus'
+      - 'discount'
+      - 'comment'
+      - 'bpayuserid'
+
+    expected_columns:
+      - name: id
+        type: str
+      - name: sum
+        type: str
+      - name: appid
+        type: str
+      - name: products
+        type: str
+      - name: zoneid
+        type: str
+      - name: created_at
+        type: str
+      - name: updated_at
+        type: str
+      - name: statusid
+        type: str
+      - name: courierid
+        type: str
+      - name: deliveryid
+        type: str
+      - name: paymentid
+        type: str
+      - name: ispaid
+        type: str
+      - name: guestinfo
+        type: str
+      - name: externalorderinfo
+        type: str
+      - name: externalstatus
+        type: str
+      - name: discount
+        type: str
+      - name: comment
+        type: str
+      - name: bpayuserid
+        type: str
+
+
+    postgres_table: stg_catalog_order
+
+###################################################################################################################################################################
+
+  "tab_wending_machine":
+    postgres_out_table: select id::text,name::text,"terminalId"::text,"merchantId"::text,"cashId"::text,uuid::text,"regNum"::text from vending_ms.terminals
+
+    select_columns:
+      - 'id'
+      - 'name'
+      - 'terminal_id'
+      - 'merchant_id'
+      - 'cash_id'
+      - 'uuid'
+      - 'reg_num'
+
+    expected_columns:
+      - name: id
+        type: str
+      - name: name
+        type: str
+      - name: terminal_id
+        type: str
+      - name: merchant_id
+        type: str
+      - name: cash_id
+        type: str
+      - name: uuid
+        type: str
+      - name: reg_num
+        type: str
+
+    postgres_table: stg_wending_machine
+
+###################################################################################################################################################################
+
+  "tab_water_machine":
+    postgres_out_table: select
+                          id::text,
+                          imei::text,
+                          address::text,
+                          latitude::text,
+                          longitude::text,
+                          price::text,
+                          cashbox_id::text,
+                          merchant_id::text,
+                          uuid::text
+                        from water_ms.water_machines
+
+    select_columns:
+      - 'id'
+      - 'imei'
+      - 'address'
+      - 'latitude'
+      - 'longitude'
+      - 'price'
+      - 'cashbox_id'
+      - 'merchant_id'
+      - 'uuid'
+    expected_columns:
+      - name: id
+        type: str
+      - name: imei
+        type: str
+      - name: address
+        type: str
+      - name: latitude
+        type: str
+      - name: longitude
+        type: str
+      - name: price
+        type: str
+      - name: cashbox_id
+        type: str
+      - name: merchant_id
+        type: str
+      - name: uuid
+        type: str
+
+    postgres_table: stg_water_machine
+
+
+###################################################################################################################################################################
+
+  "tab_poi_chanel":
+    postgres_out_table: select id::text,"cashboxNumber"::text,"cashboxPassword"::text,"channelTypeId"::text,"defaultClientId"::text,"appId"::text,"telegramToken"::text from public.poi_app_channels
+
+    select_columns:
+      - 'id'
+      - 'cashbox_number'
+      - 'cashbox_password'
+      - 'channel_type_id'
+      - 'default_client_id'
+      - 'app_id'
+      - 'telegram_token'
+
+    expected_columns:
+      - name: id
+        type: str
+      - name: cashbox_number
+        type: str
+      - name: cashbox_password
+        type: str
+      - name: channel_type_id
+        type: str
+      - name: default_client_id
+        type: str
+      - name: app_id
+        type: str
+      - name: telegram_token
+        type: str
+
+    postgres_table: stg_poi_app_channels
+
+
+###################################################################################################################################################################
+
+  "tab_poi_app":
+    postgres_out_table: select
+                          id::text,
+                          "name"::text,
+                          "botUrl"::text,
+                          deleted_at::text,
+                          active::text,
+                          "userId"::text,
+                          "companyId"::text,
+                          "orderTypeId"::text,
+                          img::text,
+                          "systemId"::text,
+                          "categoryId"::text,
+                          "croppedImg"::text,
+                          "croppCoordinates"::text,
+                          "orderIndex"::text
+                        from public.poi_app
+
+    select_columns:
+      - 'id'
+      - 'name'
+      - 'bot_url'
+      - 'deleted_at'
+      - 'active'
+      - 'user_id'
+      - 'company_id'
+      - 'order_type_id'
+      - 'img'
+      - 'system_id'
+      - 'category_id'
+      - 'cropped_img'
+      - 'cropp_coordinates'
+      - 'order_index'
+
+    expected_columns:
+      - name: id
+        type: str
+      - name: name
+        type: str
+      - name: bot_url
+        type: str
+      - name: deleted_at
+        type: str
+      - name: active
+        type: str
+      - name: user_id
+        type: str
+      - name: company_id
+        type: str
+      - name: order_type_id
+        type: str
+      - name: img
+        type: str
+      - name: system_id
+        type: str
+      - name: category_id
+        type: str
+      - name: cropped_img
+        type: str
+      - name: cropp_coordinates
+        type: str
+      - name: order_index
+        type: str
+
+    postgres_table: stg_poi_app
+
+###################################################################################################################################################################
+
+  "tab_poi_app_category":
+    postgres_out_table: select id::text,"name"::text,code::text,"isPopular"::text,"order"::text,"nameEn"::text,"nameDeu"::text,"nameBy"::text,"nameUa"::text,"nameCn"::text,"nameEs"::text,"nameIt"::text,"nameFr"::text from public.poi_app_category
+
+    select_columns:
+      - 'id'
+      - 'name'
+      - 'code'
+      - 'is_popular'
+      - 'order'
+      - 'name_en'
+      - 'name_deu'
+      - 'name_by'
+      - 'name_ua'
+      - 'name_cn'
+      - 'name_es'
+      - 'name_it'
+      - 'name_fr'
+
+    expected_columns:
+      - name: id
+        type: str
+      - name: name
+        type: str
+      - name: code
+        type: str
+      - name: is_popular
+        type: str
+      - name: order
+        type: str
+      - name: name_en
+        type: str
+      - name: name_deu
+        type: str
+      - name: name_by
+        type: str
+      - name: name_ua
+        type: str
+      - name: name_cn
+        type: str
+      - name: name_es
+        type: str
+      - name: name_it
+        type: str
+      - name: name_fr
+        type: str
+
+    postgres_table: stg_poi_app_category
+
+
+###################################################################################################################################################################
+
+  "tab_poi_app_city":
+    postgres_out_table: select id,"appId","cityId" from public.poi_app_cities
+
+    select_columns:
+      - 'id'
+      - 'app_id'
+      - 'city_id'
+
+    expected_columns:
+      - name: id
+        type: int
+      - name: app_id
+        type: int
+      - name: city_id
+        type: int
+
+    postgres_table: stg_poi_app_city
+
+
+###################################################################################################################################################################
+
+  "tab_poi_city":
+    postgres_out_table: select id,"name","regionId",latitude,longitude,radius,"nameEn","nameBy","ercomCityId" from location_ms.cities
+
+    select_columns:
+      - 'id'
+      - 'name'
+      - 'region_id'
+      - 'latitude'
+      - 'longitude'
+      - 'radius'
+      - 'name_en'
+      - 'name_by'
+      - 'ercom_city_id'
+
+    expected_columns:
+      - name: id
+        type: int
+      - name: name
+        type: str
+      - name: region_id
+        type: int
+      - name: latitude
+        type: str
+      - name: longitude
+        type: str
+      - name: radius
+        type: int
+      - name: name_en
+        type: str
+      - name: name_by
+        type: str
+      - name: ercom_city_id
+        type: int
+
+
+    postgres_table: stg_city
+
+
+###################################################################################################################################################################
+
+  "tab_poi_user_cities":
+    postgres_out_table: select id,"bpayUserId","cityId","slivkiCityId","ercomCityId" from location_ms.user_cities
+
+    select_columns:
+      - 'id'
+      - 'bpay_user_id'
+      - 'city_id'
+      - 'slivki_city_id'
+      - 'ercom_city_id'
+
+    expected_columns:
+      - name: id
+        type: int
+      - name: bpay_user_id
+        type: int
+      - name: city_id
+        type: int
+      - name: slivki_city_id
+        type: int
+      - name: ercom_city_id
+        type: int
+
+
+    postgres_table: stg_user_city
+
+
+###################################################################################################################################################################
+  "tab_subscribtions":
+    postgres_out_table:  
+        select 
+            id,
+            "providerId",
+            "bpayUserId",
+            "externalAccountType",
+            "externalAccountId",
+            "serviceId",
+            "createDate",
+            "expireDate",
+            status,
+            "paymentDate",
+            "paymentId",
+            "activationType", 
+            (parameters::json->>'tariff')::json->>'price', 
+            (parameters::json->>'tariff')::json->>'tariffName', 
+            (parameters::json->>'info')::json->>'description'
+        from subscriptions_ms.subscribtions
+
+    select_columns:
+        - 'id' 
+        - 'provider_id'
+        - 'profile_id'
+        - 'external_account_type'
+        - 'external_account_id' 
+        - 'service_id' 
+        - 'create_date' 
+        - 'expire_date' 
+        - 'status' 
+        - 'payment_date'
+        - 'payment_id' 
+        - 'activation_type' 
+        - 'sum' 
+        - 'tariff' 
+        - 'tariff_description' 
+
+    expected_columns:
+      - name: id
+        type: int
+      - name: provider_id
+        type: int
+      - name: profile_id
+        type: int
+      - name: external_account_type
+        type: str
+      - name: external_account_id
+        type: str
+      - name: service_id
+        type: str
+      - name: create_date
+        type: datetime
+        date_format: "%Y-%m-%d %H:%M:%S.%f"
+      - name: expire_date
+        type: datetime
+        date_format: "%Y-%m-%d %H:%M:%S.%f"
+      - name: status
+        type: str
+      - name: payment_date
+        type: datetime
+        date_format: "%Y-%m-%d %H:%M:%S.%f"
+      - name: payment_id
+        type: int
+      - name: activation_type
+        type: str
+      - name: sum
+        type: float
+      - name: tariff
+        type: str
+      - name: tariff_description
+        type: str
+
+    postgres_table: stg_subscribe_payments_keys
+
+####################################################################################################################################################################
+  "tab_subscribtions_provider":
+    postgres_out_table:  select  id,code,"name",status,inn,"bpayOrganizationId","cashId","regNum",image,details::text from subscriptions_ms.providers 
+
+    select_columns:
+        - 'id' 
+        - 'code'
+        - 'name'
+        - 'status'
+        - 'unn' 
+        - 'org_id' 
+        - 'cash_id' 
+        - 'reg_num' 
+        - 'image' 
+        - 'details'
+
+    expected_columns:
+      - name: id
+        type: int
+      - name: code
+        type: str
+      - name: name
+        type: str
+      - name: status
+        type: str
+      - name: unn
+        type: str
+      - name: org_id
+        type: int
+      - name: cash_id
+        type: int
+      - name: reg_num
+        type: str
+      - name: image
+        type: str
+      - name: details
+        type: str
+
+    postgres_table: stg_subscribe_provider_keys
+
+
+####################################################################################################################################################################
+  "tab_subscribtions_provider_user":
+    postgres_out_table:   select id,"providerId","bpayUserId","accountId","accountType" FROM subscriptions_ms.provider_user
+
+    select_columns:
+        - 'id' 
+        - 'provider_id'
+        - 'provider_user_id'
+        - 'account_id'
+        - 'account_type' 
+
+    expected_columns:
+      - name: id
+        type: int
+      - name: provider_id
+        type: int
+      - name: provider_user_id
+        type: int
+      - name: account_id
+        type: str
+      - name: account_type
+        type: str
+
+    postgres_table: stg_subscribe_provider_user_keys
+
+####################################################################################################################################################################
+  "tab_subscribtions_services":
+    postgres_out_table:   select id,"providerId","serviceId",status,"createdAt","name",description::text,tariff::text,"activationType" FROM subscriptions_ms.services
+
+    select_columns:
+        - 'id' 
+        - 'provider_id'
+        - 'service_id'
+        - 'status'
+        - 'created_at' 
+        - 'name'
+        - 'description'
+        - 'tariff'
+        - 'activation_type'
+
+    expected_columns:
+      - name: id
+        type: int
+      - name: provider_id
+        type: int
+      - name: service_id
+        type: str
+      - name: status
+        type: str
+      - name: created_at
+        type: datetime
+        date_format: "%Y-%m-%d %H:%M:%S.%f"
+      - name: name
+        type: str
+      - name: description
+        type: str
+      - name: tariff
+        type: str
+      - name: activation_type
+        type: str
+
+    postgres_table: stg_subscribe_services_keys

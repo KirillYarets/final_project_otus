@@ -1,0 +1,146 @@
+﻿wallet_data: SELECT * from oplati_agreration.bi_agr_stats_wallet order by wallet_type asc
+
+
+bal_data: SELECT 
+                balance_summary 
+            from 
+                oplati_statistic.bi_agr_account_balance where report_date = current_date-1
+
+
+telega_data: select 
+                    balance_sum_org,
+                    total_sum_shop,
+                    total_sosedi_sum,
+                    total_korona_sum,
+                    total_gippo_sum,
+                    total_santa_sum,
+                    total_belmarket_sum
+                from  
+                    oplati_agreration.bi_agr_operations_telegram where report_date = current_date-1
+
+cashbox_data:                     
+                select 
+                report_date,
+                case when brand_cashbox like '%БелМаркет%' then 'БелМаркет' else brand_cashbox end as brand_cashbox  ,
+                sum(total_operation) as total_operation,
+                sum(prev_day_operation) as prev_day_operation,
+                sum(sum_operation) as sum_operation 
+                from oplati_agreration.bi_agr_stats_stationary_cashbox 
+                where 
+                brand_cashbox  like '%БелМаркет%' 
+                or  brand_cashbox  like '%Соседи%' 
+                or  brand_cashbox  like '%Корона%' 
+                or  brand_cashbox  like '%Гиппо%' 
+                or  brand_cashbox  like '%Санта Ритейл%' 
+                group by report_date,case when brand_cashbox like '%БелМаркет%' then 'БелМаркет' else brand_cashbox end
+                order by total_operation desc
+             
+ 
+
+
+indicators_data : select 
+                        total_stationary_cashbox,
+                        prev_day_stationary_cashbox,
+                        sum_prev_day_stationary_cashbox   
+                    from 
+                        oplati_agreration.bi_agr_stats_indicators where report_date = current_date-1
+
+azs_data : select 
+                sum( coalesce(operation_trk_a_100,0)+ coalesce(operation_trk_united_company,0)+ coalesce(operation_trk_belorusneft,0)+ coalesce(operation_to_a_100,0)+ coalesce(operation_to_united_company,0)+ coalesce(operation_to_belorusneft,0)) filter (where report_date = current_date-1)as oper_prev_day,
+                sum(sum_a_100+sum_united_company+sum_belorusneft)filter (where report_date = current_date-1 )AS sum_prev_day,
+                sum(coalesce(sum_a_100,0)+coalesce(sum_united_company,0)+coalesce(sum_belorusneft,0)) AS total_sum,
+                sum( coalesce(operation_trk_a_100,0)+ coalesce(operation_to_a_100,0)) filter (where report_date = current_date-1)as a100_oper_prev_day,
+                sum(sum_a_100)filter (where report_date = current_date-1 )AS a100_sum_prev_day,
+                sum(sum_a_100) AS a100_total_sum,
+                sum(coalesce(operation_trk_belorusneft,0)+ coalesce(operation_to_belorusneft,0)) filter (where report_date = current_date-1)as bel_oper_prev_day,
+                sum(sum_belorusneft)filter (where report_date = current_date-1 )AS bel_sum_prev_day,
+                sum(sum_belorusneft) AS bel_total_sum,
+                sum(coalesce(operation_trk_united_company,0)+coalesce(operation_to_united_company,0)) filter (where report_date = current_date-1)as unit_oper_prev_day,
+                sum(sum_united_company)filter (where report_date = current_date-1 )AS unit_sum_prev_day,
+                sum(sum_united_company) AS unit_total_sum
+            FROM 
+                oplati_agreration.bi_agr_azs_daily
+
+
+
+pos_data : select 
+                aot.report_date, 
+                operation_pos_daily, 
+                day_sum,total_sum, 
+                operation_sales_daily, 
+                day_sum_sales, 
+                total_sum_sales, 
+                operation_vehicle_daily, 
+                day_sum_vehicle, 
+                total_sum_vehicle, 
+                operation_gambling_daily, 
+                day_sum_gambling, 
+                total_sum_gambling, 
+                operation_games_daily, 
+                day_sum_games, 
+                total_sum_games 
+             from
+                (select 
+                    report_date, 
+                    operation_pos_daily,
+                    operation_sales_daily,
+                    operation_vehicle_daily,
+                    operation_gambling_daily,
+                    operation_games_daily 
+                from oplati_agreration.bi_agr_operations_telegram 
+                where report_date ::date = current_date-1) aot left join
+                (select 
+                current_date-1 as report_date,
+                    sum(sum) filter(where report_date::date = current_date-1) as day_sum,
+                    sum(sum) as total_sum, 
+                    sum(sum) filter (where report_date::date = current_date-1 and bet_type not in ('Пассажирские перевозки','Гэмблинг и беттинг','Игорный бизнес','Игорный бизнес и фин.учреждения')) as day_sum_sales, 
+                    sum(sum) filter (where bet_type not in ('Пассажирские перевозки','Гэмблинг и беттинг','Игорный бизнес','Игорный бизнес и фин.учреждения')) as total_sum_sales, 
+                    sum(sum) filter (where report_date::date = current_date-1 and bet_type  in ('Пассажирские перевозки')) as day_sum_vehicle, 
+                    sum(sum) filter (where bet_type  in ('Пассажирские перевозки')) as total_sum_vehicle, 
+                    sum(sum) filter (where report_date::date = current_date-1 and bet_type  in ('Гэмблинг и беттинг')) as day_sum_gambling, 
+                    sum(sum) filter (where bet_type  in ('Гэмблинг и беттинг')) as total_sum_gambling, 
+                    coalesce (sum(sum) filter (where report_date::date = current_date-1 and bet_type  in ('Игорный бизнес','Игорный бизнес и фин.учреждения')),0) as day_sum_games, 
+                    sum(sum) filter (where bet_type  in ('Игорный бизнес','Игорный бизнес и фин.учреждения')) as total_sum_games 
+                from oplati_statistic.bi_agr_pos_payments_daily 
+                    )ppd on 
+                    aot.report_date = ppd.report_date
+
+
+erip_data : select 
+                        aot.report_date,
+                        operation_erip_daily,
+                        day_sum,
+                        total_sum
+                        from(
+                        select 
+                            report_date, 
+                            operation_erip_daily
+                        from oplati_agreration.bi_agr_operations_telegram 
+                        where report_date ::date = current_date-1
+                        ) aot
+                        left join
+                        (
+                        select 
+                            current_date-1 as report_date,
+                            sum(erip_sum) filter(where report_date::date = current_date-1) as day_sum,
+                            sum(erip_sum) as total_sum 
+                        from oplati_statistic.bi_agr_transaction_erip_daily 
+                        )ppd on 
+                        aot.report_date = ppd.report_date
+
+
+
+vcard_data: select 
+                sum(amount_virtual) filter(where report_date::date = current_date-1) as amount_virtual,
+                sum(sum_virtual) filter(where report_date::date = current_date-1) as  sum_virtual,
+                sum(sum_virtual) as total_sum
+              from 
+                oplati_statistic.bi_agr_transactions_vcard_daily
+
+
+
+new_wallet_data:  select  
+                        count(distinct wallet_id ) filter(where opened_on::date = current_date-1),
+                        count(distinct wallet_id ) 
+                    from 
+                        oplati_statistic.bi_wallet bw

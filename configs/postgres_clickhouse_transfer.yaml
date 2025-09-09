@@ -1,0 +1,1070 @@
+﻿  "tab_bi_premium_free":
+    postgres_schema: oplati_statistic
+    postgres_table: bi_premium_free
+    clickhouse_schema: oplati_analytic
+    clickhouse_table: bi_premium_free
+    clickhouse_columns: id, profile_id, package_code, activate_date, expire_date, promo_code, type_premium_free
+    truncate_clickhouse: truncate
+
+  "tab_bi_organisation_payments":
+    postgres_schema: oplati_statistic
+    postgres_table: bi_organisation_payments
+    clickhouse_schema: oplati_analytic
+    clickhouse_table: bi_organisation_payments
+    clickhouse_columns: org_id, value_id, name, itn, type_id, type_name, company_id
+    truncate_clickhouse: truncate
+
+  "tab_bi_agr_building_materials_inact":
+    postgres_schema: oplati_agreration
+    postgres_table: bi_agr_building_materials_inact
+    clickhouse_schema: oplati_views_report
+    clickhouse_table: bi_agr_building_materials_inact
+    clickhouse_columns: open_date, name, itn, type_name, pos_id, pos_name, city, region, reg_num, cash_id
+    datetime_field: open_date
+
+  "tab_bi_agr_tourism_inact":
+    postgres_schema: oplati_agreration
+    postgres_table: bi_agr_tourism_inact
+    clickhouse_schema: oplati_views_report
+    clickhouse_table: bi_agr_tourism_inact
+    clickhouse_columns: open_date, name, itn, type_name, pos_id, pos_name, city, region, reg_num, cash_id
+    datetime_field: open_date
+
+  "tab_bi_agr_shoes_inact":
+    postgres_schema: oplati_agreration
+    postgres_table: bi_agr_shoes_inact
+    clickhouse_schema: oplati_views_report
+    clickhouse_table: bi_agr_shoes_inact
+    clickhouse_columns: open_date, name, itn, type_name, pos_id, pos_name, city, region, reg_num, cash_id
+    datetime_field: open_date
+
+  "tab_bi_agr_clothes_inact":
+    postgres_schema: oplati_agreration
+    postgres_table: bi_agr_clothes_inact
+    clickhouse_schema: oplati_views_report
+    clickhouse_table: bi_agr_clothes_inact
+    clickhouse_columns: open_date, name, itn, type_name, pos_id, pos_name, city, region, reg_num, cash_id
+    datetime_field: open_date
+
+  "tab_bi_account_balance_month":
+    postgres_schema: oplati_statistic
+    postgres_table: bi_account_balance_month
+    clickhouse_schema: oplati_analytic
+    clickhouse_table: bi_account_balance_month
+    clickhouse_columns: id, account_id, balance_date, balance_sum
+    datetime_field: balance_date
+
+  "tab_bi_pos_type_tourism":
+    postgres_schema: oplati_statistic
+    postgres_table: bi_pos_type_tourism
+    clickhouse_schema: oplati_analytic
+    clickhouse_table: bi_pos_type_tourism
+    clickhouse_columns: created_date, purchase_id, profile_id, sum, name, itn, pos_name, type_name, cashbox_name, device_id, pos_id, city, region, reg_num, ref_sum
+    datetime_field: created_date
+
+  "tab_bi_account_balance_mdes":
+    postgres_schema: oplati_statistic
+    postgres_table: bi_account_balance_mdes
+    clickhouse_schema: oplati_analytic
+    clickhouse_table: bi_account_balance_mdes
+    clickhouse_columns: id, balance_date, avg_sum, bal_sum, msi
+    datetime_field: balance_date
+
+  "tab_spr_azs_station":
+    postgres_schema: oplati_statistic
+    postgres_table: spr_azs_station
+    clickhouse_schema: oplati_analytic
+    clickhouse_table: spr_azs_station
+    clickhouse_columns: station_id, company_id, external_id, name, address, lat, lng, status, update_date, raw_data, parent, region
+    truncate_clickhouse: truncate
+
+  "tab_account_balance_summary":
+    postgres_schema: oplati_statistic
+    postgres_table: bi_account_balance_summary
+    clickhouse_schema: oplati_views_report
+    clickhouse_table: bi_account_balance_summary
+    clickhouse_columns: id, bal_range, wallet_type, wallet_amount
+    truncate_clickhouse: truncate
+
+  "tab_stg_account_balance":
+    postgres_schema: oplati_stage_level
+    postgres_table: stg_account_balance
+    clickhouse_schema: analytic_stage_level
+    clickhouse_table: stg_account_balance
+    clickhouse_columns: id, account_id, balance_date, balance_sum
+    truncate_clickhouse: truncate
+
+  "tab_bi_account_balance_organisation":
+    postgres_schema: oplati_statistic
+    postgres_table: bi_account_balance_organisation
+    clickhouse_schema: oplati_analytic
+    clickhouse_table: bi_account_balance_organisation
+    clickhouse_columns: id, account_id, balance_date, balance_sum, wallet_type
+    truncate_clickhouse: truncate
+
+  "tab_bi_customers":
+    postgres_schema: oplati_statistic
+    postgres_table: bi_customers
+    clickhouse_schema: oplati_analytic
+    clickhouse_table: bi_customers
+    clickhouse_columns: open_date, profile_id, age::timestamp, region_name, area, operator_name, age_cur, age_group, resident, country, msi, sex, country_code, soato, region, iso_code
+    datetime_field: open_date
+
+  "tab_transactions_payout_pos":
+    postgres_schema: oplati_dimention_level
+    postgres_table: dim_transactions_payout_pos
+    clickhouse_schema: oplati_analytic
+    clickhouse_table: bi_transactions_payout_pos
+    clickhouse_columns: trans_id, account_id, trans_type, trans_date, sum, ops_id, profile_id, purpose_pay, kontragent, msi, org_id
+
+  "tab_bi_pos_type_2023":
+    postgres_schema: oplati_dimention_level
+    postgres_table: dim_pos_type
+    clickhouse_schema: oplati_analytic
+    clickhouse_table: bi_pos_type_2023
+    clickhouse_columns: purchase_id, purse_id, merchant_id, device_id, sum, created_date, dpt.pos_id, dep_id, profile_id, org_id, dpt.latitude, dpt.longitude, address, dpt.city, dpt.region, dpt."name", type_name, pos_name, dpt.cashbox_type, itn, poi, status, dpt.reg_num, cashbox_name, ref_sum, smc.code, smc."name" as mcc_status_name
+    postgres_query: select purchase_id, purse_id, merchant_id, device_id, sum, created_date, dpt.pos_id, dep_id, profile_id, org_id, dpt.latitude, dpt.longitude, address, dpt.city, dpt.region, dpt."name", type_name, pos_name, dpt.cashbox_type, itn, poi, status, dpt.reg_num, cashbox_name, ref_sum, smc.code, smc."name" as mcc_status_name from oplati_dimention_level.dim_pos_type dpt left join oplati_statistic.spr_cashbox_area sca on dpt.device_id = sca.cash_id left join oplati_statistic.spr_mcc_code smc on sca.mcc_code = smc.code where (status  = 1 and payment_type =1) or status = 0
+
+  "tab_bi_pos_type_refund":
+    postgres_schema: oplati_dimention_level
+    postgres_table: dim_pos_type
+    clickhouse_schema: oplati_analytic
+    clickhouse_table: bi_pos_type_refund
+    clickhouse_columns: purchase_id, purse_id, merchant_id, device_id, sum, created_date, dpt.pos_id, dep_id, profile_id, org_id, dpt.latitude, dpt.longitude, address, dpt.city, dpt.region, dpt."name", type_name, pos_name, dpt.cashbox_type, itn, poi, status, dpt.reg_num, cashbox_name, ref_sum, smc.code, smc."name" as mcc_status_name, dpt.payment_type
+    postgres_query: select purchase_id, purse_id, merchant_id, device_id, sum, created_date, dpt.pos_id, dep_id, profile_id, org_id, dpt.latitude, dpt.longitude, address, dpt.city, dpt.region, dpt."name", type_name, pos_name, dpt.cashbox_type, itn, poi, status, dpt.reg_num, cashbox_name, ref_sum, smc.code, smc."name" as mcc_status_name, payment_type from oplati_dimention_level.dim_pos_type dpt left join oplati_statistic.spr_cashbox_area sca on dpt.device_id = sca.cash_id left join oplati_statistic.spr_mcc_code smc on sca.mcc_code = smc.code where dpt.status  = 1 and dpt.payment_type =3
+
+  "tab_bi_operations_inout":
+    postgres_schema: oplati_statistic
+    postgres_table: bi_operations_inout
+    clickhouse_schema: oplati_analytic
+    clickhouse_table: bi_operations_inout
+    clickhouse_columns: id, purse_transaction_id, bank, sum, status, status_name, operation_type, operation_type_name, created_date, purse_id, profile_id, commission
+    datetime_field: created_date
+
+  "tab_bi_operations_nembo":
+    postgres_schema: oplati_statistic
+    postgres_table: bi_operations_nembo
+    clickhouse_schema: oplati_analytic
+    clickhouse_table: bi_operations_nembo
+    clickhouse_columns: operation_id, profile_id, created_date, status, amount_out, currency_out, amount_in, currency_in, operation_type
+    datetime_field: created_date
+
+  "tab_bi_account_balance_premium":
+    postgres_schema: oplati_statistic
+    postgres_table: bi_account_balance_premium
+    clickhouse_schema: oplati_analytic
+    clickhouse_table: bi_account_balance_premium
+    clickhouse_columns: id, account_id, balance_date, balance_sum, profile_id
+    datetime_field: balance_date
+
+  "tab_bi_pos_type_shoes":
+    postgres_schema: oplati_statistic
+    postgres_table: bi_pos_type_shoes
+    clickhouse_schema: oplati_analytic
+    clickhouse_table: bi_pos_type_shoes
+    clickhouse_columns: created_date, purchase_id, profile_id, sum, name, itn, pos_name, type_name, cashbox_name, device_id, pos_id, city, region, reg_num, ref_sum
+    datetime_field: created_date
+
+  "tab_bi_organisation":
+    postgres_schema: oplati_statistic
+    postgres_table: bi_organisation
+    clickhouse_schema: oplati_analytic
+    clickhouse_table: bi_organisation
+    clickhouse_columns: bo.id, value_id, unp, date_create, assigned_by_id, title, type_id, name, manager, bo.work_position, region, profile_id, bitrix_date, status_id, company_id, bitrix_status_id, support_manager, first_name, last_name, sm.work_position as support_manager_work_position
+    postgres_query: select bo.id, value_id, unp, date_create, assigned_by_id, title, type_id, name, manager, bo.work_position, region, profile_id, bitrix_date, status_id, company_id, bitrix_status_id, support_manager, first_name, last_name, sm.work_position as support_manager_work_position from oplati_statistic.bi_organisation bo left join oplati_statistic.spr_managers sm on bo.support_manager = sm.id
+    truncate_clickhouse: truncate
+
+#  "tab_bi_organisation":
+#    postgres_schema: oplati_statistic
+#    postgres_table: bi_organisation
+#    clickhouse_schema: oplati_analytic
+#    clickhouse_table: bi_organisation
+#    clickhouse_columns: id, value_id, unp, date_create, assigned_by_id, title, type_id, name, manager, work_position, region, profile_id, bitrix_date, status_id, company_id, bitrix_status_id, support_manager
+#    truncate_clickhouse: truncate
+
+  "tab_spr_cashbox_area":
+    postgres_schema: oplati_statistic
+    postgres_table: spr_cashbox_area
+    clickhouse_schema: oplati_analytic
+    clickhouse_table: spr_cashbox_area
+    clickhouse_columns: cash_id, name, reg_num, spa.pos_id, cashbox_type, sca.open_date, sca.latitude, sca.longitude, sca.city, sca.area, sca.region, sca.close_date, app_id, cashbox_vendor, mcc_code, mcc_status, org_id
+    postgres_query: select cash_id, name, reg_num, spa.pos_id, cashbox_type, sca.open_date, sca.latitude, sca.longitude, sca.city, sca.area, sca.region, sca.close_date, app_id, cashbox_vendor, mcc_code, mcc_status, org_id from oplati_statistic.spr_cashbox_area sca left join oplati_statistic.spr_pos_area spa on sca.pos_id = spa.pos_id
+    truncate_clickhouse: truncate
+
+#  "tab_spr_cashbox_area":
+#    postgres_schema: oplati_statistic
+#    postgres_table: spr_cashbox_area
+#    clickhouse_schema: oplati_analytic
+#    clickhouse_table: spr_cashbox_area
+#    clickhouse_columns: cash_id, name, reg_num, pos_id, cashbox_type, open_date, latitude, longitude, city, area, region, close_date, app_id, cashbox_vendor, mcc_code, mcc_status
+#    truncate_clickhouse: truncate
+
+  "tab_spr_company_managers":
+    postgres_schema: oplati_statistic
+    postgres_table: spr_company_managers
+    clickhouse_schema: oplati_analytic
+    clickhouse_table: spr_company_managers
+    clickhouse_columns: company_id, unp, assigned_by_id, assigned_first_name, assigned_last_name, assigned_work_position, bitrix_date, type_id, contract_status, support_manager, support_first_name, support_last_name, support_work_position
+    truncate_clickhouse: truncate
+
+  "tab_spr_managers":
+    postgres_schema: oplati_statistic
+    postgres_table: spr_managers
+    clickhouse_schema: oplati_analytic
+    clickhouse_table: spr_managers
+    clickhouse_columns: id, first_name, last_name, work_position
+    truncate_clickhouse: truncate
+
+  "tab_spr_wending_machine":
+    postgres_schema: oplati_statistic
+    postgres_table: spr_wending_machine
+    clickhouse_schema: oplati_analytic
+    clickhouse_table: spr_wending_machine
+    clickhouse_columns: id, name, terminal_id, merchant_id, cash_id, reg_num
+    truncate_clickhouse: truncate
+
+  "tab_spr_water_machine":
+    postgres_schema: oplati_statistic
+    postgres_table: spr_water_machine
+    clickhouse_schema: oplati_analytic
+    clickhouse_table: spr_water_machine
+    clickhouse_columns: id, imei, address, latitude, longitude, price, cashbox_id, merchant_id, uuid
+    truncate_clickhouse: truncate
+
+  "tab_spr_vehicle_type":
+    postgres_schema: oplati_statistic
+    postgres_table: spr_vehicle_type
+    clickhouse_schema: oplati_analytic
+    clickhouse_table: spr_vehicle_type
+    clickhouse_columns: id, type, name
+    truncate_clickhouse: truncate
+
+  "tab_spr_total_customers":
+    postgres_schema: oplati_statistic
+    postgres_table: spr_total_customers
+    clickhouse_schema: oplati_analytic
+    clickhouse_table: spr_total_customers
+    clickhouse_columns: profile_id
+    truncate_clickhouse: truncate
+
+  "tab_spr_subscribe_services_keys":
+    postgres_schema: oplati_statistic
+    postgres_table: spr_subscribe_services_keys
+    clickhouse_schema: oplati_analytic
+    clickhouse_table: spr_subscribe_services_keys
+    clickhouse_columns: id, provider_id, service_id, status, created_at, name, description, price, activation_type
+    truncate_clickhouse: truncate
+
+  "tab_spr_subscribe_provider_keys":
+    postgres_schema: oplati_statistic
+    postgres_table: spr_subscribe_provider_keys
+    clickhouse_schema: oplati_analytic
+    clickhouse_table: spr_subscribe_provider_keys
+    clickhouse_columns: provider_id, code, name, status, unn, org_id, cash_id, reg_num
+    truncate_clickhouse: truncate
+
+  "tab_spr_subscribe_provider":
+    postgres_schema: oplati_statistic
+    postgres_table: spr_subscribe_provider
+    clickhouse_schema: oplati_analytic
+    clickhouse_table: spr_subscribe_provider
+    clickhouse_columns: provider_id, code, name, unn, status, org_id, cash_id, reg_num
+    truncate_clickhouse: truncate
+
+  "tab_spr_soato":
+    postgres_schema: oplati_statistic
+    postgres_table: spr_soato
+    clickhouse_schema: oplati_analytic
+    clickhouse_table: spr_soato
+    clickhouse_columns: code, full_name, soato_name, soato_obl, soato_raion, sovet, soato_type
+    truncate_clickhouse: truncate
+
+  "tab_spr_region":
+    postgres_schema: oplati_statistic
+    postgres_table: spr_region
+    clickhouse_schema: oplati_analytic
+    clickhouse_table: spr_region
+    clickhouse_columns: id, city, region
+    truncate_clickhouse: truncate
+
+  "tab_spr_poi_app_city":
+    postgres_schema: oplati_statistic
+    postgres_table: spr_poi_app_city
+    clickhouse_schema: oplati_analytic
+    clickhouse_table: spr_poi_app_city
+    clickhouse_columns: id, app_id, city_id
+    truncate_clickhouse: truncate
+
+  "tab_spr_poi_app_channels":
+    postgres_schema: oplati_statistic
+    postgres_table: spr_poi_app_channels
+    clickhouse_schema: oplati_analytic
+    clickhouse_table: spr_poi_app_channels
+    clickhouse_columns: id, cashbox_number, channel_type_id, app_id
+    truncate_clickhouse: truncate
+
+  "tab_spr_poi_app_category":
+    postgres_schema: oplati_statistic
+    postgres_table: spr_poi_app_category
+    clickhouse_schema: oplati_analytic
+    clickhouse_table: spr_poi_app_category
+    clickhouse_columns: id, name, code, is_popular, "order", name_en, name_deu, name_by, name_ua, name_cn, name_es, name_it, name_fr
+    truncate_clickhouse: truncate
+
+  "tab_spr_poi_app":
+    postgres_schema: oplati_statistic
+    postgres_table: spr_poi_app
+    clickhouse_schema: oplati_analytic
+    clickhouse_table: spr_poi_app
+    clickhouse_columns: id, name, deleted_at, active, user_id, company_id, order_type_id, system_id, category_id, cropp_coordinates, order_index
+    truncate_clickhouse: truncate
+
+  "tab_spr_phone":
+    postgres_schema: oplati_statistic
+    postgres_table: spr_phone
+    clickhouse_schema: oplati_analytic
+    clickhouse_table: spr_phone
+    clickhouse_columns: id, phone, brand, nfc
+    truncate_clickhouse: truncate
+
+  "tab_spr_organisation":
+    postgres_schema: oplati_statistic
+    postgres_table: spr_organisation
+    clickhouse_schema: oplati_analytic
+    clickhouse_table: spr_organisation
+    clickhouse_columns: org_id, name, open_date, close_date, address, vat_payer, itn, status, eds_public_key, eds_serial, bank_agr_id, soato, ownership_form, private_number, document_type, document_number, document_issue_date, document_issuer, eds_first_name, eds_last_name, phone, org_type, bank_client_id
+    truncate_clickhouse: truncate
+
+  "tab_spr_nbrb_currency_rate":
+    postgres_schema: oplati_statistic
+    postgres_table: spr_nbrb_currency_rate
+    clickhouse_schema: oplati_analytic
+    clickhouse_table: spr_nbrb_currency_rate
+    clickhouse_columns: cur_id, cur_date, cur_official_rate
+    datetime_field: cur_date
+
+  "tab_spr_msi":
+    postgres_schema: oplati_statistic
+    postgres_table: spr_msi
+    clickhouse_schema: oplati_analytic
+    clickhouse_table: spr_msi
+    clickhouse_columns: id, req_type, msi_id
+    truncate_clickhouse: truncate
+
+  "tab_spr_mobile_operator":
+    postgres_schema: oplati_statistic
+    postgres_table: spr_mobile_operator
+    clickhouse_schema: oplati_analytic
+    clickhouse_table: spr_mobile_operator
+    clickhouse_columns: code, name
+    truncate_clickhouse: truncate
+
+  "tab_spr_minsktrans_vehicle":
+    postgres_schema: oplati_statistic
+    postgres_table: spr_minsktrans_vehicle
+    clickhouse_schema: oplati_analytic
+    clickhouse_table: spr_minsktrans_vehicle
+    clickhouse_columns: id, lu_date, merchant_id, ts_type, garage_number, gos_number, disp_id, is_open, open_date, close_date, autopark_id, ts_code, merch_code, type
+    truncate_clickhouse: truncate
+
+  "tab_spr_mcc_code":
+    postgres_schema: oplati_statistic
+    postgres_table: spr_mcc_code
+    clickhouse_schema: oplati_analytic
+    clickhouse_table: spr_mcc_code
+    clickhouse_columns: dim_id, parent_id, dim_type_code, code, name, open_date, close_date
+    truncate_clickhouse: truncate
+
+  "tab_spr_entertainment_zone":
+    postgres_schema: oplati_statistic
+    postgres_table: spr_entertainment_zone
+    clickhouse_schema: oplati_analytic
+    clickhouse_table: spr_entertainment_zone
+    clickhouse_columns: id, name, description, active, object_id, deleted
+    truncate_clickhouse: truncate
+
+  "tab_spr_entertainment_tarif":
+    postgres_schema: oplati_statistic
+    postgres_table: spr_entertainment_tarif
+    clickhouse_schema: oplati_analytic
+    clickhouse_table: spr_entertainment_tarif
+    clickhouse_columns: id, tarif_id, name, description, type_id, active, deleted, zone_id, object_id
+    truncate_clickhouse: truncate
+
+  "tab_spr_entertainment_point":
+    postgres_schema: oplati_statistic
+    postgres_table: spr_entertainment_point
+    clickhouse_schema: oplati_analytic
+    clickhouse_table: spr_entertainment_point
+    clickhouse_columns: id, company_id, regnum, cash_id, category_id, name, active, address, site, latitude, longtitude, deleted, company_name, category_type_id
+    truncate_clickhouse: truncate
+
+  "tab_spr_credit_product":
+    postgres_schema: oplati_statistic
+    postgres_table: spr_credit_product
+    clickhouse_schema: oplati_analytic
+    clickhouse_table: spr_credit_product
+    clickhouse_columns: product_id, product_code, provider, product_name, image_url, status, update_date, rate, product_url
+    truncate_clickhouse: truncate
+
+  "tab_spr_country_region":
+    postgres_schema: oplati_statistic
+    postgres_table: spr_country_region
+    clickhouse_schema: oplati_analytic
+    clickhouse_table: spr_country_region
+    clickhouse_columns: id, area, city, name_en, name_by, poi_id
+    truncate_clickhouse: truncate
+
+  "tab_spr_country":
+    postgres_schema: oplati_statistic
+    postgres_table: spr_country
+    clickhouse_schema: oplati_analytic
+    clickhouse_table: spr_country
+    clickhouse_columns: code, name, fullname
+    truncate_clickhouse: truncate
+
+  "tab_spr_contract_type":
+    postgres_schema: oplati_statistic
+    postgres_table: spr_contract_type
+    clickhouse_schema: oplati_analytic
+    clickhouse_table: spr_contract_type
+    clickhouse_columns: type_name, status_type
+    truncate_clickhouse: truncate
+
+  "tab_spr_conditions":
+    postgres_schema: oplati_statistic
+    postgres_table: spr_conditions
+    clickhouse_schema: oplati_analytic
+    clickhouse_table: spr_conditions
+    clickhouse_columns: condition_code, condition_type
+    truncate_clickhouse: truncate
+
+  "tab_spr_city":
+    postgres_schema: oplati_dimention_level
+    postgres_table: dim_city
+    clickhouse_schema: oplati_analytic
+    clickhouse_table: spr_city
+    clickhouse_columns: id, name, region_id, latitude, longitude, radius, name_en, name_by, ercom_city_id
+
+  "tab_spr_carwash":
+    postgres_schema: oplati_statistic
+    postgres_table: spr_carwash
+    clickhouse_schema: oplati_analytic
+    clickhouse_table: spr_carwash
+    clickhouse_columns: id, external_id, company_name, name, address, lat, lon, status, updated, provider, company_id, regnum, cash_id
+    truncate_clickhouse: truncate
+
+  "tab_spr_bin":
+    postgres_schema: oplati_statistic
+    postgres_table: spr_bin
+    clickhouse_schema: oplati_analytic
+    clickhouse_table: spr_bin
+    clickhouse_columns: bin, accept_brand, bank, short_bin
+    truncate_clickhouse: truncate
+
+  "tab_spr_bib_currency_rate":
+    postgres_schema: oplati_statistic
+    postgres_table: spr_bib_currency_rate
+    clickhouse_schema: oplati_analytic
+    clickhouse_table: spr_bib_currency_rate
+    clickhouse_columns: currency_start_date, currency_end_date, usd_purchase, usd_sale, eur_purchase, eur_sale, rub_purchase, rub_sale
+    datetime_field: currency_start_date
+
+  "tab_spr_azs_company":
+    postgres_schema: oplati_statistic
+    postgres_table: spr_azs_company
+    clickhouse_schema: oplati_analytic
+    clickhouse_table: spr_azs_company
+    clickhouse_columns: company_id, name, unn, status, org_id, cash_id, reg_num, center_number, code
+    truncate_clickhouse: truncate
+
+  "tab_spr_auth_teleram":
+    postgres_schema: oplati_statistic
+    postgres_table: spr_auth_teleram
+    clickhouse_schema: oplati_analytic
+    clickhouse_table: spr_auth_teleram
+    clickhouse_columns: id, last_name, first_name, middle_name, type_auth
+    truncate_clickhouse: truncate
+
+  "tab_spr_account_status":
+    postgres_schema: oplati_statistic
+    postgres_table: spr_account_status
+    clickhouse_schema: oplati_analytic
+    clickhouse_table: spr_account_status
+    clickhouse_columns: status_id, status_name
+    truncate_clickhouse: truncate
+
+  "tab_sheck_spr_cashbox_area":
+    postgres_schema: oplati_statistic
+    postgres_table: sheck_spr_cashbox_area
+    clickhouse_schema: oplati_analytic
+    clickhouse_table: sheck_spr_cashbox_area
+    clickhouse_columns: cash_id, name, reg_num, pos_id, cashbox_type, open_date, latitude, longitude, city, area, region, close_date, app_id
+    truncate_clickhouse: truncate
+
+  "tab_bi_customer_activity":
+    postgres_schema: oplati_stage_level
+    postgres_table: stg_customer_activity
+    clickhouse_schema: oplati_analytic
+    clickhouse_table: bi_customer_activity
+    clickhouse_columns: profile_id, activity_date
+    datetime_field: activity_date
+
+  "tab_bi_in_pan":
+    postgres_schema: oplati_statistic
+    postgres_table: bi_in_pan
+    clickhouse_schema: oplati_analytic
+    clickhouse_table: bi_in_pan
+    clickhouse_columns: trans_id, pan
+    truncate_clickhouse: truncate
+
+  "tab_bi_organisation_close":
+    postgres_schema: oplati_statistic
+    postgres_table: bi_organisation_close
+    clickhouse_schema: oplati_analytic
+    clickhouse_table: bi_organisation_close
+    clickhouse_columns: value_id, unp, open_date, assigned_by_id, title, type_id, "name", manager, work_position, bitrix_date, profile_id, close_type, contract_status
+    truncate_clickhouse: truncate
+
+  "tab_bi_user_city":
+    postgres_schema: oplati_statistic
+    postgres_table: bi_user_city
+    clickhouse_schema: oplati_analytic
+    clickhouse_table: bi_user_city
+    clickhouse_columns: id, bpay_user_id, city_id, slivki_city_id, ercom_city_id
+    truncate_clickhouse: truncate
+
+  "tab_bi_arrest_info":
+    postgres_schema: oplati_statistic
+    postgres_table: bi_arrest_info
+    clickhouse_schema: oplati_analytic
+    clickhouse_table: bi_arrest_info
+    clickhouse_columns: arrest_info_id, account_id, create_date, cancel_date, arrest_date, arrest_authority, arrest_num, sum, resume_date, resume_authority, resume_num, arrest_type, arrest_authority_name, resume_authority_name    
+    truncate_clickhouse: truncate
+
+  "tab_bi_subscribe_subscriptions":
+    postgres_schema: oplati_statistic
+    postgres_table: bi_subscribe_subscriptions
+    clickhouse_schema: oplati_analytic
+    clickhouse_table: bi_subscribe_subscriptions
+    clickhouse_columns: subscription_id, provider_id, profile_id, external_account_id, external_account_type, external_service_id, activate_date, expiry_date, status, deactivate_date
+    truncate_clickhouse: truncate
+
+  "tab_bi_subscribe_provider_user_keys":
+    postgres_schema: oplati_statistic
+    postgres_table: bi_subscribe_provider_user_keys
+    clickhouse_schema: oplati_analytic
+    clickhouse_table: bi_subscribe_provider_user_keys
+    clickhouse_columns: id, provider_id, provider_user_id, account_id, account_type
+    truncate_clickhouse: truncate
+
+  "tab_bi_travel_card":
+    postgres_schema: oplati_dimention_level
+    postgres_table: dim_prepare_tc
+    clickhouse_schema: oplati_analytic
+    clickhouse_table: bi_travel_card
+    clickhouse_columns: id, vehicle_id, num, price, date_time::timestamp, profile_id, operator_code, autopark_id, vehicle_type, travel_card_type, age, group_age, customer_area, ticket_area, msi, autopark_city, org_id, date_begin, date_end, status, date_time_with_time
+
+  "tab_bi_subscribe_provider_user":
+    postgres_schema: oplati_statistic
+    postgres_table: bi_subscribe_provider_user
+    clickhouse_schema: oplati_analytic
+    clickhouse_table: bi_subscribe_provider_user
+    clickhouse_columns: provider_user_id, provider_id, profile_id, external_account_type, external_account_id
+    truncate_clickhouse: truncate
+
+  "tab_bi_subscribe_payments_keys":
+    postgres_schema: oplati_statistic
+    postgres_table: bi_subscribe_payments_keys
+    clickhouse_schema: oplati_analytic
+    clickhouse_table: bi_subscribe_payments_keys
+    clickhouse_columns: id, provider_id, profile_id, external_account_type, external_account_id, service_id, create_date, expire_date, status, payment_date, payment_id, activation_type, sum, tariff, tariff_description
+    truncate_clickhouse: truncate
+
+  "tab_bi_stats_flag_5_min":
+    postgres_schema: oplati_statistic
+    postgres_table: bi_stats_flag_5_min
+    clickhouse_schema: oplati_analytic
+    clickhouse_table: bi_stats_flag_5_min
+    clickhouse_columns: report_date, flag, avg_operation, sum_operation
+    datetime_field: report_date
+
+  "tab_bi_stats_flag":
+    postgres_schema: oplati_statistic
+    postgres_table: bi_stats_flag
+    clickhouse_schema: oplati_analytic
+    clickhouse_table: bi_stats_flag
+    clickhouse_columns: report_date, flag, avg_operation, sum_operation
+    datetime_field: report_date
+
+  "tab_bi_sale_report_sum":
+    postgres_schema: oplati_statistic
+    postgres_table: bi_sale_report_sum
+    clickhouse_schema: oplati_analytic
+    clickhouse_table: bi_sale_report_sum
+    clickhouse_columns: report_date, org_id, name, itn, minsk, minsk_region, gomel_region, grodno_region, brest_region, mogilev_region, vitebsk_region, itog
+    truncate_clickhouse: truncate
+
+  "tab_bi_sale_report_pos":
+    postgres_schema: oplati_statistic
+    postgres_table: bi_sale_report_pos
+    clickhouse_schema: oplati_analytic
+    clickhouse_table: bi_sale_report_pos
+    clickhouse_columns: report_date, org_id, name, itn, minsk, minsk_region, gomel_region, grodno_region, brest_region, mogilev_region, vitebsk_region, itog
+    truncate_clickhouse: truncate
+
+  "tab_bi_sale_report_pay":
+    postgres_schema: oplati_statistic
+    postgres_table: bi_sale_report_pay
+    clickhouse_schema: oplati_analytic
+    clickhouse_table: bi_sale_report_pay
+    clickhouse_columns: report_date, org_id, name, itn, minsk, minsk_region, gomel_region, grodno_region, brest_region, mogilev_region, vitebsk_region, itog
+    truncate_clickhouse: truncate
+
+  "tab_bi_pos_type_insurance_1":
+    postgres_schema: oplati_statistic
+    postgres_table: bi_pos_type_insurance
+    clickhouse_schema: oplati_analytic
+    clickhouse_table: bi_pos_type_insurance
+    clickhouse_columns: purchase_id, purse_id, merchant_id, device_id, sum, created_date, pos_id, dep_id, profile_id, org_id, latitude, longitude, address, city, region, "name", type_name, pos_name, cashbox_type, itn, latitude_poi, longitude_poi, poi, status, cashbox_name
+    datetime_field: created_date
+
+  "tab_order":
+    postgres_schema: oplati_stage_level
+    postgres_table: stg_order
+    clickhouse_schema: oplati_analytic
+    clickhouse_table: bi_orders
+    clickhouse_columns: order_id, merchant_id, device_id, reg_num, sum, status, created_date, order_number, expired_date, purchase_id, paid_date
+
+
+  "tab_operation_5_min":
+    postgres_schema: oplati_statistic
+    postgres_table: bi_operation_5_min
+    clickhouse_schema: oplati_analytic
+    clickhouse_table: bi_operation_5_min
+    clickhouse_columns: report_date, week_day, operation_count::int8, avg_sum::int8
+    datetime_field: report_date
+
+  "tab_operation":
+    postgres_schema: oplati_statistic
+    postgres_table: bi_operation
+    clickhouse_schema: oplati_analytic
+    clickhouse_table: bi_operation
+    clickhouse_columns: report_date, week_day, operation_count::int8, avg_sum::int8
+    datetime_field: report_date
+
+  "tab_group_wallet":
+    postgres_schema: oplati_statistic
+    postgres_table: bi_group_wallet
+    clickhouse_schema: oplati_analytic
+    clickhouse_table: bi_group_wallet
+    clickhouse_columns: profile_id, opened_on, closed_on, wallet_type, wallet_id
+    datetime_field: opened_on
+
+  "tab_gift":
+    postgres_schema: oplati_dimention_level
+    postgres_table: dim_gift
+    clickhouse_schema: oplati_analytic
+    clickhouse_table: bi_gift
+    clickhouse_columns: gift_id, gift_num, cashbox_regnum, profile_id, create_date, expire_date, name, description, price, payment_id, cancel_date, redeem_date
+
+  "tab_entertainment_ticket":
+    postgres_schema: oplati_dimention_level
+    postgres_table: dim_entertainment_ticket
+    clickhouse_schema: oplati_analytic
+    clickhouse_table: bi_entertainment_ticket
+    clickhouse_columns: id, profile_id, purse_id, object_id, object_name, tarif_id, tarif_name, regnum, cashid, transaction_id, price, buy_date, activate_up_to, use_up_to, expire_date, activate_date, last_verify, status, company_id, payment_id
+
+  "tab_customer_children_balance":
+    postgres_schema: oplati_statistic
+    postgres_table: bi_customer_children_balance
+    clickhouse_schema: oplati_analytic
+    clickhouse_table: bi_customer_children_balance
+    clickhouse_columns: balance_date, avg_sum, bal_sum
+    datetime_field: balance_date
+
+  "tab_customer_balance_nerez":
+    postgres_schema: oplati_statistic
+    postgres_table: bi_customer_balance_nerez
+    clickhouse_schema: oplati_analytic
+    clickhouse_table: bi_customer_balance_nerez
+    clickhouse_columns: id, balance_date, avg_sum, bal_sum, msi
+    datetime_field: balance_date
+
+
+  "tab_customer_balance":
+    postgres_schema: oplati_statistic
+    postgres_table: bi_customer_balance
+    clickhouse_schema: oplati_analytic
+    clickhouse_table: bi_customer_balance
+    clickhouse_columns: id, balance_date, avg_sum, bal_sum, msi
+    datetime_field: balance_date
+
+  "tab_card_request":
+    postgres_schema: oplati_statistic
+    postgres_table: bi_card_request
+    clickhouse_schema: oplati_analytic
+    clickhouse_table: bi_card_request
+    clickhouse_columns: card_request_id::int8, card_request_date, profile_id::int8, card_product_id::int8, provider, status
+    truncate_clickhouse: truncate
+
+  "tab_card":
+    postgres_schema: oplati_statistic
+    postgres_table: bi_card
+    clickhouse_schema: oplati_analytic
+    clickhouse_table: bi_card
+    clickhouse_columns: profile_id::int8, purse_id::int8, card_id::int8, pan_suffix, cardholder_name, card_product_id::int8, default_card::int8, ms_card_id::int8
+    truncate_clickhouse: truncate
+
+  "tab_credit_request":
+    postgres_schema: oplati_stage_level
+    postgres_table: stg_credit_request
+    clickhouse_schema: oplati_analytic
+    clickhouse_table: bi_credit_request
+    clickhouse_columns: request_id, product_id, profile_id, provider, provider_client_id, create_date, sum, status
+
+  "tab_catalog_order":
+    postgres_schema: oplati_dimention_level
+    postgres_table: dim_order
+    clickhouse_schema: oplati_analytic
+    clickhouse_table: bi_catalog_order
+    clickhouse_columns: id, sum, appid, products, zoneid, created_at, updated_at, statusid, courierid, deliveryid, paymentid, ispaid, guestinfo, externalorderinfo, externalstatus, discount, comment, bpayuserid
+
+  "tab_bi_account_balance":
+    postgres_schema: oplati_statistic
+    postgres_table: bi_account_balance
+    clickhouse_schema: oplati_analytic
+    clickhouse_table: bi_account_balance
+    clickhouse_columns: id, account_id, balance_date, balance_sum
+    truncate_clickhouse: truncate
+
+  "tab_bi_wallet":
+    postgres_schema: oplati_statistic
+    postgres_table: bi_wallet
+    clickhouse_schema: oplati_analytic
+    clickhouse_table: bi_wallet
+    clickhouse_columns: wallet_id, profile_id, opened_on, closed_on, wallet_type, type_name, currency, current_date::timestamp as upload_date
+    truncate_clickhouse: truncate
+#    datetime_field: opened_on
+
+  "tab_spr_pos_area":
+    postgres_schema: oplati_statistic
+    postgres_table: spr_pos_area
+    clickhouse_schema: oplati_analytic
+    clickhouse_table: spr_pos_area
+    clickhouse_columns: pos_id, org_id, latitude, longitude, address, city, area, region, pos_name, open_date, close_date, locality, street_type, street_name, building, room
+    truncate_clickhouse: truncate
+
+  "tab_spr_child_adult":
+    postgres_schema: oplati_statistic
+    postgres_table: spr_child_adult
+    clickhouse_schema: oplati_analytic
+    clickhouse_table: spr_child_adult
+    clickhouse_columns: profile_id, adult_profile, child_purse, current_date::timestamp as upload_date
+
+  "tab_bi_subscribe_payments":
+    postgres_schema: oplati_statistic
+    postgres_table: bi_subscribe_payments
+    clickhouse_schema: oplati_analytic
+    clickhouse_table: bi_subscribe_payments
+    clickhouse_columns: payment_id, external_account_id, profile_id, purse_id, provider_id, external_service_id, sum, created_at, state, state_message, purchase_id, external_payment_id
+    datetime_field: created_at
+
+  "tab_bi_pos_type_insurance":
+    postgres_schema: oplati_dimention_level
+    postgres_table: dim_request_data_rezidency
+    clickhouse_schema: oplati_analytic
+    clickhouse_table: bi_request_data_rezidency
+    clickhouse_columns: request_data_id, request_date, request_type, status, residency
+
+  "tab_bi_profile_package":
+    postgres_schema: oplati_statistic
+    postgres_table: bi_profile_package
+    clickhouse_schema: oplati_analytic
+    clickhouse_table: bi_profile_package
+    clickhouse_columns: id, profile_id, package_code, activate_date, expire_date, promo_code, renewal_date
+    truncate_clickhouse: truncate
+
+  "tab_bi_pos_type_not_premium":
+    postgres_schema: oplati_statistic
+    postgres_table: bi_pos_type_not_premium
+    clickhouse_schema: oplati_analytic
+    clickhouse_table: bi_pos_type_not_premium
+    clickhouse_columns: purchase_id, purse_id, merchant_id, device_id, sum, created_date, pos_id, dep_id, profile_id, org_id, latitude, longitude, address, city, region, name, type_name, pos_name, cashbox_type, itn, latitude_poi, longitude_poi, poi, status
+    datetime_field: created_date
+
+  "tab_bi_pos_type_premium":
+    postgres_schema: oplati_statistic
+    postgres_table: bi_pos_type_premium
+    clickhouse_schema: oplati_analytic
+    clickhouse_table: bi_pos_type_premium
+    clickhouse_columns: purchase_id, purse_id, merchant_id, device_id, sum, created_date, pos_id, dep_id, profile_id, org_id, latitude, longitude, address, city, region, name, type_name, pos_name, cashbox_type, itn, latitude_poi, longitude_poi, poi, status, premium_id, premium_type
+    datetime_field: created_date
+
+  "tab_bi_pos_type_health":
+    postgres_schema: oplati_statistic
+    postgres_table: bi_pos_type_health
+    clickhouse_schema: oplati_analytic
+    clickhouse_table: bi_pos_type_health
+    clickhouse_columns: created_date, purchase_id, profile_id, sum, name, itn, pos_name, type_name, cashbox_name, device_id, pos_id, city, region, reg_num, ref_sum
+    datetime_field: created_date
+
+  "tab_bi_pos_type_clothes":
+    postgres_schema: oplati_statistic
+    postgres_table: bi_pos_type_clothes
+    clickhouse_schema: oplati_analytic
+    clickhouse_table: bi_pos_type_clothes
+    clickhouse_columns: created_date, purchase_id, profile_id, sum, name, itn, pos_name, type_name, cashbox_name, device_id, pos_id, city, region, reg_num, ref_sum
+    datetime_field: created_date
+
+  "tab_bi_pos_type_children":
+    postgres_schema: oplati_statistic
+    postgres_table: bi_pos_type_children
+    clickhouse_schema: oplati_analytic
+    clickhouse_table: bi_pos_type_children
+    clickhouse_columns: purchase_id, purse_id, merchant_id, device_id, sum, created_date, pos_id, dep_id, profile_id, org_id, latitude, longitude, address, city, region, name, type_name, pos_name, cashbox_type, itn, latitude_poi, longitude_poi, poi, status, pay_type
+    datetime_field: created_date
+
+  "tab_bi_pos_type_building_materials":
+    postgres_schema: oplati_statistic
+    postgres_table: bi_pos_type_building_materials
+    clickhouse_schema: oplati_analytic
+    clickhouse_table: bi_pos_type_building_materials
+    clickhouse_columns: created_date, purchase_id, profile_id, sum, name, itn, pos_name, type_name, cashbox_name, device_id, pos_id, city, region, reg_num, ref_sum
+    datetime_field: created_date
+
+  "tab_bi_customer_payment":
+    postgres_schema: oplati_statistic
+    postgres_table: bi_customer_payment
+    clickhouse_schema: oplati_analytic
+    clickhouse_table: bi_customer_payment
+    clickhouse_columns: purchase_id, created_date, profile_id, pos_id, sum, org_id, name, organisation_name
+    datetime_field: created_date
+
+  "tab_bi_travel_card_area":
+    postgres_schema: oplati_statistic
+    postgres_table: bi_travel_card_area
+    clickhouse_schema: oplati_analytic
+    clickhouse_table: bi_travel_card_area
+    clickhouse_columns: id, date_time, price, travel_card_type, area, amount, msi
+    datetime_field: date_time
+
+  "tab_bi_superset_log":
+    postgres_schema: oplati_statistic
+    postgres_table: bi_superset_log
+    clickhouse_schema: oplati_analytic
+    clickhouse_table: bi_superset_log
+    clickhouse_columns: id, action, user_id, first_name, last_name, username, action_date, dashboard_id, dashboard_title, slice_id, slice_name, datasource_name, duration_ms
+    datetime_field: action_date
+
+  "tab_bi_tickets_customer":
+    postgres_schema: oplati_dimention_level
+    postgres_table: dim_prepare_ticket_customer
+    clickhouse_schema: oplati_analytic
+    clickhouse_table: bi_tickets_customer
+    clickhouse_columns: date_time, profile_id, age_cur, age_group, vehicle_type, vehicle_id, autopark_id, customer_area, ticket_area, msi, autopark_city, org_id, id, status
+
+  "tab_bi_azs_petrol_sale":
+    postgres_schema: oplati_dimention_level
+    postgres_table: dim_azs_petrol_sale
+    clickhouse_schema: oplati_analytic
+    clickhouse_table: bi_azs_petrol_sale
+    clickhouse_columns: sale_id, company_id, create_date, station_id, pump, nozzle, loyal_card, alg_calc, sum, discount, dose, profile_id, purse_id, transaction_id, status, refund_sum, refund_transaction_id, fuel
+
+#  "tab_bi_travel_card":
+#    postgres_schema: oplati_dimention_level
+#    postgres_table: dim_prepare_tc
+#    clickhouse_schema: oplati_analytic
+#    clickhouse_table: bi_travel_card
+#    clickhouse_columns: id, vehicle_id, num, price, date_time::timestamp, profile_id, operator_code, autopark_id, vehicle_type, travel_card_type, age, group_age, customer_area, ticket_area, msi, autopark_city, org_id, date_begin, date_end, status
+
+  "tab_bi_virtual_mdes":
+    postgres_schema: oplati_dimention_level
+    postgres_table: dim_virtual_mdes
+    clickhouse_schema: oplati_analytic
+    clickhouse_table: bi_virtual_mdes
+    clickhouse_columns: date, profile_id, cardholder_name, msi, ms_card_id
+
+  "tab_bi_tickets":
+    postgres_schema: oplati_dimention_level
+    postgres_table: dim_prepare_ticket
+    clickhouse_schema: oplati_analytic
+    clickhouse_table: bi_tickets
+    clickhouse_columns: id, vehicle_id, num, price, date_time, profile_id, operator_cod, autopark_id, vehicle_type, msi, autopark_city, org_id, status
+
+  "tab_bi_purse_settings":
+    postgres_schema: oplati_statistic
+    postgres_table: bi_purse_settings
+    clickhouse_schema: oplati_analytic
+    clickhouse_table: bi_purse_settings
+    clickhouse_columns: purse_id, profile_id, purse_card_view, is_notify, day_payment_count, day_payment_sum, current_date::timestamp as upload_date
+
+  "tab_bi_customers_children":
+    postgres_schema: oplati_statistic
+    postgres_table: bi_customers_children
+    clickhouse_schema: oplati_analytic
+    clickhouse_table: bi_customers_children
+    clickhouse_columns: open_date, profile_id, age::timestamp, region_name, area, operator_name, age_cur, age_group, resident, country, msi, sex
+    datetime_field: open_date
+
+  "tab_bi_pos_type":
+    postgres_schema: oplati_dimention_level
+    postgres_table: dim_pos_type
+    clickhouse_schema: oplati_analytic
+    clickhouse_table: bi_pos_type
+    clickhouse_columns: purchase_id, purse_id, merchant_id, device_id, sum, created_date, dpt.pos_id, dep_id, profile_id, org_id, dpt.latitude, dpt.longitude, address, dpt.city, dpt.region, dpt."name", type_name, pos_name, dpt.cashbox_type, itn, latitude_poi, longitude_poi, poi, status
+    postgres_query: select purchase_id, purse_id, merchant_id, device_id, sum, created_date, dpt.pos_id, dep_id, profile_id, org_id, dpt.latitude, dpt.longitude, address, dpt.city, dpt.region, dpt."name", type_name, pos_name, dpt.cashbox_type, itn, latitude_poi, longitude_poi, poi, status  from oplati_dimention_level.dim_pos_type dpt left join oplati_statistic.spr_cashbox_area sca on dpt.device_id = sca.cash_id left join oplati_statistic.spr_mcc_code smc on sca.mcc_code = smc.code where (status  = 1 and payment_type =1) or status = 0
+
+  "tab_transactions_p2p":
+    postgres_schema: oplati_statistic
+    postgres_table: bi_transactions_p2p
+    clickhouse_schema: oplati_analytic
+    clickhouse_table: bi_transactions_p2p
+    clickhouse_columns: trans_id, trans_type, trans_date, sum, profile_id, bank_name, purpose_pay, msi, ops_id
+    datetime_field: trans_date
+
+  "tab_transactions_erip":
+    postgres_schema: oplati_statistic
+    postgres_table: bi_transactions_erip
+    clickhouse_schema: oplati_analytic
+    clickhouse_table: bi_transactions_erip
+    clickhouse_columns: id, trans_type, status, payment_date, sum, profile_id, purpose_pay, kontragent, msi
+    datetime_field: payment_date
+
+  "tab_transactions_in":
+    postgres_schema: oplati_statistic
+    postgres_table: bi_transactions_in
+    clickhouse_schema: oplati_analytic
+    clickhouse_table: bi_transactions_in
+    clickhouse_columns: trans_id, trans_type, trans_date, sum, profile_id, purpose_in, kontragent, accept_brand, msi, type_in_code, type_in_name, payer, pan
+    datetime_field: trans_date
+
+  "tab_transactions_vcard_out":
+    postgres_schema: oplati_dimention_level
+    postgres_table: dim_transactions_vcard_out
+    clickhouse_schema: oplati_analytic
+    clickhouse_table: bi_transactions_vcard_out
+    clickhouse_columns: trans_id, account_id, trans_type, trans_date, (sum*(-1)) as sum, ops_id, profile_id, purpose_pay, kontragent, country, msi
+
+  "tab_transactions_vcard_in":
+    postgres_schema: oplati_dimention_level
+    postgres_table: dim_transactions_vcard_in
+    clickhouse_schema: oplati_analytic
+    clickhouse_table: bi_transactions_vcard_in
+    clickhouse_columns: trans_id, account_id, trans_type, trans_date, sum, ops_id, profile_id, purpose_pay, kontragent, country, msi
+
+  "tab_bi_log_history":
+    postgres_schema: oplati_statistic
+    postgres_table: bi_log_history
+    clickhouse_schema: oplati_analytic
+    clickhouse_table: bi_log_history
+    clickhouse_columns: log_history_id, login, profile_id, action, action_date, action_person, action_reason, action_detail
+    truncate_clickhouse: truncate
+
+  "tab_transactions_bpay_nfc":
+    postgres_schema: oplati_dimention_level
+    postgres_table: dim_operations
+    clickhouse_schema: oplati_analytic
+    clickhouse_table: bi_transactions_bpay_nfc
+    clickhouse_columns: id, 'BPAY_NFC' as trans_type, created_date as trans_date, profile_id, purse_id, purse_transaction_id, sum, status, operation_type, "source", country, kontragent, error_type
+
+  "tab_transactions_currency_in":
+    postgres_schema: oplati_statistic
+    postgres_table: bi_transactions_currency_in
+    clickhouse_schema: oplati_analytic
+    clickhouse_table: bi_transactions_currency_in
+    clickhouse_columns: trans_id, trans_type, trans_date, sum, profile_id, account_id, wallet_type, purpose_in, kontragent, accept_brand, msi, type_in_code, type_in_name, payer
+    datetime_field: trans_date
+
+  "tab_transactions_currency_out":
+    postgres_schema: oplati_statistic
+    postgres_table: bi_transactions_currency_out
+    clickhouse_schema: oplati_analytic
+    clickhouse_table: bi_transactions_currency_out
+    clickhouse_columns: trans_id, trans_type, trans_date, sum, profile_id, account_id, wallet_type, bank_name, ops_id, purpose_pay, msi
+    datetime_field: trans_date
+
+  "tab_transactions_currency_p2p":
+    postgres_schema: oplati_statistic
+    postgres_table: bi_transactions_currency_p2p
+    clickhouse_schema: oplati_analytic
+    clickhouse_table: bi_transactions_currency_p2p
+    clickhouse_columns: trans_id, trans_type, trans_date, sum, profile_id, bank_name, purpose_pay, msi, ops_id, account_id, wallet_type, "type", exchange_rate, currency
+    datetime_field: trans_date
+
+  "tab_transactions_refund":
+    postgres_schema: oplati_dimention_level
+    postgres_table: dim_transactions_refund
+    clickhouse_schema: oplati_analytic
+    clickhouse_table: bi_transactions_refund
+    clickhouse_columns: trans_id, account_id, trans_type, trans_date, sum, ops_id, trans_type_in, description, operation_id, refund_trans_id
+
+  "tab_transactions_out":
+    postgres_schema: oplati_statistic
+    postgres_table: bi_transactions_out
+    clickhouse_schema: oplati_analytic
+    clickhouse_table: bi_transactions_out
+    clickhouse_columns: trans_id, trans_type, trans_date, sum, profile_id, bank_name, purpose_pay,  msi
+    datetime_field: trans_date
+
+  "tab_transactions_org_out":
+    postgres_schema: oplati_dimention_level
+    postgres_table: dim_transactions_org_out
+    clickhouse_schema: oplati_analytic
+    clickhouse_table: bi_transactions_org_out
+    clickhouse_columns: trans_id, account_id, trans_type, trans_date, sum*(-1) as "sum", ops_id, profile_id, opened_on, wallet_type, purpose_pay, itn, type_id, type_name, organisation_name
+
+#  "tab_bi_customers":
+#    postgres_schema: oplati_statistic
+#    postgres_table: bi_customers
+#    clickhouse_schema: oplati_analytic
+#    clickhouse_table: bi_customers
+#    clickhouse_columns: open_date, profile_id, age::timestamp, region_name, area, operator_name, age_cur, age_group, resident, country, msi, sex
+#    datetime_field: open_date
+
+  "tab_transactions_group_wallet":
+     postgres_schema: oplati_dimention_level
+     postgres_table: dim_transactions_group_wallet
+     clickhouse_schema: oplati_analytic
+     clickhouse_table: bi_transactions_group_wallet
+     clickhouse_columns: trans_id, account_id, trans_type, trans_date, sum, ops_id, profile_id, opened_on::timestamp, closed_on::timestamp, purpose_pay, type
+
+  "tab_transactions_pos_2022":
+    postgres_schema: oplati_statistic
+    postgres_table: bi_transactions_pos_2022
+    clickhouse_schema: oplati_analytic
+    clickhouse_table: bi_transactions_pos_2022
+    clickhouse_columns: trans_id, trans_type, trans_date, sum, profile_id, purpose_pay, msi, ops_id, value_id, type_name, type_id, company_id, pay_type
+    datetime_field: trans_date
+
+  "tab_transactions_pos":
+    postgres_schema: oplati_statistic
+    postgres_table: bi_transactions_pos
+    clickhouse_schema: oplati_analytic
+    clickhouse_table: bi_transactions_pos
+    clickhouse_columns: trans_id, trans_type, trans_date, sum, profile_id, purpose_pay, msi, ops_id, value_id, type_name, type_id, company_id, pay_type
+    datetime_field: trans_date
+
+#  "tab_bi_agr_pos_type":
+#    postgres_schema: oplati_agreration
+#    postgres_table: bi_agr_pos_type
+#    clickhouse_schema: oplati_views_report
+#    clickhouse_table: bi_agr_pos_type
+#    clickhouse_columns: report_date, name, org_id, device_id, amount_trans, sum_trans, amount_customers_day, amount_customers_month, pos_id
+#    datetime_field: report_date
+
+  "tab_dim_pos_type":
+    postgres_schema: oplati_dimention_level
+    postgres_table: dim_pos_type
+    clickhouse_schema: analytic_dimention_level
+    clickhouse_table: dim_pos_type
+    clickhouse_columns: purchase_id, purse_id, merchant_id, device_id, sum, status, created_date, order_number, pos_id, dep_id, payment_type, reg_num, profile_id, org_id, latitude, longitude, address, city, area, region, name, type_name, pos_name, open_date, cashbox_type, itn, latitude_poi, longitude_poi, poi, cashbox_name, ref_sum, pay_type
+    truncate_clickhouse: truncate
+
+  "tab_bi_account_balance_2025_customers":
+    postgres_schema: oplati_statistic
+    postgres_table: bi_account_balance_2025_customers
+    clickhouse_schema: oplati_analytic
+    clickhouse_table: bi_account_balance_2025_customers
+    clickhouse_columns: profile_id, jan_sdo, feb_sdo, mar_sdo, apr_sdo, may_sdo, jun_sdo, jul_sdo, aug_sdo, sept_sdo, oct_sdo, nov_sdo, dec_sdo
+    truncate_clickhouse: truncate

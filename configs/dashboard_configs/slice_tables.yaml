@@ -1,0 +1,231 @@
+﻿ "tab_bi_transactions_payout_pos_daily":
+   clickhouse_schema: oplati_analytic
+   clickhouse_table: bi_transactions_payout_pos_daily
+   datetime_field: trans_date
+   interval: 30 DAY
+   recount_period: day
+   clickhouse_query: "insert into oplati_analytic.bi_transactions_payout_pos_daily
+                        select
+	                       trans_id,
+	                       account_id,
+	                       trans_type,
+	                       trans_date,
+	                       sum,
+	                       ops_id,
+	                       profile_id,
+	                       purpose_pay,
+	                       kontragent,
+	                       msi,
+	                       org_id
+                        from oplati_analytic.bi_transactions_payout_pos
+                        where date_trunc('day', trans_date) = today() - 1"
+
+ "tab_bi_transactions_payout_pos_monthly":
+   clickhouse_schema: oplati_analytic
+   clickhouse_table: bi_transactions_payout_pos_monthly
+   datetime_field: trans_date
+   interval: 13 MONTH
+   recount_period: month
+   clickhouse_query: "insert into oplati_analytic.bi_transactions_payout_pos_monthly
+                        select
+	                       trans_id,
+	                       account_id,
+	                       trans_type,
+	                       trans_date,
+	                       sum,
+	                       ops_id,
+	                       profile_id,
+	                       purpose_pay,
+	                       kontragent,
+	                       msi,
+	                       org_id
+                        from oplati_analytic.bi_transactions_payout_pos
+                        where date_trunc('day', trans_date) = today() - 1"
+
+ "tab_bi_pos_type_2023_daily":
+   clickhouse_schema: oplati_analytic
+   clickhouse_table: bi_pos_type_2023_daily
+   datetime_field: created_date
+   interval: 30 DAY
+   recount_period: day
+   clickhouse_query: "insert into oplati_analytic.bi_pos_type_2023_daily
+                       select
+                       bptd.*,
+                       sca.cashbox_vendor,
+                       CASE
+    	                    WHEN cashbox_type = 1 THEN 'Стационарная касса'
+    	                    WHEN cashbox_type = 2 THEN 'Оплати.Касса'
+                         WHEN cashbox_type = 3 AND cashbox_vendor IS NULL THEN 'Интернет-касса'
+                         WHEN cashbox_type = 3 AND cashbox_vendor = 'lkassa' THEN 'LKassa'
+                    	    WHEN cashbox_type = 3 AND cashbox_vendor <> 'lkassa' AND cashbox_vendor = 'OPLATI_IN_APP_PROMO' THEN 'IN-APP: Промокоды и сертификаты'
+                    	    WHEN cashbox_type = 3 AND cashbox_vendor <> 'lkassa' AND cashbox_vendor = 'OPLATI_IN_APP_INSURANCE' THEN 'IN-APP: Страхование'
+                    	    WHEN cashbox_type = 3 AND cashbox_vendor <> 'lkassa' AND cashbox_vendor = 'OPLATI_IN_APP_SUBSCRIPTION' THEN 'IN-APP: Подписки'
+                    	    WHEN cashbox_type = 3 AND cashbox_vendor <> 'lkassa' AND cashbox_vendor = 'OPLATI_IN_APP_AUTO' THEN 'IN-APP: Автосервисы'
+                    	    WHEN cashbox_type = 3 AND cashbox_vendor <> 'lkassa' AND cashbox_vendor = 'OPLATI_IN_APP_TRANSPORT' THEN 'IN-APP: Транспорт'
+                    	    WHEN cashbox_type = 3 AND cashbox_vendor <> 'lkassa' AND cashbox_vendor = 'OPLATI_IN_APP_GATEWAY' THEN 'IN-APP: Платежный шлюз'
+                    	    WHEN cashbox_type = 3 AND cashbox_vendor <> 'lkassa' AND cashbox_vendor = 'OPLATI_IN_APP_CONSTRUCTOR' THEN 'IN-APP: Мини-приложения'
+                    	    WHEN cashbox_type = 3 AND cashbox_vendor <> 'lkassa' AND cashbox_vendor = 'OPLATI_IN_APP_ENTERTAINMENT' THEN 'IN-APP: Развлечения'
+                    	    WHEN cashbox_type = 3 AND cashbox_vendor <> 'lkassa' AND cashbox_vendor = 'OPLATI_IN_APP_VENDING_WATER' THEN 'IN-APP: Вендинг (водоматы)'
+                    	    WHEN cashbox_type = 3 AND cashbox_vendor <> 'lkassa' AND cashbox_vendor = 'OPLATI_IN_APP_VENDING_RCOFEE' THEN 'IN-APP: Вендинг (RCofee)'
+                    	    WHEN cashbox_type = 3 AND cashbox_vendor <> 'lkassa' AND cashbox_vendor = 'OPLATI_IN_APP_VENDING_CONROLLER' THEN 'IN-APP: Вендинг (контроллер ЛВО)'
+                        	ELSE NULL
+                          END AS cashbox_vendor_type,
+                          CASE
+                       	   WHEN cashbox_vendor_type ilike '%Вендинг%' THEN 'IN-APP: Вендинг'
+                       	   ELSE cashbox_vendor_type
+                          END AS cashbox_vendor_type_group
+                          from oplati_analytic.bi_pos_type_2023 bptd
+                          left join oplati_analytic.spr_cashbox_area sca
+                          on bptd.device_id = sca.cash_id
+                          where date_trunc('day', created_date) = today() - 1"
+
+ "tab_bi_pos_type_2023_monthly":
+   clickhouse_schema: oplati_analytic
+   clickhouse_table: bi_pos_type_2023_monthly
+   datetime_field: created_date
+   interval: 13 MONTH
+   recount_period: month
+   clickhouse_query: "insert into oplati_analytic.bi_pos_type_2023_monthly
+                       select
+	                      bptd.*,
+	                      sca.cashbox_vendor,
+	                      CASE
+    	                    WHEN cashbox_type = 1 THEN 'Стационарная касса'
+    	                    WHEN cashbox_type = 2 THEN 'Оплати.Касса'
+	                        WHEN cashbox_type = 3 AND cashbox_vendor IS NULL THEN 'Интернет-касса'
+	                        WHEN cashbox_type = 3 AND cashbox_vendor = 'lkassa' THEN 'LKassa'
+                    	    WHEN cashbox_type = 3 AND cashbox_vendor <> 'lkassa' AND cashbox_vendor = 'OPLATI_IN_APP_PROMO' THEN 'IN-APP: Промокоды и сертификаты'
+                    	    WHEN cashbox_type = 3 AND cashbox_vendor <> 'lkassa' AND cashbox_vendor = 'OPLATI_IN_APP_INSURANCE' THEN 'IN-APP: Страхование'
+                    	    WHEN cashbox_type = 3 AND cashbox_vendor <> 'lkassa' AND cashbox_vendor = 'OPLATI_IN_APP_SUBSCRIPTION' THEN 'IN-APP: Подписки'
+                    	    WHEN cashbox_type = 3 AND cashbox_vendor <> 'lkassa' AND cashbox_vendor = 'OPLATI_IN_APP_AUTO' THEN 'IN-APP: Автосервисы'
+                    	    WHEN cashbox_type = 3 AND cashbox_vendor <> 'lkassa' AND cashbox_vendor = 'OPLATI_IN_APP_TRANSPORT' THEN 'IN-APP: Транспорт'
+                    	    WHEN cashbox_type = 3 AND cashbox_vendor <> 'lkassa' AND cashbox_vendor = 'OPLATI_IN_APP_GATEWAY' THEN 'IN-APP: Платежный шлюз'
+                    	    WHEN cashbox_type = 3 AND cashbox_vendor <> 'lkassa' AND cashbox_vendor = 'OPLATI_IN_APP_CONSTRUCTOR' THEN 'IN-APP: Мини-приложения'
+                    	    WHEN cashbox_type = 3 AND cashbox_vendor <> 'lkassa' AND cashbox_vendor = 'OPLATI_IN_APP_ENTERTAINMENT' THEN 'IN-APP: Развлечения'
+                    	    WHEN cashbox_type = 3 AND cashbox_vendor <> 'lkassa' AND cashbox_vendor = 'OPLATI_IN_APP_VENDING_WATER' THEN 'IN-APP: Вендинг (водоматы)'
+                    	    WHEN cashbox_type = 3 AND cashbox_vendor <> 'lkassa' AND cashbox_vendor = 'OPLATI_IN_APP_VENDING_RCOFEE' THEN 'IN-APP: Вендинг (RCofee)'
+                    	    WHEN cashbox_type = 3 AND cashbox_vendor <> 'lkassa' AND cashbox_vendor = 'OPLATI_IN_APP_VENDING_CONROLLER' THEN 'IN-APP: Вендинг (контроллер ЛВО)'
+                        	ELSE NULL
+                          END AS cashbox_vendor_type,
+                          CASE
+                       	   WHEN cashbox_vendor_type ilike '%Вендинг%' THEN 'IN-APP: Вендинг'
+                       	   ELSE cashbox_vendor_type
+                          END AS cashbox_vendor_type_group
+                          from oplati_analytic.bi_pos_type_2023 bptd
+                          left join oplati_analytic.spr_cashbox_area sca
+                          on bptd.device_id = sca.cash_id
+                          where date_trunc('day', created_date) = today() - 1"
+
+ "tab_bi_pos_type_daily":
+   clickhouse_schema: oplati_analytic
+   clickhouse_table: bi_pos_type_daily
+   datetime_field: report_date
+   interval: 30 DAY
+   recount_period: day
+   clickhouse_query: "INSERT INTO oplati_analytic.bi_pos_type_daily
+                        SELECT
+                            date_trunc('day',created_date) as report_date, org_id,
+                            device_id, name, itn, status, mcc_status_name,
+                            bpt.code as code, parent_name, parent_id,
+                            first_child_name, first_child_id,
+                            second_child_name, second_child_id,
+                            third_child_name, third_child_id,
+                            new_title, ownership,
+                            sum(sum), count(*)
+                        FROM oplati_analytic.bi_pos_type_2023 bpt
+                        left join oplati_analytic.spr_cashbox_area_detailed borg
+                        on borg.cash_id = bpt.device_id and borg.code = bpt.code
+                        WHERE date_trunc('day', created_date) = today() - 1
+                        GROUP BY
+   		                    date_trunc('day',created_date), org_id, device_id,
+                            name, itn, status, mcc_status_name,
+                            bpt.code as code, parent_name, parent_id,
+                            first_child_name, first_child_id,
+                            second_child_name, second_child_id,
+                            third_child_name, third_child_id,
+                            new_title, ownership"
+
+ "tab_bi_pos_type_monthly":
+   clickhouse_schema: oplati_analytic
+   clickhouse_table: bi_pos_type_monthly
+   datetime_field: report_date
+   interval: 13 MONTH
+   recount_period: month
+   clickhouse_query: "INSERT INTO oplati_analytic.bi_pos_type_monthly
+                        SELECT
+                            date_trunc('month', created_date) as report_date, org_id, device_id,
+                            name, itn, status, mcc_status_name, bpt.code as code,
+                            parent_name, parent_id,
+                            first_child_name, first_child_id,
+                            second_child_name, second_child_id,
+                            third_child_name, third_child_id,
+                            new_title, ownership,
+                            sum(sum) as sum_trans, count(*) as amount_trans
+                        FROM oplati_analytic.bi_pos_type_2023 bpt
+                        left join oplati_analytic.spr_cashbox_area_detailed borg
+                        on borg.cash_id = bpt.device_id and borg.code = bpt.code
+                        WHERE date_trunc('month', created_date) = date_trunc('month', today() - 1)
+                        GROUP BY
+   		                    date_trunc('month',created_date), org_id, device_id,
+                            name, itn, status, mcc_status_name, bpt.code as code,
+                            parent_name, parent_id,
+                            first_child_name, first_child_id,
+                            second_child_name, second_child_id,
+                            third_child_name, third_child_id,
+                            new_title, ownership"
+
+ "tab_bi_pos_type_monthly_users":
+   clickhouse_schema: oplati_analytic
+   clickhouse_table: bi_pos_type_monthly_users
+   datetime_field: created_date
+   interval: 13 MONTH
+   recount_period: month
+   clickhouse_query: "insert into oplati_analytic.bi_pos_type_monthly_users
+                        select
+	                       distinct profile_id, date_trunc('month',created_date) as report_date, device_id,
+	                       org_id, name, type_name, cashbox_type, itn, status,
+	                       reg_num, cashbox_name, code, mcc_status_name
+                        from oplati_analytic.bi_pos_type_2023 bpt
+                        where date_trunc('month',created_date) = date_trunc('month', today() - 1) and status = 1"
+
+ "tab_bi_pos_type_customers_monthly":
+   clickhouse_schema: oplati_analytic
+   clickhouse_table: bi_pos_type_customers_monthly
+   datetime_field: report_date
+   interval: 13 MONTH
+   recount_period: month
+   clickhouse_query: "INSERT INTO oplati_analytic.bi_pos_type_customers_monthly
+                        SELECT
+                           date_trunc('month',created_date) as report_date, org_id, device_id,
+                           name, itn, status, mcc_status_name, bpt.code as code,
+                           parent_name, parent_id, first_child_name, first_child_id,
+                           second_child_name, second_child_id, third_child_name, third_child_id,
+                           new_title, ownership, profile_id
+                        FROM oplati_analytic.bi_pos_type_2023 bpt
+                        left join oplati_analytic.spr_cashbox_area_detailed borg
+                        on borg.cash_id = bpt.device_id and borg.code = bpt.code
+                        WHERE date_trunc('month', created_date) = date_trunc('month', today() - 1)"
+
+ "tab_bi_pos_type_tickets":
+   clickhouse_schema: oplati_analytic
+   clickhouse_table: bi_pos_type_tickets
+   datetime_field: report_date
+   interval: 13 MONTH
+   recount_period: month
+   clickhouse_query: "INSERT INTO oplati_analytic.bi_pos_type_tickets
+                        SELECT 
+                           date_trunc('day',created_date) as report_date, org_id, device_id,
+                           name, itn, status, mcc_status_name, bpt.code as code,
+                           parent_name, parent_id, first_child_name, first_child_id,
+                           second_child_name, second_child_id, third_child_name, third_child_id,
+                           new_title, ownership,
+                           sum(sum) as sum_trans, count(*) as amount_trans
+                        FROM oplati_analytic.bi_pos_type_2023 bpt
+                        left  join oplati_analytic.spr_cashbox_area_detailed borg
+                        on borg.cash_id = bpt.device_id and borg.code = bpt.code
+                        WHERE type_name = 'Пассажирские перевозки' and date_trunc('day', created_date) = today() - 1
+                        GROUP BY date_trunc('day',created_date), org_id, device_id,
+                           name, itn, status, mcc_status_name, bpt.code as code,
+                           parent_name, parent_id, first_child_name, first_child_id,
+                           second_child_name, second_child_id, third_child_name, third_child_id,
+                           new_title, ownership"

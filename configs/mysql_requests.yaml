@@ -1,0 +1,167 @@
+
+  "tab_b_user":
+    bitrix_table: select id, name as first_name, last_name,work_position from b_user
+
+    select_columns:
+      - 'id'
+      - 'first_name'
+      - 'last_name'
+      - 'work_position'
+
+    expected_columns:
+      - name: id
+        type: int
+      - name: first_name
+        type: str
+      - name: last_name
+        type: str
+      - name: work_position
+        type: str
+
+    postgres_table: stg_managers
+
+####################################################################################################################################################################
+
+  "tab_b_crm_deal":
+    bitrix_table: select
+                    id,
+                    date_create,
+                    company_id,
+                    assigned_by_id,
+                    title,
+                    comments,
+                    type_id,
+                    category_id,
+                    stage_id
+                  from b_crm_deal
+
+    select_columns:
+      - 'id'
+      - 'date_create'
+      - 'company_id'
+      - 'assigned_by_id'
+      - 'title'
+      - 'comments'
+      - 'type_id'
+      - 'category_id'
+      - 'stage_id'
+
+    expected_columns:
+      - name: id
+        type: int
+      - name: date_create
+        type: datetime
+        date_format: "%Y-%m-%d %H:%M:%S.%f"
+      - name: company_id
+        type: int
+      - name: assigned_by_id
+        type: int
+      - name: title
+        type: str
+      - name: comments
+        type: str
+      - name: type_id
+        type: str
+      - name: category_id
+        type: int
+      - name: stage_id
+        type: str
+
+    postgres_table: stg_organisation_type
+
+####################################################################################################################################################################
+
+
+  "tab_b_crm_stg_types":
+    bitrix_table: select
+                    id,
+                    entity_id,
+                    status_id,
+                    name
+                  from b_crm_status
+
+    select_columns:
+      - 'id'
+      - 'entity_id'
+      - 'status_id'
+      - 'name'
+      - 'name_init'
+
+    expected_columns:
+      - name: id
+        type: int
+      - name: entity_id
+        type: str
+      - name: status_id
+        type: str
+      - name: name
+        type: str
+      - name: name_init
+        type: str
+
+    postgres_table: stg_types
+
+####################################################################################################################################################################
+
+
+  "tab_b_crm_status":
+    bitrix_table: select
+                    value_id,
+                    UF_CRM_5E82EE16F048E as unp
+                  from b_uts_crm_deal
+
+    select_columns:
+      - 'value_id'
+      - 'unp'
+    
+    expected_columns:
+      - name: value_id
+        type: int
+      - name: unp
+        type: str
+
+    postgres_table: stg_unp
+
+####################################################################################################################################################################
+
+
+  "tab_b_uts_crm_company":
+    bitrix_table: select
+                    value_id as company_id,
+                    uf_unp as unp,
+                    UF_RESPONSIBLE_DEAL_OPLATI as assigned_by_id,
+                    UF_CRM_1652689956951 as bitrix_date ,
+                    UF_CRM_1654178087 as type_id,
+                    UF_CRM_1652687969585 as contract_status,
+                    UF_CRM_1652688535 as support_manager
+                  from b_uts_crm_company
+
+    select_columns:
+      - 'company_id'
+      - 'unp'
+      - 'assigned_by_id'
+      - 'bitrix_date'
+      - 'type_id'
+      - 'contract_status'
+      - 'support_manager'
+
+    expected_columns:
+      - name: company_id
+        type: int
+      - name: unp
+        type: str
+      - name: assigned_by_id
+        type: int
+      - name: bitrix_date
+        type: datetime
+        date_format: "%Y-%m-%d %H:%M:%S.%f"
+      - name: type_id
+        type: str
+      - name: contract_status
+        type: int
+      - name: support_manager
+        type: int
+
+    postgres_table: stg_company
+
+#################################################################################################################################################################

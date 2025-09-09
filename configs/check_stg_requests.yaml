@@ -1,0 +1,10 @@
+﻿"tab_acc_balance":
+    oracle_table: SELECT ID, ACCOUNT_ID, BALANCE_DATE, BALANCE_SUM FROM BPAY_SPBI.ACCOUNT_BALANCE where to_char(BALANCE_DATE,'DD.MM.YYYY')  =  to_char(SYSDATE-1,'DD.MM.YYYY')
+    select_columns:
+        - 'id'
+        - 'account_id'
+        - 'balance_date'
+        - 'balance_sum'
+
+    postgres_table: stg_account_balance
+    postgres_sql: select * from oplati_stage_level.stg_account_balance

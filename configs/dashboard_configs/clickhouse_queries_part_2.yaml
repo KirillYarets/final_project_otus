@@ -1,0 +1,2171 @@
+﻿# all dashboards except client individual and activity without spr_cashbox_area_detailed and bi_pos_type_datails
+# This query is for directions' dashboards
+
+  "tab_bi_agr_pos_type":
+    clickhouse_query: "insert into oplati_views_report.bi_agr_pos_type (
+                            report_date, \"name\", org_id, device_id, amount_trans,
+                            sum_trans, amount_customers_day, amount_customers_month,pos_id
+                        )
+                        select 
+                            pos_d.report_day,
+                            subquery.name as \"name\",
+                            pos_m.org_id,
+                            pos_m.device_id,
+                            pos_d.amount_trans, 
+                            pos_d.sum_trans,
+                            pos_d.amount_customers_day ,
+                            pos_m.amount_customers_month,
+                            pos_m.pos_id
+                        from (
+                            select
+                                date_trunc('month', created_date) as report_month,
+                                org_id,
+                                device_id,
+                                pos_id,
+                                count(distinct profile_id) as amount_customers_month
+                            from oplati_analytic.bi_pos_type_2023 bpt
+                            where status = 1 and date_trunc('month', created_date) = date_trunc('month', today() - 1)
+                            group by  date_trunc('month', created_date), org_id, device_id,pos_id 
+                        )  pos_m
+
+                        right join (
+                            select
+	                            date_trunc('day', created_date) as report_day,
+                                org_id,
+                                device_id,
+                                pos_id,
+                                count(*) as amount_trans,
+                                sum(\"sum\") as sum_trans,
+                                count(distinct profile_id) as amount_customers_day
+                            from analytic_dimention_level.dim_pos_type
+                            where status = 1
+                            group by date_trunc('day', created_date), org_id, device_id,pos_id
+                        ) pos_d
+                        on date_trunc('month', report_day) = date_trunc('month', report_month) 
+                          and pos_d.org_id = pos_m.org_id
+                          and pos_d.device_id = pos_m.device_id
+                          and pos_d.pos_id = pos_m.pos_id
+  
+                        join (
+                          SELECT 
+                            bop.org_id as org_id,
+                            bop.name as name
+                          FROM oplati_analytic.bi_organisation_payments bop
+                        ) subquery
+                        ON pos_d.org_id = subquery.org_id;"
+
+
+################################################ MONITORING ##########################################################
+
+  "tab_bi_agr_retail_s100":
+    clickhouse_query: "insert into oplati_views_report.bi_agr_retail_s100
+                        select
+                        	DATE_TRUNC('day', bpt.created_date) AS report_date,
+                        	count(DISTINCT purchase_id)	filter (where sum < 100 and status = 1 and  itn in ('102312319', '102377059', '102382074', '201015032','300988497','401166051', '500840746', '601075914', '601077667','700849085','800016624', '100921458', '101454161', '101171198','100088694','100230639', '190757183', '191923668', '291313486','800001064','190839877', '700002779', '100220134', '701483289','790274799','390286042', '191634233', '300200651', '100103703','191178504'))	as retail_L100,
+                        	count(DISTINCT purchase_id)	filter (where sum >= 100 and status = 1 and itn in ('102312319', '102377059', '102382074', '201015032','300988497','401166051', '500840746', '601075914', '601077667','700849085','800016624', '100921458', '101454161', '101171198','100088694','100230639', '190757183', '191923668', '291313486','800001064','190839877', '700002779', '100220134', '701483289','790274799','390286042', '191634233', '300200651', '100103703','191178504'))	as retail_M100,
+                        	count(DISTINCT purchase_id)	filter (where sum >= 100 and status = 0 and itn in ('102312319', '102377059', '102382074', '201015032','300988497','401166051', '500840746', '601075914', '601077667','700849085','800016624', '100921458', '101454161', '101171198','100088694','100230639', '190757183', '191923668', '291313486','800001064','190839877', '700002779', '100220134', '701483289','790274799','390286042', '191634233', '300200651', '100103703','191178504'))	as retail_cancel,
+
+                        	count(DISTINCT purchase_id)	filter (where sum < 100 and status = 1 and itn in ('102312319','102377059','102382074','201015032','300988497','401166051','500840746','601075914','601077667','700849085')) as korona_L100,
+                        	count(DISTINCT purchase_id)	filter (where sum >= 100 and status = 1 and itn in ('102312319','102377059','102382074','201015032','300988497','401166051','500840746','601075914','601077667','700849085')) as korona_M100,
+                          	count(DISTINCT purchase_id)	filter (where sum >= 100 and status = 0 and itn in ('102312319','102377059','102382074','201015032','300988497','401166051','500840746','601075914','601077667','700849085')) as korona_cancel,
+
+                        	count(DISTINCT purchase_id) filter (where sum < 100 and status = 1 and itn in ('800016624')) as almi_L100,
+                        	count(DISTINCT purchase_id) filter (where sum >= 100 and status = 1 and itn in ('800016624')) as almi_M100,
+                        	count(DISTINCT purchase_id) filter (where sum >= 100 and status = 0 and itn in ('800016624')) as almi_cancel,
+
+                        	count(DISTINCT purchase_id) filter (where sum < 100 and status = 1 and itn in ('100921458')) as vitalur_L100,
+                        	count(DISTINCT purchase_id) filter (where sum >= 100 and status = 1 and itn in ('100921458')) as vitalur_M100,
+                        	count(DISTINCT purchase_id) filter (where sum >= 100 and status = 0 and itn in ('100921458')) as vitalur_cancel,
+
+                        	count(DISTINCT purchase_id) filter (where sum < 100 and status = 1 and itn in ('101454161','101171198','100088694','100230639', '190757183','191923668')) as sosedi_L100,
+                        	count(DISTINCT purchase_id) filter (where sum >= 100 and status = 1 and itn in ('101454161','101171198','100088694','100230639', '190757183','191923668')) as sosedi_M100,
+                        	count(DISTINCT purchase_id) filter (where sum >= 100 and status = 0 and itn in ('101454161','101171198','100088694','100230639', '190757183','191923668')) as sosedi_cancel,
+
+                        	count(DISTINCT purchase_id) filter (where sum < 100 and status = 1 and itn in ('291313486')) as santa_L100,
+                        	count(DISTINCT purchase_id) filter (where sum >= 100 and status = 1 and itn in ('291313486')) as santa_M100,
+                        	count(DISTINCT purchase_id) filter (where sum >= 100 and status = 0 and itn in ('291313486')) as santa_cancel,
+
+                        	count(DISTINCT purchase_id) filter (where sum < 100 and status = 1 and itn in ('800001064')) as gippo_L100,
+                        	count(DISTINCT purchase_id) filter (where sum >= 100 and status = 1 and itn in ('800001064')) as gippo_M100,
+                        	count(DISTINCT purchase_id) filter (where sum >= 100 and status = 0 and itn in ('800001064')) as gippo_cancel,
+
+                        	count(DISTINCT purchase_id) filter (where sum < 100 and status = 1 and itn in ('190839877','700002779', '100220134','701483289')) as belmarket_L100,
+                        	count(DISTINCT purchase_id) filter (where sum >= 100 and status = 1 and itn in ('190839877','700002779', '100220134','701483289')) as belmarket_M100,
+                        	count(DISTINCT purchase_id) filter (where sum >= 100 and status = 0 and itn in ('190839877','700002779', '100220134','701483289')) as belmarket_cancel,
+
+                        	count(DISTINCT purchase_id) filter (where sum < 100 and status = 1 and itn in ('790274799')) as perekrestok_L100,
+                        	count(DISTINCT purchase_id) filter (where sum >= 100 and status = 1 and itn in ('790274799')) as perekrestok_M100,
+                        	count(DISTINCT purchase_id) filter (where sum >= 100 and status = 0 and itn in ('790274799')) as perekrestok_cancel,
+
+                        	count(DISTINCT purchase_id) filter (where sum < 100 and status = 1 and itn in ('390286042')) as dionis_L100,
+                        	count(DISTINCT purchase_id) filter (where sum >= 100 and status = 1 and itn in ('390286042')) as dionis_M100,
+                        	count(DISTINCT purchase_id) filter (where sum >= 100 and status = 0 and itn in ('390286042')) as dionis_cancel,
+
+                        	count(DISTINCT purchase_id) filter (where sum < 100 and status = 1 and itn in ('191634233')) as green_L100,
+                        	count(DISTINCT purchase_id) filter (where sum >= 100 and status = 1 and itn in ('191634233')) as green_M100,
+                        	count(DISTINCT purchase_id) filter (where sum >= 100 and status = 0 and itn in ('191634233')) as green_cancel,
+
+	                        count(DISTINCT purchase_id) filter (where sum < 100 and status = 1 and itn in ('300200651')) as vesta_L100,
+	                        count(DISTINCT purchase_id) filter (where sum >= 100 and status = 1 and itn in ('300200651')) as vesta_M100,
+	                        count(DISTINCT purchase_id) filter (where sum >= 100 and status = 0 and itn in ('300200651')) as vesta_cancel,
+
+	                        count(DISTINCT purchase_id) filter (where sum < 100 and status = 1 and itn in ('100103703')) as zrpt_L100,
+	                        count(DISTINCT purchase_id) filter (where sum >= 100 and status = 1 and itn in ('100103703')) as zrpt_M100,
+	                        count(DISTINCT purchase_id) filter (where sum >= 100 and status = 0 and itn in ('100103703')) as zrpt_cancel,
+
+	                        count(DISTINCT purchase_id) filter (where sum < 100 and status = 1 and itn in ('191178504')) as dobronom_L100,
+	                        count(DISTINCT purchase_id) filter (where sum >= 100 and status = 1 and itn in ('191178504')) as dobronom_M100,
+	                        count(DISTINCT purchase_id) filter (where sum >= 100 and status = 0 and itn in ('191178504')) as dobronom_cancel
+
+                            from oplati_analytic.bi_pos_type_2023 bpt
+                            where created_date :: date = today()-1 and
+                           		itn in ('102312319', '102377059', '102382074', '201015032','300988497',
+                                        '401166051', '500840746', '601075914', '601077667','700849085',
+                                        '800016624', '100921458', '101454161', '101171198','100088694',
+                                        '100230639', '190757183', '191923668', '291313486','800001064',
+                                        '190839877', '700002779', '100220134', '701483289','790274799',
+                                        '390286042', '191634233', '300200651', '100103703','191178504')
+                            group by DATE_TRUNC('day', bpt.created_date)
+                            order by report_date asc;"
+
+################################################### ANALITICAL REPORTS ###############################################
+
+# The query for bi_agr_organisation_indicators table from proc_17 is on the dashboard_client_org.yaml file
+
+# The queries below are from proc_19_1_agr_analitical
+
+  "tab_bi_agr_organisation_city":
+      overwrite_period: overwrite
+      clickhouse_schema: oplati_views_report
+      clickhouse_table: bi_agr_organisation_city
+      datetime_field: report_date
+      recount_period: day
+      clickhouse_query: "insert into oplati_views_report.bi_agr_organisation_city
+                            select
+	                            today()-1 as report_date,
+	                            city,
+	                            city_sum,
+	                            inactive_pos_city,
+	                            amount_pos_city,
+	                            inactive_cashbox_city,
+	                            amount_cashbox_city
+                            from (
+                                SELECT 	
+	                                city AS city,
+                                    round(sum(sum),2) as city_sum
+                                FROM oplati_analytic.bi_pos_type
+                                where status =1
+                                GROUP BY city
+                            ) t_city
+
+                            right join (
+                                SELECT
+                                    city AS inactive_pos_city,
+                                    count(DISTINCT pos_id) AS amount_pos_city
+                                FROM oplati_analytic.spr_pos_area
+                                WHERE ((pos_id not in
+                                    (select distinct pos_id
+                                    from oplati_analytic.bi_pos_type where status =1)))
+                                GROUP BY city
+                                order by amount_pos_city desc
+                            ) in_city
+                            on t_city.city = in_city.inactive_pos_city
+
+                            right join (
+                                SELECT
+                                    city AS inactive_cashbox_city,
+                                    count(distinct cash_id ) AS amount_cashbox_city
+                                FROM oplati_analytic.spr_cashbox_area
+                                where region IS NOT NULL
+                                AND close_date IS null and ((cash_id not in
+                                        (select distinct device_id
+                                         from oplati_analytic.bi_pos_type where status =1)))
+                                GROUP BY city
+                                order by amount_cashbox_city desc
+                            ) inact_city
+                            on t_city.city = inact_city.inactive_cashbox_city
+
+                            union all
+
+                            select
+                            	today()-1 as report_date,
+                            	city,
+                            	city_sum,
+                            	inactive_pos_city,
+                            	amount_pos_city,
+                            	inactive_cashbox_city,
+                            	amount_cashbox_city
+                            from (
+                                SELECT 
+                                	city AS city,
+                                    round(sum(sum),2) as city_sum
+                                FROM oplati_analytic.bi_pos_type
+                                where status =1
+                                GROUP BY city
+                            ) t_city
+
+                            left join (
+                                SELECT
+                                    city AS inactive_pos_city,
+                                    count(DISTINCT pos_id) AS amount_pos_city
+                                FROM oplati_analytic.spr_pos_area
+                                WHERE ((pos_id not in
+                                          (select distinct pos_id
+                                           from oplati_analytic.bi_pos_type where status =1)))
+                                GROUP BY city
+                                order by amount_pos_city desc
+                            ) in_city
+                            on t_city.city = in_city.inactive_pos_city
+
+                            left join (
+                                SELECT
+                                    city AS inactive_cashbox_city,
+                                    count(distinct cash_id ) AS amount_cashbox_city
+                                FROM oplati_analytic.spr_cashbox_area
+                                where region IS NOT NULL
+                                  AND close_date IS null and ((cash_id not in
+                                          (select distinct device_id
+                                           from oplati_analytic.bi_pos_type where status =1)))
+                                GROUP BY city
+                                order by amount_cashbox_city desc
+                            ) inact_city
+                            on t_city.city = inact_city.inactive_cashbox_city
+                            where inactive_pos_city  is  null or inactive_cashbox_city is null;"
+
+  "tab_update_city_bi_agr_organisation_city":
+    clickhouse_query: "ALTER TABLE oplati_views_report.bi_agr_organisation_city UPDATE city    = 'Нет данных' where (city  ='NULL' or city is null);"
+
+  "tab_update_inactive_pos_city_bi_agr_organisation_city":
+    clickhouse_query: "ALTER TABLE oplati_views_report.bi_agr_organisation_city UPDATE inactive_pos_city = 'Нет данных' where (inactive_pos_city='NULL' or inactive_pos_city is null);"
+
+
+  "tab_update_inactive_cashbox_city_bi_agr_organisation_city":
+    clickhouse_query: "ALTER TABLE oplati_views_report.bi_agr_organisation_city UPDATE inactive_cashbox_city = 'Нет данных' where (inactive_cashbox_city ='NULL' or inactive_cashbox_city is null);"
+
+  "tab_bi_agr_analitic_cashbox":
+    overwrite_period: overwrite
+    clickhouse_schema: oplati_views_report
+    clickhouse_table: bi_agr_analitic_cashbox
+    datetime_field: open_date
+    recount_period: day
+    clickhouse_query: "insert into oplati_views_report.bi_agr_analitic_cashbox
+                        SELECT
+	                        date_trunc('day', sca.open_date) as open_date,
+                            spa.region,
+                            bo.title as name,
+                            bo.unp,
+                            bo.manager,
+                            case
+	                            when bo.manager='БИБ' then 'БИБ'
+	                            else 'ЛВО'
+	                        end as job,
+                            count (distinct sca.cash_id) as cash_amount,
+                            count (distinct sca.cash_id) filter (where cash_id not in(
+    										                    select distinct device_id
+    										                    from oplati_analytic.bi_pos_type
+    										                    where status = 1)
+    									                ) as inact_cash_amount
+                            from oplati_analytic.spr_cashbox_area sca
+                            left join oplati_analytic.spr_pos_area spa
+                            on sca.pos_id=spa.pos_id
+                            left join oplati_analytic.bi_organisation_payments bop
+                            on bop.org_id=spa.org_id
+                            left join oplati_analytic.bi_organisation bo
+                            on bo.company_id=bop.company_id
+                            where sca.close_date is null
+                            group by date_trunc('day', sca.open_date),
+                                spa.region,
+                                job,
+                                bo.title,
+                                bo.unp,
+                                bo.manager
+                            order by open_date desc;"
+
+  "tab_bi_agr_analitic_pos":
+    overwrite_period: overwrite
+    clickhouse_schema: oplati_views_report
+    clickhouse_table: bi_agr_analitic_pos
+    datetime_field: open_date
+    recount_period: day
+    clickhouse_query: "insert into  oplati_views_report.bi_agr_analitic_pos
+                        SELECT
+	                        date_trunc('day', spa.open_date) as open_date,
+                            spa.region,
+                            bo.title as name,
+                            bo.unp,
+                            bo.manager,
+                            case
+	                            when bo.manager='БИБ' then 'БИБ'
+	                            else 'ЛВО'
+	                        end as job,
+                            count (distinct spa.pos_id) as pos_amount,
+                            count (distinct spa.pos_id) filter (where pos_id not in(
+    										                        select distinct pos_id
+    										                        from oplati_analytic.bi_pos_type
+    										                        where status = 1)
+    									                        ) as inact_pos_amount
+                            from oplati_analytic.spr_pos_area spa
+                            left join oplati_analytic.bi_organisation_payments bop
+                            on bop.org_id=spa.org_id
+                            left join oplati_analytic.bi_organisation bo
+                            on bo.company_id=bop.company_id
+                            group by date_trunc('day', spa.open_date),
+                                spa.region,
+                                bo.manager,
+                                bo.title,
+                                bo.unp
+                            order by open_date desc;"
+
+  "tab_bi_agr_analitic_operation":
+    overwrite_period: overwrite
+    clickhouse_schema: oplati_views_report
+    clickhouse_table: bi_agr_analitic_operation
+    datetime_field: report_date
+    recount_period: month
+    clickhouse_query: "insert into oplati_views_report.bi_agr_analitic_operation
+                        SELECT
+	                        date_trunc('month', pt.created_date) as report_date,
+                            pt.region,
+                            pt.name,
+                            o.unp as itn,
+                            o.manager,
+                            case
+                        	    when o.manager='БИБ' then 'БИБ'
+	                            else 'ЛВО'
+	                        end as job,
+                            sum(sum),
+                            count(*)
+                        from oplati_analytic.bi_pos_type_2023 pt
+                        left join oplati_analytic.bi_organisation o on pt.merchant_id=o.profile_id
+                        where pt.status=1 and DATE_TRUNC('month', pt.created_date) = DATE_TRUNC('month', today()-1)
+                        group by
+	                    date_trunc('month', pt.created_date),
+                        o.manager,
+                        pt.region,
+                        pt.name,
+                        o.unp,
+   	                    case
+    	                    when o.manager='БИБ' then 'БИБ'
+                            else 'ЛВО'
+                        end
+                        order by report_date asc;"
+
+  "tab_bi_agr_analitic_org":
+    overwrite_period: overwrite
+    clickhouse_schema: oplati_views_report
+    clickhouse_table: bi_agr_analitic_org
+    datetime_field: report_date
+    recount_period: day
+    clickhouse_query: "insert into oplati_views_report.bi_agr_analitic_org
+                        SELECT
+                        	date_trunc('day',bo.date_create) as open_date,
+                        	bo.region,
+                        	bo.title as name,
+                        	bo.unp,bo.manager,
+                        	case
+                        		when bo.manager='БИБ' then 'БИБ'
+                        		else 'ЛВО'
+                         end as job,
+                        	count (distinct bo.profile_id) as org_amount,
+                        	count (distinct bo.profile_id) filter (where bo.unp in (
+  									                        select itn
+  									                        from oplati_analytic.bi_organisation_payments
+  									                        where  org_id in (
+  										                        select org_id
+  										                        from oplati_analytic.bi_pos_type
+  										                        where status = 1))
+  									                        ) as act_org_amount,
+                        	count (distinct bo.profile_id) filter (where bo.unp not in (
+  									                        select itn
+  									                        from oplati_analytic.bi_organisation_payments
+  									                        where org_id in (
+  										                        select org_id
+  										                        from oplati_analytic.bi_pos_type
+  										                        where status = 1))
+  									                        ) as inact_org_amount
+                        from oplati_analytic.bi_organisation bo
+                        group by date_trunc('day',bo.date_create),
+                         bo.region,
+                         case
+                          when bo.manager='БИБ' then 'БИБ'
+                          else 'ЛВО'
+                         end,
+                         bo.title,
+                         bo.unp,
+                         bo.manager
+                        order by open_date desc;"
+
+  "tab_bi_agr_analitic_org_cancel_contract":
+    overwrite_period: overwrite
+    clickhouse_schema: oplati_views_report
+    clickhouse_table: bi_agr_analitic_org_cancel_contract
+    datetime_field: report_date
+    recount_period: day
+    clickhouse_query: "insert into oplati_views_report.bi_agr_analitic_org_cancel_contract
+                        SELECT
+                     distinct today()-1 as report_date,
+                     title AS title,
+                        unp AS unp,
+                        region AS region,
+                        case
+    	                    when manager='БИБ' then 'БИБ'
+                            else 'ЛВО'
+                        end AS job,
+                        manager AS manager
+                        FROM oplati_analytic.bi_organisation
+                        WHERE (profile_id in
+                                    (select profile_id
+                                     from oplati_analytic.bi_wallet
+                                     where closed_on is not null));"
+
+  "tab_bi_agr_analitic_org_term_contract":
+    overwrite_period: overwrite
+    clickhouse_schema: oplati_views_report
+    clickhouse_table: bi_agr_analitic_org_term_contract
+    datetime_field: report_date
+    recount_period: day
+    clickhouse_query: "insert into oplati_views_report.bi_agr_analitic_org_term_contract
+                        SELECT
+                            today() - 1 as report_date,
+                        	title AS title,
+                            unp AS unp,
+                            region AS region,
+                            case
+                            	when manager='БИБ' then 'БИБ'
+                                else 'ЛВО'
+   	                        end AS job,
+                            manager AS manager
+                        FROM oplati_analytic.bi_organisation
+                        WHERE status_id=2
+                        GROUP BY title,
+                                unp,
+                                region,
+                                case
+         	                        when manager='БИБ' then 'БИБ'
+                                    else 'ЛВО'
+                                end,
+                                manager;"
+
+############################################# CLIENT ORGANISATION ####################################################
+
+# proc_17_agr_organisation
+
+  "tab_bi_agr_pos_revenue":
+    overwrite_period: overwrite
+    clickhouse_schema: oplati_views_report
+    clickhouse_table: bi_agr_pos_revenue
+    datetime_field:
+    recount_period: day
+    clickhouse_query: "insert into oplati_views_report.bi_agr_pos_revenue
+                        select
+                        	sss.revenue_category,
+                        	pos_amount,
+                        	cashbox_amount from (
+                        		select
+			                        ddd.revenue_category,
+			                        count(DISTINCT pos_id) AS pos_amount
+                        		from (
+			                        with s_pos as (
+				                        select
+ 					                        pos_id,
+				 	                        sum
+				                        FROM oplati_analytic.bi_pos_type
+				                        where status = 1
+                        			) select
+                        				pos_id,
+				                        sum(sum),
+				                        case
+              		                        when sum<=1 then '1 рубль и меньше'
+              		                        when sum>1 and sum<=5 then '1-5 рублей'
+              		                        when sum>5 and sum<=10 then '5-10 рублей'
+              		                        when sum>10 and sum<=50 then '10-50 рублей'
+              		                        when sum>50 and sum<=100 then '50-100 рублей'
+              		                        when sum >100 and sum<=500 then '100-500 рублей'
+              		                        when sum>500 and sum<=1000 then '500-1000 рублей'
+              		                        when sum>1000 and sum<=5000 then '1000-5000 рублей'
+              		                        when sum>5000 then '5000 рублей и более'
+          		                        end AS revenue_category
+          		                        from  s_pos
+				                        group by pos_id,sum
+                                    ) ddd GROUP BY revenue_category
+	                            ) sss
+
+                            	left join (
+		                            select
+			                            revenue_category,
+			                            count(DISTINCT device_id) AS cashbox_amount
+		                            from (
+		                                with s_pos as (
+			                                select
+			 	                                device_id,
+			 	                                sum
+			                                FROM oplati_analytic.bi_pos_type
+			                                where status = 1
+                                		) select
+			                                device_id,
+			                                sum(sum),
+			                                case
+                                                when sum<=1 then '1 рубль и меньше'
+                                                when sum>1 and sum<=5 then '1-5 рублей'
+                                                when sum>5 and sum<=10 then '5-10 рублей'
+                                                when sum>10 and sum<=50 then '10-50 рублей'
+                                                when sum>50 and sum<=100 then '50-100 рублей'
+                                                when sum >100 and sum<=500 then '100-500 рублей'
+                                                when sum>500 and sum<=1000 then '500-1000 рублей'
+                                                when sum>1000 and sum<=5000 then '1000-5000 рублей'
+                                                when sum>5000 then '5000 рублей и более'
+          	                                end AS revenue_category
+                                        from  s_pos
+		                                group by device_id,sum
+                                    ) rrr GROUP BY revenue_category
+                            	) fff
+	                            on fff.revenue_category  =sss.revenue_category;"
+
+  "tab_bi_agr_cashbox_area":
+    overwrite_period: overwrite
+    clickhouse_schema: oplati_views_report
+    clickhouse_table: bi_agr_cashbox_area
+    datetime_field:
+    recount_period: day
+    clickhouse_query: "insert into oplati_views_report.bi_agr_cashbox_area
+                        select
+                         act_cash.cashbox_type,
+		                 act_cash.name_cashtype,
+		                 act_cash.region,
+		                 act_cash.cashbox_amount,
+		                 inactive_cashbox_amount from (
+                            select
+	                            rrr.cashbox_type,
+	                            case
+		                            when cashbox_type =1 then 'Стационарная касса'
+                                    when cashbox_type =2 then 'Оплати-касса'
+                                    when cashbox_type =3 then 'Интернет-касса'
+	                            end as name_cashtype,
+	                            rrr.region,
+	                            count(device_id) as cashbox_amount
+                            from (
+                                select distinct device_id
+                                from oplati_analytic.bi_pos_type where status = 1
+                            )  sss
+                            right join
+                            (select * from oplati_analytic.spr_cashbox_area where region IS NOT null and close_date IS NULL) rrr
+                            on rrr.cash_id = sss.device_id
+                            where region is not null
+                            group by rrr.cashbox_type,rrr.region) act_cash
+
+                            left join (
+                                SELECT
+                                    region AS region,
+                                    cashbox_type,
+                                    count(DISTINCT cash_id) AS inactive_cashbox_amount
+                                FROM oplati_analytic.spr_cashbox_area
+                                WHERE region IS NOT NULL
+                                    AND close_date IS NULL
+                                    AND ((cash_id not in
+                                        (select distinct device_id
+                                        from oplati_analytic.bi_pos_type where status = 1)))
+                                GROUP BY region,cashbox_type
+                                ) inact_cash
+                            on act_cash.region = inact_cash.region and act_cash.cashbox_type = inact_cash.cashbox_type;"
+
+  "tab_bi_agr_organisation_salary":
+    overwrite_period: overwrite
+    clickhouse_schema: oplati_views_report
+    clickhouse_table: bi_agr_organisation_salary
+    datetime_field: report_date
+    recount_period: month
+    clickhouse_query: "insert into oplati_views_report.bi_agr_organisation_salary
+                        select
+                         DATE_TRUNC('month', trans_date) as report_date,
+                         case
+                         	when payer is null then 'Иные юр.лица'
+                             when payer='Белинвестбанк' then 'БИБ'
+                         	else payer
+                         end AS payer_name,
+                         round(sum(sum),2) as sum_salary,
+                         count(*) AS amount_salary,
+                         count(distinct profile_id) as customers_salary
+                        from oplati_analytic.bi_transactions_in
+                        where DATE_TRUNC('day', trans_date) >= '2021-06-01'
+                         and purpose_in='Перевод с текущего счета'
+                         and type_in_name !='Перевод с текущего счета'
+                         and pan not in ('511111111', '999999999')
+                            and payer not ilike '%Международный перевод%'
+                            and DATE_TRUNC('month', trans_date) = DATE_TRUNC('month', today() - 1)
+                        group by DATE_TRUNC('month', trans_date),
+                     case
+                            when payer is null then 'Иные юр.лица'
+                            when payer='Белинвестбанк' then 'БИБ'
+                            else payer
+                        end
+                        order by report_date asc;"
+
+  "tab_bi_agr_organisation_monthly":
+    overwrite_period: overwrite
+    clickhouse_schema: oplati_views_report
+    clickhouse_table: bi_agr_organisation_monthly
+    datetime_field: report_date
+    recount_period: month
+    clickhouse_query: "insert into oplati_views_report.bi_agr_organisation_monthly
+                        select
+                      reg_sum.report_date,
+                      reg_sum.region,
+                      pos_sum,
+                      pos_amount,
+                      amount_organisation,
+                      bib_manager,
+                      lwo_manager,
+                      pos_active,
+                      pos_active_new,
+                      pos_inactive_new,
+                      cashbox_new,
+                      cashbox_active,
+                      cashbox_active_new,
+                      cashbox_inactive_new
+                        from (
+                            SELECT DATE_TRUNC('month', created_date) AS report_date,
+                                   region AS region,
+                                   sum(sum) AS pos_sum,
+                                   count(*) AS pos_amount,
+                                   count(DISTINCT pos_id) as pos_active
+                            FROM oplati_analytic.bi_pos_type_2023
+                            where status = 1 and DATE_TRUNC('month', created_date) = DATE_TRUNC('month', today() - 1)
+                            group by DATE_TRUNC('month', created_date) ,region
+                        ) reg_sum
+
+                        left join (
+                            SELECT
+                            	DATE_TRUNC('month', date_create) AS report_date,
+                            	region,
+                                count(DISTINCT profile_id) AS amount_organisation,
+                                case
+                                	when count(DISTINCT profile_id) filter (where  manager='БИБ') = 0 then null
+                                	else count(DISTINCT profile_id) filter (where  manager='БИБ')
+                                end bib_manager,
+                                count(DISTINCT profile_id) filter (where  manager<>'БИБ') as lwo_manager
+                            FROM oplati_analytic.bi_organisation
+                            where DATE_TRUNC('month', date_create) = DATE_TRUNC('month', today() - 1)
+                            GROUP BY DATE_TRUNC('month', date_create),region
+                        ) org_amount
+                        on reg_sum.report_date = org_amount.report_date and reg_sum.region = org_amount.region
+
+                        left join (
+                            SELECT
+                            	DATE_TRUNC('month', open_date) AS report_date,
+                            	region,
+                                count(DISTINCT pos_id) AS pos_active_new
+                            FROM oplati_analytic.spr_pos_area
+                            WHERE DATE_TRUNC('month', open_date) = DATE_TRUNC('month', today() - 1)  and
+                               ((pos_id in
+                                      (select distinct pos_id
+                                       from oplati_analytic.bi_pos_type where status = 1)))
+                            GROUP BY DATE_TRUNC('month', open_date),region
+                        ) pos_active
+                        on reg_sum.report_date = pos_active.report_date and reg_sum.region = pos_active.region
+
+                        left join (
+                            SELECT
+                                DATE_TRUNC('month', open_date) AS report_date,region,
+                                count(DISTINCT pos_id) AS pos_inactive_new
+                            FROM oplati_analytic.spr_pos_area
+                            where ((pos_id not in
+                                  (select distinct pos_id
+                                    from oplati_analytic.bi_pos_type where  status = 1)))
+                            GROUP BY DATE_TRUNC('month', open_date),region
+                            ORDER BY report_date DESC
+                        ) inact_pos_n
+                        on reg_sum.report_date = inact_pos_n.report_date and reg_sum.region = inact_pos_n.region
+
+                        left join (
+                         SELECT
+                             DATE_TRUNC('month', open_date) AS report_date,region,
+                             count(DISTINCT cash_id) AS cashbox_new
+                         FROM oplati_analytic.spr_cashbox_area
+                         where close_date IS null and DATE_TRUNC('month', open_date) = DATE_TRUNC('month', today() - 1)
+                         GROUP BY DATE_TRUNC('month', open_date),region
+                         ORDER BY report_date DESC
+                        ) new_cashbox
+                        on reg_sum.report_date = new_cashbox.report_date and reg_sum.region = new_cashbox.region
+
+                        left join (
+                            SELECT
+                                DATE_TRUNC('month', created_date) AS report_date,region,
+                                count(DISTINCT device_id) AS cashbox_active
+                            FROM oplati_analytic.bi_pos_type_2023
+                            where status = 1 and DATE_TRUNC('month', created_date) = DATE_TRUNC('month', today() - 1)
+                            GROUP BY DATE_TRUNC('month', created_date),region
+                        ) act_cashbox
+                        on reg_sum.report_date = act_cashbox.report_date and reg_sum.region = act_cashbox.region
+
+                        left join (
+                            SELECT
+                                DATE_TRUNC('month', open_date) AS report_date,region,
+                                count(DISTINCT cash_id) AS cashbox_active_new
+                            FROM oplati_analytic.spr_cashbox_area
+                            WHERE  close_date IS null and DATE_TRUNC('month', open_date) = DATE_TRUNC('month', today() - 1)
+                                AND ((cash_id in
+                                    (select distinct device_id
+                                    from oplati_analytic.bi_pos_type where status = 1)))
+                            GROUP BY DATE_TRUNC('month', open_date),region
+                        ) act_cashbox_new
+                        on reg_sum.report_date = act_cashbox_new.report_date and reg_sum.region = act_cashbox_new.region
+
+                        left join (
+                            SELECT
+                             DATE_TRUNC('month', open_date) AS report_date,region,
+                                count(DISTINCT cash_id) AS cashbox_inactive_new
+                            FROM oplati_analytic.spr_cashbox_area
+                            WHERE DATE_TRUNC('month', open_date) = DATE_TRUNC('month', today() - 1)  and
+                            close_date IS NULL
+                            AND ((cash_id not in
+                                (select distinct device_id
+                                from oplati_analytic.bi_pos_type where status = 1)))
+                            GROUP BY DATE_TRUNC('month', open_date), region
+                            ORDER BY report_date DESC
+                        ) inact_cashbox_new
+                        on reg_sum.report_date = inact_cashbox_new.report_date and reg_sum.region = inact_cashbox_new.region
+
+                        order by reg_sum.report_date asc;"
+
+  "tab_bi_agr_organisation_indicators":
+    clickhouse_query: "insert into oplati_views_report.bi_agr_organisation_indicators
+                        select
+                         org_tot.report_date,
+                         amount_organisation,
+                         active_organisation,
+                         terminate_organisation,
+                         cashbox_no_organisation,
+                         pos_organisation,
+                         active_pos_organisation,
+                         active_organisation_month,
+                         inactive_pos,
+                         total_cashbox,
+                         total_active_cashbox,
+                         total_inactive_cashbox
+                        from (
+                        	with  org_cum as (
+  				        select
+  					        calendar_date AS report_date,
+  	             	        sum(amount) over (order by calendar_date) as amount_organisation
+  	     		        from oplati_analytic.spr_calendar
+  	      		        left join (
+  	        		        select
+  	        			        date_trunc('day', date_create) AS report_date,
+  	                	        count(distinct profile_id) as amount
+  	         		        FROM oplati_analytic.bi_organisation
+  	         		        group by report_date
+  	         	        ) t
+  	         	        on calendar_date=t.report_date
+  	      		        group by calendar_date, amount
+        			        ) select * from org_cum where report_date = today()-1
+                        ) org_tot
+
+                        left join (
+                            SELECT
+                             today()-1 as report_date,
+                             count(DISTINCT itn) AS active_organisation
+                            FROM oplati_analytic.bi_transactions_org_out
+                            where trans_date ::date <today()
+                        ) act_org
+                        on org_tot.report_date = act_org.report_date
+
+                        left join (
+                            SELECT
+                             today() - 1 as report_date,
+                             COUNT(*) AS terminate_organisation
+                            FROM oplati_analytic.bi_organisation
+                            WHERE (status_id=1) and date_create::date < today()
+                        ) term_org
+                        on org_tot.report_date = term_org.report_date
+
+                        left join (
+                            select
+                             today() - 1 as report_date ,
+                             sum(organisation_no_cashbox) as cashbox_no_organisation
+                            from (
+                                SELECT
+                                    DATE_TRUNC('day', date_create) AS report_date,
+                                    count(DISTINCT unp) AS organisation_no_cashbox
+                                FROM oplati_analytic.bi_organisation
+                                WHERE ((company_id in
+  	                        (SELECT distinct company_id
+           		                    FROM oplati_analytic.bi_organisation_payments
+           		                    WHERE org_id not in (
+                                   		select DISTINCT org_id
+                	                    from oplati_analytic.spr_pos_area
+                	                    where pos_id in (
+                                        	select pos_id
+             			                    from oplati_analytic.spr_cashbox_area)
+                                    ))
+                                )) and  date_create::date <today()
+                                GROUP by DATE_TRUNC('day', date_create)
+                            ) r_t
+                        )no_cash
+                        on org_tot.report_date = no_cash.report_date
+
+                        left join (
+                            SELECT
+                                today() - 1 AS report_date,
+                                count(DISTINCT pos_id) AS pos_organisation
+                            FROM oplati_analytic.spr_pos_area
+                            where open_date :: date < today()
+                        ) pos_org
+                        on org_tot.report_date = pos_org.report_date
+
+                        left join (
+                            select
+                             today() - 1 as report_date,
+                             sum(count) as active_pos_organisation
+                            from (
+                            	SELECT
+                              DATE_TRUNC('day', open_date) AS report_date,
+       	                            COUNT(*) AS count
+                             FROM oplati_analytic.spr_pos_area
+                             WHERE ((pos_id in
+                                    (select distinct pos_id
+                                    from oplati_analytic.bi_pos_type where status = 1)))
+                             GROUP BY DATE_TRUNC('day', open_date)
+                            ) ddd where report_date < today()
+                        ) act_pos_org
+                        on org_tot.report_date = act_pos_org.report_date
+
+                        left join (
+                            SELECT
+                             today() - 1 AS report_date,
+                                count(DISTINCT itn) AS active_organisation_month
+                            FROM oplati_analytic.bi_transactions_org_out
+                            where itn is not null and DATE_TRUNC('month', trans_date) = DATE_TRUNC('month', today() - 1)
+                            GROUP BY DATE_TRUNC('month', trans_date)
+                        ) act_m_org
+                        on org_tot.report_date = act_m_org.report_date
+
+                        left join (
+                            SELECT
+                             today() - 1 as report_date,
+                                COUNT(*) AS inactive_pos
+                            FROM oplati_analytic.spr_pos_area
+                            where open_date:: date < today() and
+                             ((pos_id not in
+                                    (select distinct pos_id
+                                    from oplati_analytic.bi_pos_type where status = 1)))
+                            order by report_date desc
+                        ) pos_inactive
+                        on org_tot.report_date = pos_inactive.report_date
+
+                        left join (
+                            with tab_cash as (
+  				        select
+  					        calendar_date AS report_date,
+  	             	        sum(amount) over (order by calendar_date) as total_cashbox
+  	     		        from oplati_analytic.spr_calendar
+  	      		        left join (
+  	        		        select
+  	        			        open_date :: date as report_date,
+  	                	        count(distinct cash_id) as amount
+  	         		        FROM oplati_analytic.spr_cashbox_area
+  	         		        where close_date is null
+  	         		        group by report_date
+  	         	        ) t on calendar_date=t.report_date
+  	      		        group by calendar_date, amount
+                            ) select * from tab_cash where report_date = today() -1
+                        ) tot_cas
+                        on org_tot.report_date = tot_cas.report_date
+
+                        left join (
+                            SELECT
+                             today() - 1 as report_date,
+                                count(DISTINCT cash_id) AS total_active_cashbox
+                            FROM oplati_analytic.spr_cashbox_area
+                            WHERE close_date IS null and open_date < today() - 1
+                                AND (cash_id in
+                                    (select distinct device_id
+                                    from oplati_analytic.bi_pos_type where status = 1))
+                        ) act_cash
+                        on org_tot.report_date = act_cash.report_date
+
+                        left join (
+                            SELECT
+                             today() - 1 as report_date,
+                                count(DISTINCT cash_id) AS total_inactive_cashbox
+                            FROM oplati_analytic.spr_cashbox_area
+                            WHERE close_date IS null and open_date < today() - 1
+                                AND (cash_id not in
+                                    (select distinct device_id
+                                    from oplati_analytic.bi_pos_type where status = 1))
+                        ) inact_cash
+                        on org_tot.report_date = inact_cash.report_date;"
+
+  "tab_bi_agr_organisation_daily":
+    clickhouse_query: "insert into oplati_views_report.bi_agr_organisation_daily
+                        select
+                      reg_sum.report_date,
+                      reg_sum.region,
+                      pos_sum,
+                      pos_amount,
+                      amount_organisation,
+                      bib_manager,
+                      lwo_manager
+                        from (
+                            SELECT
+                                DATE_TRUNC('day', created_date) AS report_date,
+                                region AS region,
+                                sum(sum) AS pos_sum,
+                                count(*) AS pos_amount
+                            FROM oplati_analytic.bi_pos_type_2023
+                            where status =1 and created_date:: date = today() - 1
+                            group by DATE_TRUNC('day', created_date),region
+                        ) reg_sum
+
+                        left join (
+                            SELECT
+                             DATE_TRUNC('day', date_create) AS report_date,
+                             region,
+                                count(DISTINCT profile_id) AS amount_organisation,
+                                case
+    	                            when count(DISTINCT profile_id) filter (where  manager='БИБ') = 0 then null
+    		                        else count(DISTINCT profile_id) filter (where  manager='БИБ')
+    	                        end bib_manager,
+                            count(DISTINCT profile_id) filter (where  manager<>'БИБ') as lwo_manager
+                            FROM oplati_analytic.bi_organisation
+                            where date_create :: date = today() - 1
+                            GROUP BY DATE_TRUNC('day', date_create),region
+                            ) org_amount
+                        on reg_sum.report_date = org_amount.report_date and reg_sum.region = org_amount.region
+                        order by report_date asc;"
+
+  "tab_bi_agr_organisation_type":
+    overwrite_period: overwrite
+    clickhouse_schema: oplati_views_report
+    clickhouse_table: bi_agr_organisation_type
+    datetime_field: report_date
+    recount_period: day
+    clickhouse_query: "insert into oplati_views_report.bi_agr_organisation_type
+                        SELECT
+                         today() - 1 as report_date,
+                         type_name AS type_name,
+                            count(DISTINCT org_id) as amount_type
+                        FROM oplati_analytic.bi_organisation_payments
+                        GROUP BY type_name;"
+
+  "tab_bi_agr_organisation_region":
+    overwrite_period: overwrite
+    clickhouse_schema: oplati_views_report
+    clickhouse_table: bi_agr_organisation_region
+    datetime_field: report_date
+    recount_period: day
+    clickhouse_query: "insert into oplati_views_report.bi_agr_organisation_region
+                        select
+                        	today() - 1 as report_date,
+                        	reg_am.region,
+                        	region_amount,
+                        	bib_manager,
+                        	lwo_manager,
+                        	inactive_pos_region
+                        from (
+                         SELECT
+                          region AS region,
+       	                        sum(sum) AS region_amount
+                         FROM oplati_analytic.bi_pos_type
+                         WHERE status = 1
+                         GROUP BY region
+                        ) as reg_am
+
+                        left join (
+                         SELECT
+                          region AS region,
+       	                        case
+    		                        when count(DISTINCT profile_id) filter (where  manager='БИБ') = 0 then null
+    		                        else count(DISTINCT profile_id) filter (where  manager='БИБ')
+    	                        end bib_manager,
+    	                        count(DISTINCT profile_id) filter (where  manager<>'БИБ') as lwo_manager
+                        	FROM oplati_analytic.bi_organisation
+                         GROUP BY region
+                        ) manag_reg
+                        on reg_am.region = manag_reg.region
+
+                        left join (
+                         SELECT
+                          region AS region,
+       	                        count(DISTINCT pos_id) AS inactive_pos_region
+                         FROM oplati_analytic.spr_pos_area
+                         WHERE (pos_id not in
+                                (select distinct pos_id
+                                from oplati_analytic.bi_pos_type where status = 1))
+                         GROUP BY region
+                         ORDER BY inactive_pos_region DESC
+                        ) inact_pos_reg
+                        on reg_am.region = inact_pos_reg.region;"
+
+#################################################### MAIN SYSTEM PARAMS ################################################
+
+# bi_agr_transactions_out,
+# bi_agr_pos_payments_daily,
+# bi_agr_transactions_vcard_daily,
+# bi_agr_account_balance
+# bi_agr_transaction_in_daily are already prepared in dashboard_client_individual.yaml
+
+# From proc_15_agr_clickhouse, early proc 19_1
+
+  "tab_bi_agr_balance_organisation":
+    overwrite_period: overwrite
+    clickhouse_schema: oplati_views_report
+    clickhouse_table: bi_agr_balance_organisation
+    datetime_field: report_date
+    recount_period: month
+    clickhouse_query: "insert into oplati_views_report.bi_agr_balance_organisation
+		                select 
+			                date_trunc('month',balance_date) as report_date, 
+			                case 
+			                	when wallet_type = 6 then 'Юр.лицо'
+			                	else 'Юр.лицо (выплаты)'
+			                end as wallet_name,
+			                wallet_type ,
+			                round((sum(balance_sum)/count(distinct balance_date)), 2) as balance_sum  
+		                from (		
+		                    select
+		                        id,
+		                        account_id,
+		                        balance_date,
+		                        balance_sum,
+		                        bw.profile_id,
+		                        bab.wallet_type
+		                    from oplati_analytic.bi_account_balance_organisation bab 
+		                    left join oplati_analytic.bi_wallet bw 
+		                    on bab.account_id = bw.wallet_id 
+		                    where date_trunc('month', balance_date) = date_trunc('month', today() - 1) 
+		                ) fff
+		                group by date_trunc('month',balance_date),wallet_type
+		                order by report_date asc;"
+
+# early in proc_15_agr_customer
+
+  "tab_bi_agr_account_balance_currency":
+    clickhouse_query: "insert into oplati_views_report.bi_agr_account_balance_currency
+		                select
+		                	today() - 1 as report_date,
+		                	currency, 
+		                	round((sum(balance_sum)/(SELECT toDayOfMonth(today() - 1))),2) as avg_day_sum,
+		                	sum(balance_sum) filter (where balance_date::date = today() - 1) as day_sum
+		                from oplati_analytic.bi_account_balance_month bab  
+		                join oplati_analytic.bi_wallet bw 
+		                on bab.account_id = bw.wallet_id 
+		                where bw.wallet_type = 8 
+		                group by date_trunc('month', balance_date),currency 
+		                order by currency asc;"
+
+  "tab_bi_agr_transaction_erip_daily":
+    clickhouse_query: "insert into oplati_views_report.bi_agr_transaction_erip_daily
+		                SELECT 
+		                    date_trunc('day', payment_date) AS report_date,
+		                    case
+		                        when lowerUTF8(purpose_pay) ilike '%пополн%'
+		                             or purpose_pay = 'A1 кошелек '
+		                             or upperUTF8(purpose_pay) ilike '%WMB%' then 'Пополнение счета/карты'
+		                        else 'Другие операции'
+		                    end AS operation_type,
+		                    sum(sum) AS erip_sum
+		                FROM oplati_analytic.bi_transactions_erip
+		                where status = 'COMPLETED' and payment_date :: date = today() - 1
+		                group by date_trunc('day', payment_date),
+		                       case
+		                           when lowerUTF8(purpose_pay) ilike '%пополн%'
+		                                or purpose_pay = 'A1 кошелек '
+		                                or upperUTF8(purpose_pay) ilike '%WMB%' then 'Пополнение счета/карты'
+		                           else 'Другие операции'
+		                       end;"
+
+# early in proc_19
+  "tab_bi_agr_partner_payout":
+    clickhouse_query: "insert into oplati_views_report.bi_agr_partner_payout
+		                select 
+			                date_trunc('day', trans_date) AS report_date,
+		                    round(sum(sum) filter (where purpose_pay = 'Платежи - Париматч'), 2)AS parimatch_payout,
+		                    round(sum(sum) filter (where purpose_pay = 'Платежи - Лотереи'), 2)AS belloto_payout,
+		                    round(sum(sum) filter (where purpose_pay = 'Платежи - ИНХО'), 2)AS inho_payout,
+		                    round(sum(sum) filter (where purpose_pay = 'Платежи - БИЗОН'), 2)AS bison_payout,
+		                    round(sum(sum) filter (where purpose_pay = 'Платежи - GrandCasino'), 2)AS crandcasino_payout,
+		                    round(sum(sum) filter (where purpose_pay = 'Платежи - БетСити'), 2)AS betcity_payout,
+		                    round(sum(sum) filter (where purpose_pay = 'Платежи - Лото.by'), 2)AS lotoby_payout,
+		                    round(sum(sum) filter (where purpose_pay = 'Платежи - Марафон'), 2)AS marafon_payout,
+		                    round(sum(sum) filter (where purpose_pay = 'Платежи - Brazino777'), 2)AS brazino777_payout,
+		                    round(sum(sum) filter (where purpose_pay = 'Платежи - ТЕХНОЛОДЖИС'), 2)AS techno_payout,
+		                    round(sum(sum) filter (where purpose_pay = 'Платежи - Висп' ), 2)AS visp_payout
+		                from oplati_analytic.bi_transactions_payout_pos
+		                where trans_date :: date = today() - 1
+		                group by date_trunc('day', trans_date);"
+
+############################################# PACKAGES DASHBOARD #####################################################
+
+# The following tables are uploading by postgres-clickhouse transfer task: bi_profile_package, bi_account_balance_premium, bi_pos_type_premium
+
+# This query was the result of unaggregated data, used in new superset
+
+  "tab_bi_agr_fin_result_package":
+    overwrite_period: overwrite
+    clickhouse_schema: oplati_views_report
+    clickhouse_table: bi_agr_fin_result_package
+    datetime_field: report_date
+    recount_period: month
+    clickhouse_query: "insert into oplati_views_report.bi_agr_fin_result_package
+                        select toDate(date) AS report_date,
+                        sum(income_sdo) AS sdo_income,
+                        sum(t.sub) AS package_income,
+                        sum(t.eq) AS acquiring_income,
+                        sum(t3.card) AS card_income,
+                        sum(t4.promo) AS bib_package_income,
+                        sum(t5.rand) AS arbitrary_payment_income,
+                        sum(t2.back) AS moneyback_premium,
+                        sum(t6.bpk) as bpk_commission,
+                        sum(t6.tkb) as tkb_commission
+                        from (SELECT DATE_TRUNC('month', bp.balance_date) AS date,
+                            SUM(balance_sum)*0.02/365 as income_sdo,
+                            t.eq,
+                            t.sub,
+                            t2.back,
+                            t3.card,
+                            t4.promo,
+                            t5.rand,
+                            t6.bpk,
+                            t6.tkb
+                            FROM oplati_analytic.bi_account_balance_premium bp
+                            left join
+                                (select DATE_TRUNC('month', pos.created_date) as date,
+                                (SUM(sum) filter (where device_id != 50933))*0.005 AS eq,
+                                sum(sum) filter (where device_id = 50933) as sub
+                                FROM oplati_analytic.bi_pos_type_premium pos
+                                where status=1 and DATE_TRUNC('month', pos.created_date) = DATE_TRUNC('month', today()-1)
+                                group by DATE_TRUNC('month', pos.created_date)) t
+                            on t.date=DATE_TRUNC('month', bp.balance_date)
+
+                            left join
+                                (select DATE_TRUNC('month', trans_date) as date,
+                                sum(sum) as back
+                                from oplati_analytic.bi_transactions_in
+                                where purpose_in LIKE '%Премиум%'
+                                and DATE_TRUNC('month', trans_date) = DATE_TRUNC('month', today()-1)
+                                group by DATE_TRUNC('month', trans_date)) t2
+                            on t2.date=DATE_TRUNC('month', bp.balance_date)
+
+                            left join
+                                (SELECT DATE_TRUNC('month', btvo.trans_date) AS date,
+                                sum(sum)*0.01 as card
+                                FROM oplati_analytic.bi_profile_package bpp
+                                left join oplati_analytic.bi_transactions_vcard_out btvo
+                                on bpp.profile_id=btvo.profile_id
+                                where (btvo.trans_date>=activate_date
+                                and btvo.trans_date<= expire_date)
+                                and DATE_TRUNC('month', trans_date) = DATE_TRUNC('month', today()-1)
+                                group by DATE_TRUNC('month', btvo.trans_date)) t3
+                            on t3.date=DATE_TRUNC('month', bp.balance_date)
+
+                            left join
+                                (SELECT DATE_TRUNC('month', activate_date) as date,
+                                8.99*count(distinct profile_id) as promo
+                                from oplati_analytic.bi_profile_package
+                                where promo_code is not NULL
+                                and DATE_TRUNC('month', activate_date) = DATE_TRUNC('month', today()-1)
+                                group by DATE_TRUNC('month', activate_date)) t4
+                            on t4.date=DATE_TRUNC('month', bp.balance_date)
+
+                            left join
+                                (SELECT DATE_TRUNC('month', trans_date) as date,
+                                1*count(distinct trans_id) as rand
+                                from oplati_analytic.bi_profile_package pp
+                                left join oplati_analytic.bi_transactions_out o
+                                on pp.profile_id =o.profile_id
+                                where purpose_pay ='Произвольные платежи'
+                                and DATE_TRUNC('month', trans_date) = DATE_TRUNC('month', today()-1)
+                                and trans_date>=activate_date
+                                and trans_date<=expire_date
+                                group by DATE_TRUNC('month', trans_date)) t5
+                            on t5.date=DATE_TRUNC('month', bp.balance_date)
+
+                            left join
+                                (SELECT DATE_TRUNC('month',  created_date) as date,
+                                (sum(commission) filter (where operation_type=19 and status=6) -(sum(sum) filter (where operation_type=19 and status=6))*0.0015)*0.5 as bpk,
+                                (sum(commission) filter (where operation_type=17 and status=6) -(sum(sum) filter (where operation_type=17 and status=6))*0.003)*0.5 as tkb
+                                from oplati_analytic.bi_profile_package pp left join oplati_analytic.bi_operations_inout io
+                                on pp.profile_id =io.profile_id where (created_date>=activate_date and created_date<=expire_date)
+                                group by DATE_TRUNC('month', created_date)) t6
+                                on t6.date=DATE_TRUNC('month', bp.balance_date)
+
+                            where DATE_TRUNC('month', bp.balance_date) = DATE_TRUNC('month', today()-1)
+                            group by DATE_TRUNC('month', bp.balance_date),
+                            t.eq,
+                            t.sub,
+                            t2.back,
+                            t3.card,
+                            t4.promo,
+                            t5.rand,
+                            t6.bpk,
+                            t6.tkb) AS virtual_table
+                        GROUP BY report_date;"
+
+
+# From proc_15_agr_clickhouse (early in procedure 11)
+
+  "tab_bi_agr_not_premium_pos":
+    clickhouse_query: "insert into oplati_views_report.bi_agr_not_premium_pos
+		                select
+		                    date_trunc('day', created_date) as report_date,
+		                    sum(sum),
+		                    mcc_code,
+		                    mcc.name,
+		                    concat(mcc_code, ' - ', mcc.name)  as group_mcc
+		                from (
+		                    select
+		                        bpt.purchase_id,bpt.purse_id,
+		                        bpt.merchant_id,bpt.device_id,
+		                        bpt.sum,bpt.created_date,
+		                        bpt.pos_id,bpt.profile_id,
+		                        bpt.org_id,bpt.status
+		                    from oplati_analytic.bi_pos_type_2023 bpt
+		                    left join (
+		                        select
+		                            distinct profile_id as profile_id_in
+		                        from oplati_analytic.bi_profile_package
+		                        where today() - 1 between activate_date and expire_date
+		                    ) bptp 
+		                    on bpt.profile_id  = bptp.profile_id_in 
+		                    where (created_date::date = today()-1 ) and profile_id_in is null and bpt.status = 1
+		                )bpt
+		                left join oplati_analytic.spr_cashbox_area spr on bpt.device_id=spr.cash_id
+		                left join oplati_analytic.spr_mcc_code mcc on mcc.code=spr.mcc_code
+		                where device_id <> 50933
+		                group by mcc_code, date_trunc('day', created_date), mcc.name
+		                order by date_trunc('day', created_date) desc;"
+
+  "tab_bi_agr_moneyback_not_premium":
+    clickhouse_query: "insert into oplati_views_report.bi_agr_moneyback_not_premium
+                        select 
+			                t_pos.report_date,
+			                sum_pos,
+			                amount_pos,
+			                sum_manyback,
+			                amount_customer,
+			                round(balance_sum,2) as balance_sum,
+			                round(v_out, 2) as sum_virt_out,
+			                amount_std_customer,
+			                sum_arbitrary_pay,
+			                amount_arbitrary_pay,
+			                bpk_commission_std,
+			                tkb_commission_std
+		                from (		
+				            select 
+					            date_trunc('day',created_date) as report_date, 
+					            sum(sum) as sum_pos,
+					            count(purchase_id) as amount_pos
+				            from oplati_analytic.bi_pos_type_2023 bpt 
+				            where profile_id not in (
+				                select distinct profile_id
+				                from oplati_analytic.bi_profile_package
+				                where today() - 1 between activate_date and expire_date)
+					        and status = 1
+					        and (created_date::date = today() - 1)
+				            group by date_trunc('day',created_date)				
+		                ) t_pos	
+		
+		                left join (
+			                select
+			                    std_c.report_date,
+			                    sum_manyback,
+			                    amount_customer,
+			                    amount_std_customer
+			                from (
+				                select 
+					                today() - 1 as report_date,
+					                count(*)  as amount_std_customer
+				                from oplati_analytic.bi_customers 
+				                where profile_id not in (
+				                    select distinct profile_id
+				                    from oplati_analytic.bi_profile_package
+				                    where today() - 1 between activate_date and expire_date) 
+			                )std_c
+		                    left join (
+			                    select 
+				                    date_trunc('day',trans_date)  as report_date,
+				                    round((sum(sum)),2) as sum_manyback,
+				                    count(distinct profile_id)as amount_customer
+			                    from oplati_analytic.bi_transactions_in bti 
+				                where trans_date::date = today() - 1
+				                and upperUTF8(purpose_in) ilike upperUTF8('%''Манибэк''%')
+				                group by date_trunc('day',trans_date) 
+		                    )man_c
+		                    on std_c.report_date = man_c.report_date
+		                ) m_back
+		                on t_pos.report_date = m_back.report_date
+		
+		                left join (
+			                select
+			                    today() - 1 as report_date,
+			                    round(sum(balance_sum),2) as balance_sum
+			                from oplati_analytic.bi_account_balance babm
+			                left join (
+				                select
+				                    distinct wallet_id,
+				                    wallet_type,
+				                    br.profile_id
+				                from oplati_analytic.bi_wallet da
+				                left join (
+					                select distinct profile_id
+					                from oplati_analytic.bi_profile_package br
+					                where today() - 1 between activate_date and expire_date
+				                ) br
+				                on br.profile_id = da.profile_id 
+						        where wallet_type in (1,2,3,5)
+			                )ggg
+			                on babm.account_id = ggg.wallet_id 
+			                where balance_date::date = today() - 1
+			                and  wallet_type in (1,2,3,5)
+			                and  br.profile_id is null
+			            ) t_acc	
+		                on t_pos.report_date = t_acc.report_date
+		
+		                left join (
+				            select 
+					            date_trunc('day',trans_date) as report_date, 
+					            sum(sum) as v_out
+				            from oplati_analytic.bi_transactions_vcard_out btvo  
+				            where profile_id not in (
+				                select distinct profile_id
+				                from oplati_analytic.bi_profile_package
+				                where today() - 1 between activate_date and expire_date)
+					        and (trans_date::date = today() - 1 )
+				            group by date_trunc('day',trans_date)
+		                ) vc_out
+		                on t_pos.report_date = vc_out.report_date
+		
+		                left join (
+			                select 
+					            date_trunc('day',trans_date) as report_date, 
+					            sum(sum) as sum_arbitrary_pay,
+					            count(trans_id) as amount_arbitrary_pay
+				            from oplati_analytic.bi_transactions_out btvo  
+				            where purpose_pay ='Произвольные платежи' 
+					        and	profile_id not in (
+					            select distinct profile_id
+					            from oplati_analytic.bi_profile_package
+					            where today() - 1 between activate_date and expire_date)
+					        and (trans_date::date = today() - 1)
+				            group by date_trunc('day',trans_date)
+		                ) t_out
+		                on t_pos.report_date = t_out.report_date
+	
+		                left join (
+			                SELECT
+			                    date_trunc('day',  created_date) as report_date, 
+			                    round(((sum(commission) filter (where operation_type=19 and status=6) -(sum(sum) filter (where operation_type=19 and status=6))*0.0015)*0.5), 2) as bpk_commission_std,
+			                    round(((sum(commission) filter (where operation_type=17 and status=6) -(sum(sum) filter (where operation_type=17 and status=6))*0.003)*0.5), 2) as tkb_commission_std
+			                from oplati_analytic.bi_customers pp 
+			                left join oplati_analytic.bi_operations_inout io
+			                on pp.profile_id = io.profile_id 
+						
+			                where report_date = today() - 1
+			                and pp.profile_id not in (
+			                	select DISTINCT profile_id
+			                	from oplati_analytic.bi_profile_package bpp
+			                	where today() - 1 between activate_date and expire_date
+			                )
+			
+			                group by DATE_TRUNC('day', created_date) 
+		                ) com 
+                        on t_pos.report_date = com.report_date;"
+
+############################################ STATISTICS (CHAT) ########################################################
+
+# From proc_18
+
+  "tab_bi_agr_stats_travel_card":
+    overwrite_period: overwrite
+    clickhouse_schema: oplati_views_report
+    clickhouse_table: bi_agr_stats_travel_card
+    datetime_field: report_date
+    recount_period: day
+    clickhouse_query: "insert into oplati_views_report.bi_agr_stats_travel_card
+                        SELECT 
+                          today() - 1 AS report_date,
+                          autopark_city AS autopark_city,
+                          COUNT(DISTINCT id) AS total_travel_card,
+                          SUM(date_time >= today() - 1 AND date_time < today()) AS prev_day_travel_card,
+                          SUM(price) AS sum_travel_card
+                        FROM oplati_analytic.bi_travel_card 
+                        WHERE status = 'PAID'
+                        GROUP BY autopark_city
+                        ORDER BY prev_day_travel_card DESC;"
+
+  "tab_bi_agr_stats_ticket":
+    overwrite_period: overwrite
+    clickhouse_schema: oplati_views_report
+    clickhouse_table: bi_agr_stats_ticket
+    datetime_field: report_date
+    recount_period: day
+    clickhouse_query: "insert into oplati_views_report.bi_agr_stats_ticket
+                        SELECT 
+	                        today() - 1 as report_date,
+	                        autopark_city AS autopark_city,
+                               case
+                                   when vehicle_type='Маршрутное такси' then vehicle_type
+                                   else 'Общий'
+                               end AS name_trans,
+                               COUNT(*) AS total_ticket,
+                            sum(date_time >= today() - 1 and date_time < today()) AS prev_day_ticket,
+                            count(distinct vehicle_id) filter (where date_time >= today() - 1 and date_time < today()) AS prev_day_vehicle,
+                            sum(price) AS sum_ticket
+                        FROM oplati_analytic.bi_tickets
+                        WHERE status = 1
+                        GROUP BY autopark_city,
+                                 case
+                                     when vehicle_type='Маршрутное такси' then vehicle_type
+                                     else 'Общий'
+                                 end
+                        ORDER BY prev_day_ticket desc;"
+
+  "tab_bi_agr_stats_operation_refund":
+    overwrite_period: overwrite
+    clickhouse_schema: oplati_views_report
+    clickhouse_table: bi_agr_stats_operation_refund
+    datetime_field: report_date
+    recount_period: day
+    clickhouse_query: "insert into oplati_views_report.bi_agr_stats_operation_refund 
+                        SELECT 
+	                        today() - 1 AS report_date,
+	                        description ,
+                            sum(trans_date :: date < today()) as total_operation_refund,
+                            sum(trans_date :: date = today() - 1) as prev_day_operation_refund,
+                            case
+	                        when round(((sum(sum)  filter (where trans_date :: date = today() - 1))),2) is null then 0 
+	                        		else round((sum(sum) filter (where trans_date :: date = today() - 1)),2) 
+	                        end AS sum_prev_day_operation_refund
+                        FROM oplati_analytic.bi_transactions_refund
+                        group by description;"
+
+  "tab_bi_agr_stats_indicators":
+    clickhouse_query: "insert into oplati_views_report.bi_agr_stats_indicators 
+                        select 
+	                        ticket_t.report_date,
+	                        prev_day_ticket,
+	                        total_ticket,
+	                        prev_day_vehicle,
+	                        sum_ticket,
+	                        total_travel_card,
+	                        prev_day_travel_card,
+	                        sum_travel_card,
+	                        total_stationary_cashbox,
+	                        prev_day_stationary_cashbox,
+	                        sum_prev_day_stationary_cashbox,
+	                        total_mobile_cashbox,
+	                        prev_day_mobile_cashbox,
+	                        sum_prev_day_mobile_cashbox,
+	                        total_internet_cashbox,
+	                        prev_day_internet_cashbox,
+	                        sum_prev_day_internet_cashbox,
+	                        sum_internet_cashbox,
+	                        total_operation_in,
+	                        prev_day_operation_in,
+	                        sum_operation_in,
+	                        total_operation_out,
+	                        prev_day_operation_out,
+	                        sum_prev_day_operation_out,
+	                        total_operation_refund,
+	                        prev_day_operation_refund,
+	                        sum_prev_day_operation_refund,
+	                        total_ticket_not_minibus,
+	                        total_ticket_minibus,
+	                        amount_autopark_city,
+	                        amount_autopark_city_month,
+	                        total_ticket_not_minibus_minsk,
+	                        total_ticket_minibus_minsk
+                        from (
+                            SELECT 
+                                today() - 1 AS report_date,
+                                
+                                COUNT(CASE WHEN date_time :: date = today() - 1 AND status = 1 THEN 1 END) AS prev_day_ticket,
+                                COUNT(CASE WHEN date_time :: date < today() AND status = 1 THEN 1 END) AS total_ticket,
+                                COUNT(DISTINCT CASE WHEN date_time :: date = today() - 1 AND status = 1 THEN vehicle_id END) AS prev_day_vehicle,
+                                SUM(CASE WHEN date_time :: date < today() AND status = 1 THEN price ELSE 0 END) AS sum_ticket,
+                                
+                                COUNT(CASE WHEN (CASE WHEN vehicle_type = 'Маршрутное такси' THEN vehicle_type ELSE 'Общий' END != 'Маршрутное такси') AND status = 1 THEN 1 END) AS total_ticket_not_minibus,
+                                COUNT(CASE WHEN (CASE WHEN vehicle_type = 'Маршрутное такси' THEN vehicle_type ELSE 'Общий' END = 'Маршрутное такси') AND status = 1 THEN 1 END) AS total_ticket_minibus,
+                                
+                                COUNT(DISTINCT autopark_city) AS amount_autopark_city,
+                                COUNT(DISTINCT CASE WHEN date_time >= today() - 30 AND date_time < today() THEN autopark_city END) AS amount_autopark_city_month,
+                                
+                                COUNT(CASE WHEN (CASE WHEN vehicle_type = 'Маршрутное такси' THEN vehicle_type ELSE 'Общий' END != 'Маршрутное такси') AND autopark_city = 'Минск' AND status = 1 THEN 1 END) AS total_ticket_not_minibus_minsk,
+                                COUNT(CASE WHEN (CASE WHEN vehicle_type = 'Маршрутное такси' THEN vehicle_type ELSE 'Общий' END = 'Маршрутное такси') AND autopark_city = 'Минск' AND status = 1 THEN 1 END) AS total_ticket_minibus_minsk
+
+                            FROM oplati_analytic.bi_tickets
+                        )ticket_t
+
+                        left join (
+                            SELECT 
+                                today() - 1 AS report_date,
+                                COUNT(CASE WHEN date_time < today() THEN 1 END) AS total_travel_card,
+                                COUNT(CASE WHEN date_time = today() - 1 THEN 1 END) AS prev_day_travel_card,
+                                SUM(CASE WHEN date_time < today() THEN price ELSE 0 END) AS sum_travel_card
+                            FROM oplati_analytic.bi_travel_card
+                            WHERE status = 'PAID'
+                        )travel_t
+                        on ticket_t.report_date = travel_t.report_date
+
+                        left join (
+                            SELECT 
+                                today() - 1 AS report_date,
+                                
+                                COUNT(CASE WHEN cashbox_type = 1 AND created_date :: date <= today() - 1 THEN 1 ELSE NULL END) AS total_stationary_cashbox,
+                                COUNT(CASE WHEN cashbox_type = 1 AND created_date :: date = today() - 1 THEN 1 ELSE NULL END) AS prev_day_stationary_cashbox,
+                                sum(sum) filter (where cashbox_type = 1 and created_date :: date = today() - 1) AS sum_prev_day_stationary_cashbox,
+                                
+                                COUNT(CASE WHEN cashbox_type = 2 AND created_date :: date < today() THEN 1 ELSE NULL END) AS total_mobile_cashbox,
+                                COUNT(CASE WHEN cashbox_type = 2 AND created_date :: date = today() - 1 THEN 1 ELSE NULL END) AS prev_day_mobile_cashbox,
+                                sum(sum) filter (where cashbox_type = 2 and created_date :: date = today() - 1) AS sum_prev_day_mobile_cashbox,
+                                
+                                COUNT(CASE WHEN cashbox_type = 3 AND type_name <> 'Пассажирские перевозки' AND created_date :: date < today() THEN 1 ELSE NULL END) AS total_internet_cashbox,
+                                COUNT(CASE WHEN cashbox_type = 3 AND type_name <> 'Пассажирские перевозки' AND created_date :: date = today() - 1 THEN 1 ELSE NULL END) AS prev_day_internet_cashbox,
+                                sum(sum) filter (where cashbox_type = 3 and type_name <> 'Пассажирские перевозки' and created_date :: date = today() - 1) AS sum_prev_day_internet_cashbox,
+                                sum(sum) filter (where cashbox_type = 3 and type_name <> 'Пассажирские перевозки' and created_date :: date < today() - 1) AS sum_internet_cashbox
+    
+                            FROM oplati_analytic.bi_pos_type  
+                            WHERE status = 1 AND cashbox_type IN (1, 2, 3)
+                        )cash_st
+                        on ticket_t.report_date = cash_st.report_date
+
+                        left join (
+                            select
+                                today() - 1 as report_date,
+                                sum(total_operation_in) as total_operation_in,
+                                sum(prev_day_operation_in) as prev_day_operation_in,
+                                round(sum(sum_operation_in), 2) as sum_operation_in
+                            from (
+                                select 
+	                                count(DISTINCT trans_id) filter (where trans_date :: date < today()) AS total_operation_in,
+	                                count(DISTINCT trans_id) filter (where trans_date :: date = today() - 1) AS prev_day_operation_in,
+	                                sum(sum)  filter (where trans_date :: date = today() - 1) AS sum_operation_in
+                                from oplati_analytic.bi_transactions_in
+
+                                union all
+
+                                select 
+	                                count(DISTINCT trans_id) filter (where trans_date :: date < today()) AS total_operation_in,
+	                                count(DISTINCT trans_id) filter (where trans_date :: date = today() - 1) AS prev_day_operation_in,
+	                                sum(sum)  filter (where trans_date :: date = today() - 1) AS sum_operation_in
+                                from oplati_analytic.bi_transactions_vcard_in
+
+                                union all
+
+                                select
+                                	count(DISTINCT trans_id) filter (where trans_date :: date < today()) AS total_operation_in,
+                                	count(DISTINCT trans_id) filter (where trans_date :: date = today() - 1) AS prev_day_operation_in,
+                                	sum(sum) filter (where trans_date :: date = (today() - 1) :: date) AS sum_operation_in
+                                from oplati_analytic.bi_transactions_payout_pos
+                                where kontragent <>'РУП \"БЕЛОРУССКИЕ ЛОТЕРЕИ\"'
+                            ) t_in
+                        )total_in
+                        on ticket_t.report_date = total_in.report_date
+
+                        left join (
+                            select
+                            	today() - 1 as report_date,
+                            	sum(total_out) as total_operation_out,
+                            	sum(prev_day_out) as prev_day_operation_out,
+                            	sum(sum_prev_day_operation_out) as sum_prev_day_operation_out 
+                            from (
+                                SELECT 
+                                    'ЕРИП' AS type,
+                                    COUNT(*) AS total_out,
+                                    SUM(payment_date :: date = today() - 1) AS prev_day_out,
+                                    ROUND(SUM(CASE WHEN payment_date::date = today() - 1 THEN sum ELSE 0 END), 2) AS sum_prev_day_operation_out
+                                FROM oplati_analytic.bi_transactions_erip
+                                WHERE status = 'COMPLETED'
+
+                                union all 
+
+                                SELECT 
+                                	'Виртуальная карта' as type,
+                                	 count(*) as total_out,
+                                     sum(trans_date :: date = today() - 1) as prev_day_out,
+                                     round(sum(case when trans_date :: date = today() - 1 THEN sum ELSE 0 END), 2) as sum_prev_day_operation_out 
+                                FROM oplati_analytic.bi_transactions_vcard_out
+
+                                union all 
+
+                                SELECT 
+                                	'POS-платежи' as type,
+                                	 count(*) as total_out,
+                                     sum(trans_date :: date = today() - 1) as prev_day_out,
+                                     round(sum(case when trans_date :: date = today() - 1 THEN sum ELSE 0 END),2) as sum_prev_day_operation_out
+                                FROM oplati_analytic.bi_transactions_pos
+                                where type_name!='Пассажирские перевозки'
+
+                                union all 
+
+                                SELECT 
+                                	'Выдача в банкомате' as type,
+                                	 count(*) as total_out,
+                                     sum(trans_date :: date = today() - 1) as prev_day_out,             
+                                     round(sum(case when trans_date :: date = today() - 1 THEN sum else 0 end), 2) as sum_prev_day_operation_out      
+                                FROM oplati_analytic.bi_transactions_out
+                                where purpose_pay='Снятие наличных с банкомата'
+
+
+                                union all 
+
+                                SELECT 
+                                	'Вывод на БИБ' as type,
+                                	 count(*) as total_out,
+                                     sum(trans_date :: date = today() - 1) as prev_day_out,             
+                                     round(sum(case when trans_date :: date = today() - 1 THEN sum else 0 end), 2) as sum_prev_day_operation_out      
+                                FROM oplati_analytic.bi_transactions_out
+                                where purpose_pay ilike '%Белинвестбанк%'
+
+                                union all 
+
+                                SELECT 
+                                	'Пассажирские перевозки' as type,
+                                	 count(*) as total_out,
+                                     sum(trans_date :: date = today() - 1) as prev_day_out,             
+                                     round(sum(case when trans_date :: date = today() - 1 THEN sum else 0 end), 2) as sum_prev_day_operation_out      
+                                FROM oplati_analytic.bi_transactions_pos
+                                where type_name='Пассажирские перевозки'
+                            ) t_out
+                        )total_out
+                        on ticket_t.report_date = total_out.report_date
+
+                        left join (
+                            SELECT 
+                                today() - 1 AS report_date,
+                                COUNT(*) AS total_operation_refund,
+                                SUM(trans_date::date = today() - 1) AS prev_day_operation_refund,
+                                ROUND(SUM(CASE WHEN trans_date::date = today() - 1 THEN sum ELSE 0 END), 2) AS sum_prev_day_operation_refund
+                            FROM oplati_analytic.bi_transactions_refund
+                            WHERE trans_date::date < today()
+                        )total_refund
+                        on ticket_t.report_date = total_refund.report_date;"
+
+  "tab_bi_agr_stats_operation_out":
+    overwrite_period: overwrite
+    clickhouse_schema: oplati_views_report
+    clickhouse_table: bi_agr_stats_operation_out
+    datetime_field: report_date
+    recount_period: day
+    clickhouse_query: "insert into oplati_views_report.bi_agr_stats_operation_out
+                        select 
+                        	today() - 1 as report_date,
+                        	type as purpose_out,  
+                        	sum(total_out) as total_operation_out, 
+                        	sum(prev_day_out) as prev_day_operation_out, 
+                        	sum(sum_prev_day_operation_out) as sum_prev_day_operation_out ,
+                        	sum(sum_operation_out) as sum_operation_out
+                        from (
+                            SELECT 
+                            	'ЕРИП' as type,
+                                 count(*) as total_out,    
+                                 sum(payment_date :: date = today() - 1) as prev_day_out,
+                                 round(sum(sum) filter (where payment_date :: date = today() - 1), 2) as sum_prev_day_operation_out,
+                                 round(sum(sum) filter (where payment_date :: date < today()), 2) as sum_operation_out     
+                            FROM oplati_analytic.bi_transactions_erip
+                            where status='COMPLETED'
+
+                            union all
+
+                            SELECT 
+                            	'Виртуальная карта' as type,
+                            	 count(*) as total_out,
+                                 sum(trans_date :: date = today() - 1) as prev_day_out,             
+                                 round((sum(sum)filter (where trans_date :: date = today() - 1)), 2) as sum_prev_day_operation_out,
+                                 round((sum(sum) filter (where trans_date :: date < today())), 2) as sum_operation_out
+                            FROM oplati_analytic.bi_transactions_vcard_out
+
+                            union all 
+
+                            SELECT 
+                            	'POS-платежи' as type,
+                            	 count(*) as total_out,
+                                 sum(trans_date :: date = today() - 1) as prev_day_out,             
+                                 round((sum(sum)filter (where trans_date :: date = today() - 1)), 2) as sum_prev_day_operation_out,
+                                 round((sum(sum)filter (where trans_date :: date < today())), 2) as sum_operation_out
+                            FROM oplati_analytic.bi_transactions_pos
+                            where type_name!='Пассажирские перевозки'
+
+                            union all 
+
+                            SELECT 
+                            	'Выдача в банкомате' as type,
+                            	 count(*) as total_out,
+                                 sum(trans_date :: date = today() - 1) as prev_day_out,             
+                                 round((sum(sum)filter (where trans_date :: date = today() - 1)), 2) as sum_prev_day_operation_out,
+                                 round((sum(sum)filter (where trans_date :: date < today())), 2) as sum_operation_out
+                            FROM oplati_analytic.bi_transactions_out
+                            where purpose_pay='Снятие наличных с банкомата'
+
+                            union all 
+
+                            SELECT 
+                            	'Вывод на БИБ' as type,
+                            	 count(*) as total_out,
+                                 sum(trans_date :: date = today() - 1) as prev_day_out,             
+                                 round((sum(sum) filter (where trans_date :: date = today() - 1)), 2) as sum_prev_day_operation_out,
+                                 round((sum(sum) filter (where trans_date :: date < today())), 2) as sum_operation_out 
+                            FROM oplati_analytic.bi_transactions_out
+                            where purpose_pay ilike '%Белинвестбанк%'
+
+                            union all 
+
+                            SELECT 
+                            	'Вывод на БИБ' as type,
+                            	 count(*) as total_out,
+                                 sum(trans_date :: date = today() - 1) as prev_day_out,             
+                                 round((sum(sum)filter (where trans_date :: date = today() - 1)), 2) as sum_prev_day_operation_out,
+                                 round((sum(sum)filter (where trans_date :: date < today())), 2) as sum_operation_out
+                            FROM oplati_analytic.bi_transactions_pos
+                            where type_name='Пассажирские перевозки'
+                        ) t_out
+                        group by purpose_out
+
+                        union all
+
+                        select 
+                        	today() - 1 as report_date,
+                        	type as purpose_out,  
+                        	total_operation_out_other as total_operation_out, 
+                        	prev_day_operation_out_other as prev_day_operation_out, 
+                        	sum_prev_day_operation_out_other as sum_prev_day_operation_out,
+                        	sum_operation_out_other as sum_operation_out 
+                        from (
+                            select 
+                            	'Сертификаты' as type,
+                            	sum(create_date :: date < today())  AS total_operation_out_other,
+                            	sum(create_date :: date = today() - 1) AS prev_day_operation_out_other,
+                            	case when round(((sum(price) filter (where create_date :: date < today()))), 2) is null then 0 
+                            			else round((sum(price) filter (where create_date :: date < today())), 2) 
+                            	end AS sum_operation_out_other,
+                            	case when round(((sum(price) filter (where create_date :: date = today() - 1))), 2) is null then 0 
+                            			else round((sum(price) filter (where create_date :: date = today() - 1)), 2) 
+                            	end AS sum_prev_day_operation_out_other
+                            from oplati_analytic.bi_gift
+
+                            union all
+
+                            select 
+                            	'Платная ссылка' as type,
+                            	sum(created_date :: date < today()) AS total_operation_out_other,
+                            	sum(created_date :: date = today() - 1) AS prev_day_operation_out_other,
+                            	case when round(((sum(sum) filter (where created_date :: date < today()))), 2) is null then 0 
+                            			else round((sum(sum) filter (where created_date :: date < today())), 2) 
+                            	end AS sum_operation_out_other,
+                            	case when round(((sum(sum) filter (where created_date :: date = today() - 1))), 2) is null then 0 
+                            			else round((sum(sum) filter (where created_date :: date = today() - 1)), 2)
+                            	end AS sum_prev_day_operation_out_other
+                            from oplati_analytic.bi_orders
+                            where status='PAID'
+
+                            union all
+
+                            select
+                            	'Каталог' as type,
+                            	sum(created_at :: date < today()) AS total_operation_out_other,
+                            	sum(created_at :: date = today() - 1) AS prev_day_operation_out_other,
+                            	case 
+                            	when round(((sum(sum) filter (where created_at :: date < today()))), 2) is null then 0 
+                            			else round((sum(sum) filter (where created_at :: date < today())), 2) 
+                            	end AS sum_operation_out_other,
+                            	case
+                            	when round(((sum(sum) filter (where created_at :: date = today() - 1))), 2) is null then 0 
+                            			else round((sum(sum) filter (where created_at :: date = today() - 1)), 2) 
+                            	end AS sum_prev_day_operation_out_other
+                            from oplati_analytic.bi_catalog_order
+                            where ispaid = 1
+
+                            union all
+
+                            select
+                            	'P2P' as type,
+                            	sum(trans_date :: date < today())   AS total_operation_out_other,
+                            	sum(trans_date :: date = today() - 1)   AS prev_day_operation_out_other,
+                            	case 
+                            	when round(((sum(sum) filter (where trans_date :: date < today()))), 2) is null then 0 
+                            			else round((sum(sum)  filter (where trans_date :: date < today())),2)
+                            	end AS sum_operation_out_other,
+                            	case
+                            	when round(((sum(sum) filter (where trans_date :: date = today() - 1))), 2) is null then 0 
+                            			else round((sum(sum) filter (where trans_date :: date = today() - 1)), 2) 
+                            	end AS sum_prev_day_operation_out_other
+                            from oplati_analytic.bi_transactions_p2p
+                            where  sum > 0 
+                        ) out_other;"
+
+  "tab_bi_agr_stats_operation_in":
+    overwrite_period: overwrite
+    clickhouse_schema: oplati_views_report
+    clickhouse_table: bi_agr_stats_operation_in
+    datetime_field: report_date
+    recount_period: day
+    clickhouse_query: "insert into oplati_views_report.bi_agr_stats_operation_in 
+                        select
+	                        today() - 1 as report_date,
+	                        purpose_in,
+	                        sum(total_operation_in) as total_operation_in,
+	                        sum(prev_day_operation_in) as prev_day_operation_in,
+	                        round(sum(sum_operation_in),2) as sum_operation_in
+                        from (
+                            select 
+                            	purpose_in,
+                            	count(DISTINCT trans_id) filter (where trans_date :: date < today())   AS total_operation_in,
+                            	count(DISTINCT trans_id) filter (where trans_date :: date = today() - 1)   AS prev_day_operation_in,
+                            	case when  (sum(sum)  filter (where trans_date :: date = today() - 1)) is null then 0 
+                            			else sum(sum)  filter (where trans_date :: date = today() - 1) 
+                            	end AS sum_operation_in
+                            from oplati_analytic.bi_transactions_in
+                            group by purpose_in
+
+                            union all
+
+                            select 
+                            	'IN (Виртуальная карта)' AS purpose_in,
+                            	count(DISTINCT trans_id) filter (where trans_date :: date < today())   AS total_operation_in,
+                            	count(DISTINCT trans_id) filter (where trans_date :: date = today() - 1)   AS prev_day_operation_in,
+                            	case when (sum(sum) filter (where trans_date :: date = today() - 1)) is null then 0 
+                            			else sum(sum) filter (where trans_date :: date = today() - 1) 
+                            	end AS sum_operation_in
+                            from oplati_analytic.bi_transactions_vcard_in
+
+                            union all
+
+                            select
+                            	'Пари-матч (выплаты)' as purpose_in,
+                            	count(DISTINCT trans_id) filter (where trans_date :: date < today())   AS total_operation_in,
+                            	count(DISTINCT trans_id) filter (where trans_date :: date = today() - 1)   AS prev_day_operation_in,
+                            	case 
+                            	when  (sum(sum)  filter (where trans_date :: date = today() - 1)) is null then 0 
+                            			else sum(sum)  filter (where trans_date :: date = today() - 1) 
+                            	end AS sum_operation_in
+                            from oplati_analytic.bi_transactions_payout_pos
+                            where kontragent <>'РУП \"БЕЛОРУССКИЕ ЛОТЕРЕИ\"'
+                        ) t_in
+                        group by purpose_in;"
+
+  "tab_bi_agr_stats_internet_cashbox":
+    overwrite_period: overwrite
+    clickhouse_schema: oplati_views_report
+    clickhouse_table: bi_agr_stats_internet_cashbox
+    datetime_field: report_date
+    recount_period: day
+    clickhouse_query: "insert into oplati_views_report.bi_agr_stats_internet_cashbox
+                        select
+	                        today() - 1 as report_date,
+	                        brand_cashbox,
+	                        sum(total_operation) as total_operation,
+	                        sum(prev_day_operation) as prev_day_operation,
+	                        sum(sum_prev_day_operation) as sum_prev_day_operation,
+	                        sum(sum_operation ) as sum_operation
+                        from (
+                            SELECT
+                                case
+                                    when itn='690362737' then 'А-100'
+                                    when itn='101011505' then 'Пари-матч'
+                                    when itn in ('290393667', '291298632', '192767894', '691569237',
+                                     '591817406', '591735389', '591004271') then 'Мойки самообслуживания 7 юр.лиц'
+                                    when itn in ('190733406','192027115','692102398','192481028','192792566',
+                                                '191573494', '193275028','591914576','690726686','291071263',
+                                                '391022425','692055704', '193158467','291665576','193153876',
+                                                '591938455','490007024','291501520', '193168471','291613296',
+                                                '192726117','290415459','691784903','291665719', '391830535',
+                                                '690201507','491624442','191499010','790770627','690105987',
+                        	                    '291590388','691158066','200566186','291616637','193197932',
+                        	                    '192835702', '300167968','193286411','193454335','700251254',
+                        	                    '192079423','291615352', '391779376','291595882','193501610',
+                        	                    '491451688','290741003','193518275', '391909609') then 'Живая вода'
+                                    when itn ='100341433'and pos_name like '%мойк%' then 'Юнайтед компани (мойки)'
+                                    when itn ='100341433'and pos_name not like '%мойк%' then 'Юнайтед компани (заправки)'
+                                    when itn='400051902' then 'Белоруснефть'
+                                    when itn='100993744' then 'Сливки бай'
+                                    when itn='190579561' then 'Белорусская сеть телекоммуникаций'
+                                    when itn in ('400074272','490849998') then 'Гомельский парк'
+                                    when itn in ('200209892','291542580') then 'Парк культуры и отдыха г.Брест'
+                                    when itn ='291275961' then 'Парк г.Гродно (ИП Нечаева Ю.С.)'
+                                    when itn='100233786' then 'Ботанический сад'
+                                    when itn ='192213678' then 'Дримлэнд'
+                                    when itn in ('101497816', '691464704', '191001675',
+                                    '191008164', '190255831') then 'Парк Горького+Парк Челюскинцев'
+                                    when itn='100921458' then 'Виталюр'
+                                    when itn in ('590192510','590191328','590828925') then 'Остров чистоты и вкуса'
+                                    when itn in ('102312319', '102377059', '102379738', '102382074',
+                                                '601077667', '500840746', '601075914', '401166051',
+                                                 '300988497', '700849085', '201015032') then 'Корона'
+                                    when itn in ('101171198','101454161') then 'Соседи'
+                                    when itn= '800001064' then 'Гиппо'
+                                    when itn= '800016624' then 'Юнифуд (Алми)'
+                                    when itn ='190805026' then 'Парфюм Трейд (Мила)'
+                                    when itn= '291313486' then 'Санта Ритейл'
+                                    when itn= '100183195' then 'Патио'
+                                    when itn ='190732637' then 'Буслик'
+                                    when itn in ('100364237', '200276523', '400022972', '500059690',
+                                                '600013211', '700014653') then 'Белфармация и Фармация'
+                                    when itn ='400030267' then 'Алеся'
+                                    else name
+                                end AS brand_cashbox,
+                                count(purchase_id) AS total_operation,
+                                sum(created_date >= today() - 1 and created_date < today()) AS prev_day_operation,
+                                case 
+	                                when (sum(sum) filter (where created_date :: date = today() - 1)) is null then 0 
+		                            else sum(sum) filter (where created_date :: date = today() - 1) 
+	                            end AS sum_prev_day_operation,
+	                            case
+	                            when (sum(sum) filter (where created_date :: date < today() - 1)) is null then 0 
+	                            	else sum(sum) filter (where created_date :: date < today() - 1) 
+	                            end AS sum_operation
+                            FROM oplati_analytic.bi_pos_type
+                            WHERE cashbox_type = 3 and type_name <> 'Пассажирские перевозки' AND status = 1
+                            GROUP BY itn, pos_name, name
+                        ) fff
+                        group by brand_cashbox;"
+
+  "tab_bi_agr_stats_mobile_cashbox":
+    overwrite_period: overwrite
+    clickhouse_schema: oplati_views_report
+    clickhouse_table: bi_agr_stats_mobile_cashbox
+    datetime_field: report_date
+    recount_period: day
+    clickhouse_query: "insert into oplati_views_report.bi_agr_stats_mobile_cashbox
+                            SELECT
+                                today() - 1 as report_date,
+		                        name AS brand_cashbox,
+                                count(purchase_id) AS total_operation,
+                                sum(created_date >= today() - 1 and created_date < today()) AS prev_day_operation,
+                                case
+                                    when sum(sum) filter (where created_date >= today() - 1 and created_date < today()) is NULL then 0
+                                    else sum(sum) filter (where created_date >= today() - 1 and created_date < today())
+                                end AS sum_operation
+                            FROM oplati_analytic.bi_pos_type
+                            WHERE cashbox_type = 2 AND status = 1
+                            GROUP BY name
+                            ORDER BY total_operation DESC;"
+
+  "tab_bi_agr_stats_stationary_cashbox":
+    overwrite_period: overwrite
+    clickhouse_schema: oplati_views_report
+    clickhouse_table: bi_agr_stats_stationary_cashbox
+    datetime_field: report_date
+    recount_period: day
+    clickhouse_query: "insert into oplati_views_report.bi_agr_stats_stationary_cashbox
+                        select
+	                        today() - 1 as report_date,
+	                        brand_cashbox,
+	                        sum(total_operation) as total_operation,
+	                        sum(prev_day_operation) as prev_day_operation,
+	                        sum(sum_operation) as sum_operation
+                        from (
+                            SELECT
+                                case
+                                    when itn = '690362737' then 'А-100'
+                                    when itn = '101011505' then 'Пари-матч'
+                                    when itn in ('290393667', '291298632','192767894', '691569237', 
+                                    				'591817406','591735389','591004271'
+                                    			) then 'Мойки самообслуживания 7 юр.лиц'
+                                    when itn in (
+           					            '190733406','192027115','692102398','192481028','192792566','191573494',
+                        	            '193275028','591914576','690726686','291071263','391022425','692055704',
+                        	            '193158467','291665576','193153876','591938455','490007024','291501520',
+                        	            '193168471','291613296','192726117','290415459','691784903','291665719',
+                        	            '391830535','690201507','491624442','191499010','790770627','690105987',
+                        	            '291590388','691158066','200566186','291616637','193197932','192835702',
+                        	            '300167968','193286411','193454335','700251254','192079423','291615352',
+                        	            '391779376','291595882','193501610','491451688','290741003','193518275',
+                        	            '391909609'
+                                    ) then 'Живая вода'
+                                    when itn = '100341433'and pos_name ilike '%мойк%' then 'Юнайтед компани (мойки)'
+                                    when itn = '100341433'and pos_name not ilike '%мойк%' then 'Юнайтед компани (заправки)'
+                                    when itn = '400051902' then 'Белоруснефть'
+                                    when itn = '100993744' then 'Сливки бай'
+                                    when itn = '190579561' then 'Белорусская сеть телекоммуникаций'
+                                    when itn in ('400074272','490849998') then 'Гомельский парк'
+                                    when itn in ('200209892','291542580') then 'Парк культуры и отдыха г.Брест'
+                                    when itn = '291275961' then 'Парк г.Гродно (ИП Нечаева Ю.С.)'
+                                    when itn = '100233786' then 'Ботанический сад'
+                                    when itn = '192213678' then 'Дримлэнд'
+                                    when itn in ('101497816','691464704','191001675','191008164','190255831') then 'Парк Горького+Парк Челюскинцев'
+                                    when itn = '100921458' then 'Виталюр'
+                                    when itn in ('590192510','590191328','590828925') then 'Остров чистоты и вкуса'
+                                    when itn in (
+           				                        '102312319','102377059','102379738','102382074','601077667', '500840746',
+           				                        '601075914','401166051','300988497','700849085', '201015032') then 'Корона'
+                                    when itn in ('101171198','101454161') then 'Соседи'
+                                    when itn = '800001064' then 'Гиппо'
+                                    when itn = '800016624' then 'Юнифуд (Алми)'
+                                    when itn ='190805026' then 'Парфюм Трейд (Мила)'
+                                    when itn = '291313486' then 'Санта Ритейл'
+                                    when itn = '100183195' then 'Патио'
+                                    when itn ='190732637' then 'Буслик'
+                                    when itn in ('100364237','200276523','400022972','500059690','600013211','700014653') then 'Белфармация и Фармация'
+                                    when itn ='400030267' then 'Алеся'
+                                    else name
+                                end AS brand_cashbox,
+                                count(purchase_id) AS total_operation,
+                                sum(created_date > today() - 1 and created_date < today()) AS prev_day_operation,
+                                case
+                                    when sum(sum) filter (where created_date >= today() - 1 and created_date < today()) is NULL then 0
+                                    else sum(sum) filter (where created_date >= today() - 1 and created_date < today())
+                                end AS sum_operation
+                            FROM oplati_analytic.bi_pos_type
+                            WHERE cashbox_type = 1 AND status = 1
+                            GROUP BY itn,pos_name,name
+                        ) fff
+                        group by brand_cashbox;"
+
+  "tab_bi_agr_stats_wallet":
+    overwrite_period: overwrite
+    clickhouse_schema: oplati_views_report
+    clickhouse_table: bi_agr_stats_wallet
+    datetime_field: report_date
+    recount_period: day
+    clickhouse_query: "insert into oplati_views_report.bi_agr_stats_wallet
+                        select today() - 1 as report_date,*
+                        from (
+	                        select 
+  	                        	case 
+  	                        		when wallet_type = 1 then 'Основной'
+  	                        		when wallet_type = 2 then 'Дополнительный'
+  	                        		when wallet_type = 3 then 'Детский'
+  	                        		when wallet_type = 5 then 'Групповой'
+  	                        		when wallet_type = 6 then 'Юр. лицо'
+  	                        		when wallet_type = 7 then 'Юр.лицо (выплаты)'
+  	                        	end as wallet_type,
+                                count(distinct wallet_id) as total_wallet,
+                                count(distinct wallet_id) filter ( where closed_on is not null) as close_wallet,
+                                count(distinct wallet_id) filter ( where opened_on >= today() - 1 and opened_on < today()) as prev_day_wallet,
+                                round(sum(balance_sum), 2) as sum_wallet
+   	                        from oplati_analytic.bi_wallet bw
+  	                        join oplati_analytic.bi_account_balance bab on bab.account_id=bw.wallet_id
+   	                        where bw.wallet_type in (1, 2, 3, 5, 6, 7)
+   	                        group by wallet_type
+ 
+                        	union all 
+   
+	                        select 
+   	                        	'Основной (МСИ)' as type_wallet,
+                                count(distinct wallet_id)as total_wallet,
+                                count(distinct wallet_id) filter (where closed_on is not null) as close_wallet,
+                                count(distinct wallet_id) filter (where opened_on >= today() - 1 and opened_on < today()) as prev_day_wallet,
+                                round(sum(balance_sum), 2) as sum_wallet
+   	                        from oplati_analytic.bi_wallet bw
+   	                        join oplati_analytic.bi_account_balance bab on bab.account_id=bw.wallet_id
+   	                        where bw.wallet_type = 1 and
+                              	bw.profile_id in (select distinct profile_id from oplati_analytic.bi_customers where msi=1) and 
+                              	bw.profile_id not in (
+	                        	select se.profile_id from (select profile_id, max(action_date) as action_date from oplati_analytic.bi_log_history group by profile_id) se
+	                        	join oplati_analytic.bi_log_history slh
+	                        	on se.profile_id = slh.profile_id  and se.action_date = slh.action_date 
+	                        	where \"action\" = 'ADD'
+	                        	)
+  	                        group by type_wallet
+        
+                            union all 
+    
+                            select 
+                            	'Основной (нерезидент)' as type_wallet,
+                                count(distinct wallet_id) as total_wallet,
+                                count(distinct wallet_id) filter (where closed_on is not null) as close_wallet,
+                                count(distinct wallet_id) filter (where opened_on >= today() - 1 and opened_on < today()) as prev_day_wallet,
+                                round(sum(balance_sum), 2) as sum_wallet
+   	                        from oplati_analytic.bi_wallet bw
+  	                        join oplati_analytic.bi_account_balance bab on bab.account_id=bw.wallet_id
+   	                        where bw.wallet_type=1 and 
+   	                        	bw.profile_id in (select distinct profile_id from oplati_analytic.bi_customers where resident='Нерезидент') and 
+   	                        	bw.profile_id not in (
+	                        	select se.profile_id from (select profile_id, max(action_date) as action_date from oplati_analytic.bi_log_history group by profile_id) se
+	                        	join oplati_analytic.bi_log_history slh
+	                        	on se.profile_id = slh.profile_id  and se.action_date = slh.action_date 
+	                        	where \"action\" = 'ADD'
+	                        	)
+  
+	                        union all 
+	
+	                        select 
+	                        	case 
+  	                        		when wallet_type = 1 then 'Бетера (Основной)'
+  	                        		when wallet_type = 2 then 'Бетера (Дополнительный)'
+  	                        		when wallet_type = 5 then 'Бетера (Групповой)'
+  	                        	end as wallet_type,
+                                count(distinct wallet_id) as total_wallet,
+                                count(distinct wallet_id) filter (where closed_on is not null) as close_wallet,
+                                count(distinct wallet_id) filter (where opened_on >= today() - 1 and opened_on < today()) as prev_day_wallet,
+                                round(sum(balance_sum), 2) as sum_wallet
+                            from oplati_analytic.bi_wallet bw
+                            join oplati_analytic.bi_account_balance bab on bab.account_id=bw.wallet_id
+                            where bw.wallet_type in (1,2,5) and 
+   		                        bw.profile_id in (select distinct profile_id FROM oplati_analytic.bi_pos_type where itn='101011505')
+                            group by  wallet_type   
+                        ) as wallet_tab;"
+
+
+  "tab_bi_profile_package_free":
+    clickhouse_query: "insert into oplati_analytic.bi_profile_package_free
+                        select 
+                            DISTINCT concat(toString(intDiv(profile_id,9)), toString(toDayOfMonth(expire_date)), toString(toSecond(expire_date))) as record_id,  
+                            profile_id,
+                            'free_premium' as package_code,
+                            activate_date,
+                            expire_date,
+                            renewal_date,
+                            promo_code 
+                        from (
+                            select
+                                id, bp.profile_id as profile_id,
+                                package_code, activate_date, expire_date,
+                                renewal_date, bpt.profile_id as free_p, promo_code
+                            from oplati_analytic.bi_profile_package bp
+                            left join (
+                                select * from oplati_analytic.bi_pos_type_2023
+                                where device_id = 50933 and status= 1
+                            )bpt 
+                            on bp.profile_id = bpt.profile_id
+                                and (date_trunc('month', bp.expire_date) - interval 1 month) =  date_trunc('month', bpt.created_date)
+                            where date_trunc('day', bp.expire_date)>='2025-02-01'
+                             and date_trunc('month', bp.expire_date)>date_trunc('month', bp.activate_date)
+                             and renewal_date>=date_trunc('day',today())-interval 1 day
+                        )
+                        where free_p is null;"
+
+#################################################### CHILDREN WALLET ##############################################
+
+# FROM proc_15 agr_customer
+#  "tab_bi_agr_customer_children":
+#    clickhouse_query: "insert into oplati_views_report.bi_agr_customer_children 
+#                        SELECT
+#                        open_date,
+#      		            area AS area,
+#      		            age_group AS age_group,
+#      		            COUNT(*) AS customer_amount,
+#	                    (                     
+#    	                  select count(bps.profile_id)
+#        	              from oplati_analytic.bi_purse_settings bps
+#          		          left join oplati_analytic.spr_child_adult sca 
+#          		          on bps.purse_id = sca.child_purse
+#          		          left join oplati_analytic.bi_wallet bw  
+#          		          on bw.wallet_id = sca.child_purse
+#                 		  where purse_card_view is not null
+#          		          and bw.closed_on is null
+#          		          and bw.wallet_type = 3
+#    	                ) AS study_ticket
+#	                    FROM oplati_analytic.bi_customers_children bcc
+#            
+#    	                left join (
+#    				      select sca.profile_id,adult_profile,child_purse from oplati_analytic.spr_child_adult sca
+#    				      left join oplati_analytic.bi_wallet bw
+#					      on bw.wallet_id = sca.child_purse
+#					      where closed_on is null
+#				        ) sca  
+#    	                on bcc.profile_id = sca.profile_id
+#           
+#                    	left join oplati_analytic.bi_wallet bw  
+#    	                on bw.wallet_id = sca.child_purse
+#    
+#	                    where open_date :: date = today() - 1
+#	                    and bcc.profile_id not in 
+#    	                (
+#      		              select se.profile_id from (select profile_id, max(action_date) as action_date from oplati_analytic.bi_log_history group by profile_id) se
+#      		              join oplati_analytic.bi_log_history slh
+#      		              on se.profile_id = slh.profile_id and se.action_date = slh.action_date 
+#      		              where \"action\" = 'ADD'
+#    	                ) 
+#    	                and bw.wallet_type = 3 and closed_on is null
+#        	            group by open_date, area, age_group;"

@@ -1,0 +1,2869 @@
+﻿
+####################################################################################################################################################################
+
+  "tab_operations_in_out":
+    oracle_table: select id, purse_transaction_id, bank, sum,status,operation_type, created_date, purse_id, profile_id, commission 
+                  from BPAY_INOUT.OPERATION 
+                        where 
+                                commission is not null and status<>7
+                           and purse_transaction_id is not  null 
+                           and CREATED_DATE  >= trunc(SYSDATE-1) and CREATED_DATE < trunc(SYSDATE)
+                        order by created_date desc
+
+    select_columns:
+          - 'id'
+          - 'purse_transaction_id'
+          - 'bank'
+          - 'sum'
+          - 'status'
+          - 'operation_type'
+          - 'created_date'
+          - 'purse_id'
+          - 'profile_id'
+          - 'commission'
+
+    expected_columns:
+      - name: id
+        type: int
+      - name: purse_transaction_id
+        type: int
+      - name: bank
+        type: str
+      - name: sum
+        type: float
+      - name: status
+        type: int
+      - name: operation_type
+        type: int
+      - name: created_date
+        type: datetime
+        date_format: "%Y-%m-%d %H:%M:%S.%f"
+      - name: purse_id
+        type: int
+      - name: profile_id
+        type: int
+      - name: commission
+        type: float
+     
+
+    postgres_table: stg_operations_inout
+
+
+
+
+####################################################################################################################################################################
+
+  "tab_nembo_operations":
+    oracle_table: select OPERATION_ID, PROFILE_ID, CREATE_DATE, STATUS, DETAIL  from BPAY_NEMBO.operation where BPAY_NEMBO.operation.CREATE_DATE  >= trunc(SYSDATE-1) and BPAY_NEMBO.operation.CREATE_DATE < trunc(SYSDATE)
+
+    select_columns:
+          - 'operation_id'
+          - 'profile_id'
+          - 'created_date'
+          - 'status'
+          - 'details'
+
+    expected_columns:
+      - name: operation_id
+        type: int
+      - name: profile_id
+        type: int
+      - name: created_date
+        type: datetime
+        date_format: "%Y-%m-%d %H:%M:%S.%f"
+      - name: status
+        type: str
+      - name: details
+        type: str
+     
+
+    postgres_table: stg_operations_nembo
+
+
+####################################################################################################################################################################
+
+  "tab_customer_individual":
+    oracle_table: SELECT distinct
+                    OPENED_ON as open_date,
+                    BPAY_SPBI.ACCOUNT.profile_id,
+                    customer_type,to_date (JSON_VALUE( BPAY_SPBI.CUSTOMER.INFO, '$.birthday') ,'yyyy-mm-dd') as age,
+                    SUBSTR (BPAY_SPBI.CUSTOMER.DOCUMENT_NUMBER,1,2)  as region_cod,
+                    null as region_name,
+                    null as locality_type,
+                    null as locality_name,
+                    SUBSTR (BPAY_SPBI.CUSTOMER.MOBILE_PHONE,1,6)  as operator_cod,
+                    null as operator_name,
+                    soato,
+                    info,
+                    resident,
+                    country,
+                    document_issuer,
+                    case
+                        when substr(middle_name,-2) = 'ИЧ' then 'M'
+                        when substr(middle_name,-2) = 'НА' then 'F'
+                        else JSON_VALUE( BPAY_SPBI.CUSTOMER.INFO, '$.sex')
+                    end as sex
+                  FROM BPAY_SPBI.CUSTOMER
+                  LEFT JOIN
+                    BPAY_SPBI.ACCOUNT ON BPAY_SPBI.CUSTOMER.PROFILE_ID= BPAY_SPBI.ACCOUNT.PROFiLE_ID
+                  where
+                    BPAY_SPBI.CUSTOMER.CUSTOMER_TYPE = 'INDIVIDUAL' and
+                    purse_type = 1 and
+                    BPAY_SPBI.ACCOUNT.OPENED_ON  >= trunc(SYSDATE-1) and BPAY_SPBI.ACCOUNT.OPENED_ON < trunc(SYSDATE)
+    select_columns:
+      - 'open_date'
+      - 'profile_id'
+      - 'customer_type'
+      - 'age'
+      - 'region_cod'
+      - 'region_name'
+      - 'locality_type'
+      - 'locality_name'
+      - 'operator_cod'
+      - 'operator_name'
+      - 'soato'
+      - 'info'
+      - 'resident'
+      - 'country'
+      - 'document_issuer'
+      - 'sex'
+
+    expected_columns:
+      - name: open_date
+        type: datetime
+        date_format: "%Y-%m-%d"
+      - name: profile_id
+        type: int
+      - name: customer_type
+        type: str
+      - name: age
+        type: datetime
+        date_format: "%Y-%m-%d"
+      - name: region_cod
+        type: str
+      - name: region_name
+        type: str
+      - name: locality_type
+        type: str
+      - name: locality_name
+        type: str
+      - name: operator_cod
+        type: str
+      - name: operator_name
+        type: str
+      - name: soato
+        type: str
+      - name: info
+        type: str
+      - name: resident
+        type: str
+      - name: country
+        type: str
+      - name: document_issuer
+        type: str
+      - name: sex
+        type: str
+
+    postgres_table: stg_customer_individual
+
+####################################################################################################################################################################
+
+  "tab_customer_children":
+    oracle_table:
+                SELECT distinct
+                    OPENED_ON as open_date,
+                    BPAY_SPBI.CUSTOMER.profile_id,
+                    customer_type,to_date (JSON_VALUE( BPAY_SPBI.CUSTOMER.INFO, '$.birthday') ,'yyyy-mm-dd') as age,
+                    SUBSTR (BPAY_SPBI.CUSTOMER.DOCUMENT_NUMBER,1,2)  as region_cod,
+                    null as region_name,
+                    null as locality_type,
+                    null as locality_name,
+                    SUBSTR (BPAY_SPBI.CUSTOMER.MOBILE_PHONE,1,6)  as operator_cod,
+                    null as operator_name,
+                    soato,
+                    info,
+                    resident,
+                    country,
+                    document_issuer,
+                    case
+                        when substr(middle_name,-2) = 'ИЧ' then 'M'
+                        when substr(middle_name,-2) = 'НА' then 'F'
+                        else JSON_VALUE( BPAY_SPBI.CUSTOMER.INFO, '$.sex')
+                    end as sex,
+                    child_acc.l_prof as adult_profile,
+                    child_acc.ch_purse as child_purse       
+
+                  FROM BPAY_SPBI.CUSTOMER
+               join (
+                select fam_dat.opened_on,fam_dat.profile_id as ch_profile,fam_dat.purse_id as ch_purse, BPAY_WALLET.PURSE_LINK.purse_id as l_purse, BPAY_WALLET.PURSE_LINK.profile_id as l_prof from BPAY_WALLET.PURSE_LINK 
+                right join 
+                (
+                    select opened_on,BPAY_WALLET.PURSE_LINK.profile_id,purse_id  from BPAY_SPBI.ACCOUNT
+                    JOIN
+                        BPAY_WALLET.PURSE_LINK ON BPAY_WALLET.PURSE_LINK.purse_id = BPAY_SPBI.ACCOUNT.id
+                    where 
+                            (BPAY_SPBI.ACCOUNT.OPENED_ON  >= trunc(SYSDATE-1) and BPAY_SPBI.ACCOUNT.OPENED_ON < trunc(SYSDATE))  
+                        and BPAY_SPBI.ACCOUNT.profile_id <> BPAY_WALLET.PURSE_LINK.profile_id
+                        and purse_type in (3) 
+
+                ) fam_dat
+                on fam_dat.purse_id = BPAY_WALLET.PURSE_LINK.purse_id
+                
+                ) child_acc on BPAY_SPBI.CUSTOMER.PROFILE_ID = child_acc.ch_profile
+                where 
+                    BPAY_SPBI.CUSTOMER.CUSTOMER_TYPE = 'INDIVIDUAL'   and ch_profile<> l_prof
+
+    select_columns:
+      - 'open_date'
+      - 'profile_id'
+      - 'customer_type'
+      - 'age'
+      - 'region_cod'
+      - 'region_name'
+      - 'locality_type'
+      - 'locality_name'
+      - 'operator_cod'
+      - 'operator_name'
+      - 'soato'
+      - 'info'
+      - 'resident'
+      - 'country'
+      - 'document_issuer'
+      - 'sex'
+      - 'adult_profile'
+      - 'child_purse'
+
+
+    expected_columns:
+          - name: open_date
+            type: datetime
+            date_format: "%Y-%m-%d"
+          - name: profile_id
+            type: int
+          - name: customer_type
+            type: str
+          - name: age
+            type: datetime
+            date_format: "%Y-%m-%d"
+          - name: region_cod
+            type: str
+          - name: region_name
+            type: str
+          - name: locality_type
+            type: str
+          - name: locality_name
+            type: str
+          - name: operator_cod
+            type: str
+          - name: operator_name
+            type: str
+          - name: soato
+            type: str
+          - name: info
+            type: str
+          - name: resident
+            type: str
+          - name: country
+            type: str
+          - name: document_issuer
+            type: str
+          - name: sex
+            type: str
+          - name: adult_profile
+            type: int
+          - name: child_purse
+            type: int
+
+
+    postgres_table: stg_customer_children
+
+####################################################################################################################################################################
+
+  "tab_request_data":
+        oracle_table: select
+                          request_data_id,
+                          request_id,
+                          request_date,
+                          request_type,
+                          null as request_data,
+                          null as customer_profile_request,
+                          profile_id,
+                          request_identity_type,
+                          status,
+                          null as media_data_link, null as residency
+                          --json_value(UTL_RAW.cast_to_varchar2(dbms_lob.substr(CUSTOMER_PROFILE_REQUEST,2000))||UTL_RAW.cast_to_varchar2(dbms_lob.substr(CUSTOMER_PROFILE_REQUEST,2000,2001)),'$.resident') residency
+
+                      from bpay_resident.request_data
+                      where request_type='REGULA' and request_date  >= trunc(SYSDATE-1) and request_date < trunc(SYSDATE)
+
+
+        select_columns:
+              - 'request_data_id'
+              - 'request_id'
+              - 'request_date'
+              - 'request_type'
+              - 'request_data'
+              - 'customer_profile_request'
+              - 'profile_id'
+              - 'request_identity_type'
+              - 'status'
+              - 'media_data_link'
+              - 'residency'
+
+        expected_columns:
+          - name: request_data_id
+            type: int
+          - name: request_id
+            type: str
+          - name: request_date
+            type: datetime
+            date_format: "%Y-%m-%d %H:%M:%S.%f"
+          - name: request_type
+            type: str
+          - name: request_data
+            type: str
+          - name: customer_profile_request
+            type: str
+          - name: profile_id
+            type: int
+          - name: request_identity_type
+            type: str
+          - name: status
+            type: str
+          - name: media_data_link
+            type: str
+          - name: residency
+            type: str
+
+
+        postgres_table: stg_request_data_rezidency
+
+
+###################################################################################################################################################################
+  "tab_card":
+    oracle_table:
+                  select * from BPAY_MDES_TOKEN.CARD where CARDHOLDER_NAME <>'VIRTUAL CARD'
+
+    select_columns:
+      - 'profile_id'
+      - 'purse_id'
+      - 'card_id'
+      - 'pan_suffix'
+      - 'cardholder_name'
+      - 'card_product_id'
+      - 'default_card'
+      - 'ms_card_id'
+
+    expected_columns:
+      - name: profile_id
+        type: int
+      - name: purse_id
+        type: int
+      - name: card_id
+        type: int
+      - name: pan_suffix
+        type: str
+      - name: cardholder_name
+        type: str
+      - name: card_product_id
+        type: int
+      - name: default_card
+        type: int
+      - name: ms_card_id
+        type: int
+
+    postgres_table: stg_card
+
+###################################################################################################################################################################
+  "tab_card_request":
+    oracle_table:
+            select * from BPAY_MDES_TOKEN.CARD_REQUEST where card_request_date  < trunc(SYSDATE)
+
+
+    select_columns:
+      - 'card_request_id'
+      - 'card_request_date'
+      - 'profile_id'
+      - 'card_product_id'
+      - 'provider'
+      - 'status'
+
+    expected_columns:
+      - name: card_request_id
+        type: int
+      - name: card_request_date
+        type: datetime
+        date_format: "%Y-%m-%d %H:%M:%S.%f"
+      - name: profile_id
+        type: int
+      - name: card_product_id
+        type: int
+      - name: provider
+        type: str
+      - name: status
+        type: str
+
+    postgres_table: stg_card_request
+
+######################################################
+  "tab_transactions":
+    oracle_table: SELECT
+                    trans_id,
+                    account_id,
+                    trans_type,
+                    trans_date,
+                    sum,
+                    message_id,
+                    ops_id,
+                    details
+                  FROM BPAY_SPBI.TRANSACTION
+                  where   BPAY_SPBI.TRANSACTION.TRANS_DATE >=  trunc(SYSDATE-1) and  BPAY_SPBI.TRANSACTION.TRANS_DATE < trunc(SYSDATE)
+    select_columns:
+      - 'trans_id'
+      - 'account_id'
+      - 'trans_type'
+      - 'trans_date'
+      - 'sum'
+      - 'message_id'
+      - 'ops_id'
+      - 'details'
+
+    expected_columns:
+      - name: trans_id
+        type: int
+      - name: account_id
+        type: int
+      - name: trans_type
+        type: str
+      - name: trans_date
+        type: datetime
+        date_format: "%Y-%m-%d %H:%M:%S.%f"
+      - name: sum
+        type: float
+      - name: message_id
+        type: float
+      - name: ops_id
+        type: int
+      - name: details
+        type: str
+
+    postgres_table: stg_transactions
+
+####################################################################################################################################################################
+
+  "tab_autopark":
+    oracle_table: SELECT id,num,name,unn,city,status,org_id,reg_num,parent_id,type,location_source,null as region,null as area FROM BPAY_TRANSPORT.AUTOPARK
+    select_columns:
+      - 'id'
+      - 'num'
+      - 'name'
+      - 'unn'
+      - 'city'
+      - 'status'
+      - 'org_id'
+      - 'reg_num'
+      - 'parent_id'
+      - 'type'
+      - 'location_source'
+      - 'region'
+      - 'area'
+
+    expected_columns:
+      - name: id
+        type: int
+      - name: num
+        type: str
+      - name: name
+        type: str
+      - name: unn
+        type: str
+      - name: city
+        type: str
+      - name: status
+        type: int
+      - name: org_id
+        type: int
+      - name: reg_num
+        type: str
+      - name: parent_id
+        type: float
+      - name: type
+        type: str
+      - name: location_source
+        type: str
+      - name: region
+        type: str
+      - name: area
+        type: str
+
+    postgres_table: stg_autopark
+
+####################################################################################################################################################################
+
+  "tab_vehicle":
+    oracle_table: select id,autopark_id,num,type,status,block_date_time,block_code,qr_add,reg_num as req_num  from BPAY_TRANSPORT.vehicle
+    select_columns:
+      - 'id'
+      - 'autopark_id'
+      - 'num'
+      - 'type'
+      - 'status'
+      - 'block_date_time'
+      - 'block_code'
+      - 'qr_add'
+      - 'req_num'
+
+    expected_columns:
+      - name: id
+        type: int
+      - name: autopark_id
+        type: int
+      - name: num
+        type: str
+      - name: type
+        type: str
+      - name: status
+        type: int
+      - name: block_date_time
+        type: datetime
+        date_format: "%Y-%m-%d %H:%M:%S.%f"
+      - name: block_code
+        type: str
+      - name: qr_add
+        type: str
+      - name: req_num
+        type: str
+
+    postgres_table: stg_vehicle
+
+####################################################################################################################################################################
+
+  "tab_close_wallet":
+    oracle_table: SELECT CLOSED_ON, ID as wallet_id,PROFILE_ID  FROM BPAY_SPBI.ACCOUNT where to_char(BPAY_SPBI.ACCOUNT.CLOSED_ON,'DD.MM.YYYY')  =  to_char(SYSDATE-1,'DD.MM.YYYY')
+    select_columns:
+      - 'closed_on'
+      - 'wallet_id'
+      - 'profile_id'
+
+    expected_columns:
+      - name: closed_on
+        type: datetime
+        date_format: "%Y-%m-%d"
+      - name: wallet_id
+        type: int
+      - name: profile_id
+        type: int
+
+    postgres_table: stg_close_wallet
+####################################################################################################################################################################
+
+  "tab_customer_organisation":
+    oracle_table: SELECT
+                    OPENED_ON as open_date,
+                    BPAY_SPBI.CUSTOMER.profile_id,
+                    customer_type,LAST_NAME as organization_name,
+                    address as adress,
+                    DOCUMENT_NUMBER as region_cod,
+                    null as region_name,
+                    null as locality_type,
+                    null as locality_name,
+                    SUBSTR (BPAY_SPBI.CUSTOMER.MOBILE_PHONE,1,6) as operator_cod,
+                    pan,
+                    soato,
+                    info
+                  FROM BPAY_SPBI.CUSTOMER
+                  LEFT JOIN
+                    BPAY_SPBI.ACCOUNT ON BPAY_SPBI.CUSTOMER.PROFILE_ID= BPAY_SPBI.ACCOUNT.PROFiLE_ID
+                  where BPAY_SPBI.CUSTOMER.CUSTOMER_TYPE <> 'INDIVIDUAL'  and
+                  BPAY_SPBI.ACCOUNT.OPENED_ON  >= trunc(SYSDATE-1) and BPAY_SPBI.ACCOUNT.OPENED_ON < trunc(SYSDATE)
+    select_columns:
+      - 'open_date'
+      - 'profile_id'
+      - 'customer_type'
+      - 'organization_name'
+      - 'adress'
+      - 'region_cod'
+      - 'region_name'
+      - 'locality_type'
+      - 'locality_name'
+      - 'operator_cod'
+      - 'pan'
+      - 'soato'
+      - 'info'
+
+    expected_columns:
+      - name: open_date
+        type: datetime
+        date_format: "%Y-%m-%d"
+      - name: profile_id
+        type: int
+      - name: customer_type
+        type: str
+      - name: organization_name
+        type: str
+      - name: adress
+        type: str
+      - name: region_cod
+        type: str
+      - name: region_name
+        type: str
+      - name: locality_type
+        type: str
+      - name: locality_name
+        type: str
+      - name: operator_cod
+        type: str
+      - name: pan
+        type: str
+      - name: soato
+        type: str
+      - name: info
+        type: str
+
+    postgres_table: stg_customer_organisation
+
+####################################################################################################################################################################
+
+  "tab_customer_ticket":
+    oracle_table: SELECT
+                    id,
+                    vehicle_id,
+                    num,
+                    price,
+                    date_time,
+                    profile_id,
+                    SUBSTR (BPAY_TRANSPORT.TICKET.PHONE,1,5) as operator_cod,
+                    route_id,
+                    issuer,
+                    details,
+                    route_name,
+                    autopark_id,
+                    location_source,
+                    null as operator_name,
+                    null as vehicle_type,
+                    status
+                  FROM BPAY_TRANSPORT.TICKET
+                  where
+                  BPAY_TRANSPORT.TICKET.DATE_TIME  >= trunc(SYSDATE-1) and BPAY_TRANSPORT.TICKET.DATE_TIME < trunc(SYSDATE)
+    select_columns:
+      - 'id'
+      - 'vehicle_id'
+      - 'num'
+      - 'price'
+      - 'date_time'
+      - 'profile_id'
+      - 'operator_cod'
+      - 'route_id'
+      - 'issuer'
+      - 'details'
+      - 'route_name'
+      - 'autopark_id'
+      - 'location_source'
+      - 'operator_name'
+      - 'vehicle_type'
+      - 'status'
+
+    expected_columns:
+      - name: id
+        type: int
+      - name: vehicle_id
+        type: int
+      - name: num
+        type: str
+      - name: price
+        type: float
+      - name: date_time
+        type: datetime
+        date_format: "%Y-%m-%d %H:%M:%S.%f"
+      - name: profile_id
+        type: int
+      - name: operator_cod
+        type: str
+      - name: route_id
+        type: int
+      - name: issuer
+        type: str
+      - name: details
+        type: str
+      - name: route_name
+        type: str
+      - name: autopark_id
+        type: int
+      - name: location_source
+        type: str
+      - name: operator_name
+        type: str
+      - name: vehicle_type
+        type: str
+      - name: status
+        type: int
+
+    postgres_table: stg_customer_ticket
+
+####################################################################################################################################################################
+
+  "tab_erip":
+    oracle_table: SELECT
+                    id,
+                    transaction_id,
+                    agent_transaction_id,
+                    service_id,
+                    service_info_id,
+                    sum,
+                    status,
+                    parameter_list,
+                    payment_date,
+                    confirm_date,
+                    check_header,
+                    check_footer,
+                    error,
+                    profile_id,
+                    purse_transaction_id,
+                    extra_info,
+                    purse_number
+                  FROM BPAY_ERIP.ERIP_PAYMENT
+                  where BPAY_ERIP.ERIP_PAYMENT.PAYMENT_DATE  >= trunc(SYSDATE-1) and BPAY_ERIP.ERIP_PAYMENT.PAYMENT_DATE < trunc(SYSDATE)
+    select_columns:
+      - 'id'
+      - 'transaction_id'
+      - 'agent_transaction_id'
+      - 'service_id'
+      - 'service_info_id'
+      - 'sum'
+      - 'status'
+      - 'parameter_list'
+      - 'payment_date'
+      - 'confirm_date'
+      - 'check_header'
+      - 'check_footer'
+      - 'error'
+      - 'profile_id'
+      - 'purse_transaction_id'
+      - 'extra_info'
+      - 'purse_number'
+
+    expected_columns:
+      - name: id
+        type: int
+      - name: transaction_id
+        type: int
+      - name: agent_transaction_id
+        type: int
+      - name: service_id
+        type: int
+      - name: service_info_id
+        type: str
+      - name: sum
+        type: float
+      - name: status
+        type: str
+      - name: parameter_list
+        type: str
+      - name: payment_date
+        type: datetime
+        date_format: "%Y-%m-%d %H:%M:%S.%f"
+      - name: confirm_date
+        type: datetime
+        date_format: "%Y-%m-%d %H:%M:%S.%f"
+      - name: check_header
+        type: str
+      - name: check_footer
+        type: str
+      - name: error
+        type: str
+      - name: profile_id
+        type: int
+      - name: purse_transaction_id
+        type: int
+      - name: extra_info
+        type: str
+      - name: purse_number
+        type: str
+
+    postgres_table: stg_erip
+
+####################################################################################################################################################################
+
+  "tab_gift":
+    oracle_table: SELECT
+                    gift_id,
+                    gift_num,
+                    cashbox_regnum,
+                    profile_id,
+                    create_date,
+                    expire_date,
+                    name,
+                    description,
+                    gift_image_url,
+                    price,
+                    details,
+                    payment_id,
+                    external_id,
+                    cancel_date,
+                    redeem_date
+                  FROM BPAY_GIFT.GIFT
+                  where BPAY_GIFT.GIFT.CREATE_DATE  >= trunc(SYSDATE-1) and BPAY_GIFT.GIFT.CREATE_DATE < trunc(SYSDATE)
+    select_columns:
+      - 'gift_id'
+      - 'gift_num'
+      - 'cashbox_regnum'
+      - 'profile_id'
+      - 'create_date'
+      - 'expire_date'
+      - 'name'
+      - 'description'
+      - 'gift_image_url'
+      - 'price'
+      - 'details'
+      - 'payment_id'
+      - 'external_id'
+      - 'cancel_date'
+      - 'redeem_date'
+
+    expected_columns:
+      - name: gift_id
+        type: int
+      - name: gift_num
+        type: str
+      - name: cashbox_regnum
+        type: str
+      - name: profile_id
+        type: int
+      - name: create_date
+        type: datetime
+        date_format: "%Y-%m-%d %H:%M:%S.%f"
+      - name: expire_date
+        type: datetime
+        date_format: "%Y-%m-%d %H:%M:%S.%f"
+      - name: name
+        type: str
+      - name: description
+        type: str
+      - name: gift_image_url
+        type: str
+      - name: price
+        type: float
+      - name: details
+        type: str
+      - name: payment_id
+        type: int
+      - name: external_id
+        type: str
+      - name: cancel_date
+        type: datetime
+        date_format: "%Y-%m-%d %H:%M:%S.%f"
+      - name: redeem_date
+        type: datetime
+        date_format: "%Y-%m-%d %H:%M:%S.%f"
+
+    postgres_table: stg_gift
+
+####################################################################################################################################################################
+
+  "tab_merchant_cashbox":
+    oracle_table: SELECT
+                    cash_id,
+                    name,
+                    manufacturer_num,
+                    reg_num,
+                    open_date,
+                    close_date,
+                    pos_id,
+                    dep_id,
+                    cashbox_type,
+                    cashbox_vendor,
+                    mcc_code,
+                    mcc_status
+                   FROM BPAY_SPBI.MERCHANT_CASHBOX
+    select_columns:
+      - 'cash_id'
+      - 'name'
+      - 'manufacturer_num'
+      - 'reg_num'
+      - 'open_date'
+      - 'close_date'
+      - 'pos_id'
+      - 'dep_id'
+      - 'cashbox_type'
+      - 'cashbox_vendor'
+      - 'mcc_code'
+      - 'mcc_status'
+
+    expected_columns:
+      - name: cash_id
+        type: int
+      - name: name
+        type: str
+      - name: manufacturer_num
+        type: str
+      - name: reg_num
+        type: str
+      - name: open_date
+        type: datetime
+        date_format: "%Y-%m-%d %H:%M:%S.%f"
+      - name: close_date
+        type: datetime
+        date_format: "%Y-%m-%d %H:%M:%S.%f"
+      - name: pos_id
+        type: int
+      - name: dep_id
+        type: int
+      - name: cashbox_type
+        type: int
+      - name: cashbox_vendor
+        type: str
+      - name: mcc_code
+        type: str
+      - name: mcc_status
+        type: str
+
+    postgres_table: stg_merchant_cashbox
+
+####################################################################################################################################################################
+
+  "tab_merchant_department":
+    oracle_table: SELECT
+                    dep_id,
+                    pos_id,
+                    name,
+                    open_date,
+                    close_date
+                  FROM BPAY_SPBI.MERCHANT_DEPARTMENT where
+                  BPAY_SPBI.MERCHANT_DEPARTMENT.OPEN_DATE  >= trunc(SYSDATE-1) and BPAY_SPBI.MERCHANT_DEPARTMENT.OPEN_DATE < trunc(SYSDATE)
+    select_columns:
+      - 'dep_id'
+      - 'pos_id'
+      - 'name'
+      - 'open_date'
+      - 'close_date'
+
+    expected_columns:
+      - name: dep_id
+        type: int
+      - name: pos_id
+        type: int
+      - name: name
+        type: str
+      - name: open_date
+        type: datetime
+        date_format: "%Y-%m-%d %H:%M:%S.%f"
+      - name: close_date
+        type: datetime
+        date_format: "%Y-%m-%d"
+
+    postgres_table: stg_merchant_department
+
+####################################################################################################################################################################
+
+  "tab_merchant_pos":
+    oracle_table: SELECT
+                    pos_id,
+                    org_id,
+                    name,
+                    open_date,
+                    close_date,
+                    latitude,
+                    longitude,
+                    locality,
+                    street_type,
+                    street_name,
+                    building,
+                    room
+                  FROM BPAY_SPBI.MERCHANT_POS
+                  where BPAY_SPBI.MERCHANT_POS.OPEN_DATE >= TO_DATE('01/01/2024 00:00:00','dd/MM/yyyy HH24:mi:ss')
+    select_columns:
+      - 'pos_id'
+      - 'org_id'
+      - 'name'
+      - 'open_date'
+      - 'close_date'
+      - 'latitude'
+      - 'longitude'
+      - 'locality'
+      - 'street_type'
+      - 'street_name'
+      - 'building'
+      - 'room'
+
+
+    expected_columns:
+      - name: pos_id
+        type: int
+      - name: org_id
+        type: int
+      - name: name
+        type: str
+      - name: open_date
+        type: datetime
+        date_format: "%Y-%m-%d %H:%M:%S.%f"
+      - name: close_date
+        type: datetime
+        date_format: "%Y-%m-%d"
+      - name: latitude
+        type: float
+      - name: longitude
+        type: float
+      - name: locality
+        type: str
+      - name: street_type
+        type: str
+      - name: street_name
+        type: str
+      - name: building
+        type: str
+      - name: room
+        type: str
+
+    postgres_table: stg_merchant_pos
+
+####################################################################################################################################################################
+
+  "tab_organisation":
+    oracle_table: select
+                    org_id,
+                    name,
+                    open_date,
+                    close_date,
+                    address,
+                    vat_payer,
+                    itn,
+                    status,
+                    eds_public_key,
+                    eds_serial,
+                    bank_agr_id,
+                    soato,
+                    ownership_form,
+                    private_number,
+                    document_type,
+                    document_number,
+                    document_issue_date,
+                    document_issuer,
+                    eds_first_name,
+                    eds_last_name,
+                    phone,
+                    org_type,
+                    bank_client_id
+                    from
+                    (
+                    SELECT org_id, name,open_date,close_date,address,vat_payer,eee.itn,status,eds_public_key,
+                        eds_serial,bank_agr_id,soato,ownership_form,private_number,
+                        document_type,document_number, document_issue_date,document_issuer, eds_first_name,
+                        eds_last_name,phone,org_type,bank_client_id,cf
+                    FROM BPAY_SPBI.ORGANIZATION eee
+                      left join
+                      (select itn, count(*) as cf from bpay_spbi.organization
+                      group by itn) rrr
+                      on eee.itn = rrr.itn
+                      where eee.OPEN_DATE  >= trunc(SYSDATE-1) and eee.OPEN_DATE < trunc(SYSDATE)
+                    ) sss where cf=1 or (cf>1 and status = 'ACTIVE' )
+    select_columns:
+      - 'org_id'
+      - 'name'
+      - 'open_date'
+      - 'close_date'
+      - 'address'
+      - 'vat_payer'
+      - 'itn'
+      - 'status'
+      - 'eds_public_key'
+      - 'eds_serial'
+      - 'bank_agr_id'
+      - 'soato'
+      - 'ownership_form'
+      - 'private_number'
+      - 'document_type'
+      - 'document_number'
+      - 'document_issue_date'
+      - 'document_issuer'
+      - 'eds_first_name'
+      - 'eds_last_name'
+      - 'phone'
+      - 'org_type'
+      - 'bank_client_id'
+
+    expected_columns:
+      - name: org_id
+        type: int
+      - name: name
+        type: str
+      - name: open_date
+        type: datetime
+        date_format: "%Y-%m-%d %H:%M:%S.%f"
+      - name: close_date
+        type: datetime
+        date_format: "%Y-%m-%d %H:%M:%S.%f"
+      - name: address
+        type: str
+      - name: vat_payer
+        type: int
+      - name: itn
+        type: str
+      - name: status
+        type: str
+      - name: eds_public_key
+        type: str
+      - name: eds_serial
+        type: str
+      - name: bank_agr_id
+        type: int
+      - name: soato
+        type: str
+      - name: ownership_form
+        type: str
+      - name: private_number
+        type: str
+      - name: document_type
+        type: str
+      - name: document_number
+        type: str
+      - name: document_issue_date
+        type: datetime
+        date_format: "%Y-%m-%d"
+      - name: document_issuer
+        type: str
+      - name: eds_first_name
+        type: str
+      - name: eds_last_name
+        type: str
+      - name: phone
+        type: str
+      - name: org_type
+        type: str
+      - name: bank_client_id
+        type: int
+
+    postgres_table: stg_organisation
+
+
+####################################################################################################################################################################
+
+  "tab_pos_payment":
+    oracle_table: SELECT
+                    purchase_id,
+                    purse_id,
+                    authcode,
+                    merchant_id,
+                    device_id,
+                    sum,
+                    status,
+                    created_date,
+                    paid_date,
+                    order_number,
+                    description,
+                    details,
+                    expired_date,
+                    pos_id,
+                    dep_id,
+                    shift,
+                    payment_type,
+                    p2p_id,
+                    ref_purchase_id,
+                    reg_num,
+                    profile_id
+                  FROM BPAY_SPBI.POS_PAYMENT
+                  where BPAY_SPBI.POS_PAYMENT.CREATED_DATE  >= trunc(SYSDATE-1) and BPAY_SPBI.POS_PAYMENT.CREATED_DATE < trunc(SYSDATE)
+    select_columns:
+          - 'purchase_id'
+          - 'purse_id'
+          - 'authcode'
+          - 'merchant_id'
+          - 'device_id'
+          - 'sum'
+          - 'status'
+          - 'created_date'
+          - 'paid_date'
+          - 'order_number'
+          - 'description'
+          - 'details'
+          - 'expired_date'
+          - 'pos_id'
+          - 'dep_id'
+          - 'shift'
+          - 'payment_type'
+          - 'p2p_id'
+          - 'ref_purchase_id'
+          - 'reg_num'
+          - 'profile_id'
+
+    expected_columns:
+      - name: purchase_id
+        type: int
+      - name: purse_id
+        type: int
+      - name: authcode
+        type: str
+      - name: merchant_id
+        type: int
+      - name: device_id
+        type: int
+      - name: sum
+        type: float
+      - name: status
+        type: int
+      - name: created_date
+        type: datetime
+        date_format: "%Y-%m-%d %H:%M:%S.%f"
+      - name: paid_date
+        type: datetime
+        date_format: "%Y-%m-%d %H:%M:%S.%f"
+      - name: order_number
+        type: str
+      - name: description
+        type: str
+      - name: details
+        type: str
+      - name: expired_date
+        type: datetime
+        date_format: "%Y-%m-%d %H:%M:%S.%f"
+      - name: pos_id
+        type: int
+      - name: dep_id
+        type: int
+      - name: shift
+        type: str
+      - name: payment_type
+        type: int
+      - name: p2p_id
+        type: int
+      - name: ref_purchase_id
+        type: int
+      - name: reg_num
+        type: str
+      - name: profile_id
+        type: int
+
+    postgres_table: stg_pos_payment
+
+####################################################################################################################################################################
+
+  "tab_travel_card":
+    oracle_table: SELECT
+                    id,
+                    type,
+                    period,
+                    num,
+                    date_time,
+                    vehicle_id,
+                    profile_id,
+                    autopark_id,
+                    details,
+                    price,
+                    SUBSTR (BPAY_TRANSPORT.TRAVEL_CARD.PHONE,1,6) as operator_code,
+                    null as operator_name,
+                    DT_BEGIN as date_begin,
+                    DT_END as date_end,
+                    status
+                  FROM BPAY_TRANSPORT.TRAVEL_CARD
+                  where   BPAY_TRANSPORT.TRAVEL_CARD.DATE_TIME  >= trunc(SYSDATE-1) and BPAY_TRANSPORT.TRAVEL_CARD.DATE_TIME < trunc(SYSDATE)
+    select_columns:
+          - 'id'
+          - 'type'
+          - 'period'
+          - 'num'
+          - 'date_time'
+          - 'vehicle_id'
+          - 'profile_id'
+          - 'autopark_id'
+          - 'details'
+          - 'price'
+          - 'operator_code'
+          - 'operator_name'
+          - 'date_begin'
+          - 'date_end'
+          - 'status'
+
+    expected_columns:
+      - name: id
+        type: int
+      - name: type
+        type: str
+      - name: period
+        type: str
+      - name: num
+        type: str
+      - name: date_time
+        type: datetime
+        date_format: "%Y-%m-%d %H:%M:%S.%f"
+      - name: vehicle_id
+        type: int
+      - name: profile_id
+        type: int
+      - name: autopark_id
+        type: int
+      - name: details
+        type: str
+      - name: price
+        type: float
+      - name: operator_code
+        type: str
+      - name: operator_name
+        type: str
+      - name: date_begin
+        type: datetime
+        date_format: "%Y-%m-%d %H:%M:%S.%f"
+      - name: date_end
+        type: datetime
+        date_format: "%Y-%m-%d %H:%M:%S.%f"
+      - name: status
+        type: str
+
+    postgres_table: stg_travel_card
+
+
+####################################################################################################################################################################
+
+  "tab_virtual_mdes":
+    oracle_table: select
+                      ttt.approval_date as "date" ,
+                      rrr.profile_id,
+                      rrr.purse_id,
+                      rrr.ms_card_id,
+                      rrr.pan_suffix,
+                      rrr.cardholder_name
+
+                  from BPAY_MDES_TOKEN.CARD rrr
+                  join
+                      BPAY_MDES_TOKEN.mdes_approval ttt
+                  on
+                      rrr.profile_id = ttt.profile_id
+                  where (ttt.approval_date  >= trunc(SYSDATE-1) and ttt.approval_date < trunc(SYSDATE)) and card_product_id = 2
+    select_columns:
+      - 'date'
+      - 'profile_id'
+      - 'purse_id'
+      - 'ms_card_id'
+      - 'pan_suffix'
+      - 'cardholder_name'
+
+    expected_columns:
+      - name: date
+        type: datetime
+        date_format: "%Y-%m-%d %H:%M:%S.%f"
+      - name: profile_id
+        type: int
+      - name: purse_id
+        type: int
+      - name: ms_card_id
+        type: str
+      - name: pan_suffix
+        type: int
+      - name: cardholder_name
+        type: str
+
+    postgres_table: stg_virtual_mdes
+
+
+####################################################################################################################################################################
+  "tab_virtual_mdes_bc":
+    oracle_table: select
+                      trunc(SYSDATE-1) as "date" ,
+                      profile_id,
+                      purse_id,
+                      ms_card_id,
+                      pan_suffix,
+                      cardholder_name
+                  from Bpay_Mdes_Token.card
+                  where ms_card_id like ('9%')
+                  and ms_card_id not in ( select rrr.ms_card_id from BPAY_MDES_TOKEN.CARD rrr
+                  join
+                      BPAY_MDES_TOKEN.mdes_approval ttt
+                  on
+                      rrr.profile_id = ttt.profile_id
+                  where ttt.approval_date  >= trunc(SYSDATE-1) and ttt.approval_date < trunc(SYSDATE))
+
+    select_columns:
+      - 'date'
+      - 'profile_id'
+      - 'purse_id'
+      - 'ms_card_id'
+      - 'pan_suffix'
+      - 'cardholder_name'
+
+    expected_columns:
+      - name: date
+        type: datetime
+        date_format: "%Y-%m-%d %H:%M:%S.%f"
+      - name: profile_id
+        type: int
+      - name: purse_id
+        type: int
+      - name: ms_card_id
+        type: str
+      - name: pan_suffix
+        type: int
+      - name: cardholder_name
+        type: str
+
+    postgres_table: stg_virtual_mdes
+
+
+####################################################################################################################################################################
+  "tab_wallet":
+    oracle_table: select
+                      public_id,
+                      profile_id,
+                      bpay_bank_code,
+                      bic,
+                      bank_account_number,
+                      opened_on,
+                      closed_on,
+                      PURSE_TYPE as wallet_type,
+                      id as wallet_id,
+                      null as type_name,
+                      currency
+                  FROM BPAY_SPBI.ACCOUNT
+                  where BPAY_SPBI.ACCOUNT.OPENED_ON  >= trunc(SYSDATE-1) and BPAY_SPBI.ACCOUNT.OPENED_ON < trunc(SYSDATE)
+    select_columns:
+      - 'public_id'
+      - 'profile_id'
+      - 'bpay_bank_code'
+      - 'bic'
+      - 'bank_account_number'
+      - 'opened_on'
+      - 'closed_on'
+      - 'wallet_type'
+      - 'wallet_id'
+      - 'type_name'
+      - 'currency'
+
+    expected_columns:
+      - name: public_id
+        type: str
+      - name: profile_id
+        type: int
+      - name: bpay_bank_code
+        type: str
+      - name: bic
+        type: str
+      - name: bank_account_number
+        type: str
+      - name: opened_on
+        type: datetime
+        date_format: "%Y-%m-%d"
+      - name: closed_on
+        type: datetime
+        date_format: "%Y-%m-%d"
+      - name: wallet_type
+        type: int
+      - name: wallet_id
+        type: int
+      - name: type_name
+        type: str
+      - name: currency
+        type: str
+
+    postgres_table: stg_wallet
+####################################################################################################################################################################
+
+  "tab_order":
+    oracle_table: SELECT
+                    ORDER_ID,
+                    MERCHANT_ID,
+                    DEVICE_ID,
+                    REG_NUM,
+                    SUM,
+                    STATUS,
+                    CREATED_DATE,
+                    ORDER_NUMBER,
+                    EXPIRED_DATE,
+                    PURCHASE_ID,
+                    ORDERS.PAID_DATE,
+                    ORDERS.ORDER_HASH
+                  FROM BPAY_PAY.ORDERS
+                  where BPAY_PAY.ORDERS.CREATED_DATE  >= trunc(SYSDATE-1) and BPAY_PAY.ORDERS.CREATED_DATE < trunc(SYSDATE)
+    select_columns:
+      - 'order_id'
+      - 'merchant_id'
+      - 'device_id'
+      - 'reg_num'
+      - 'sum'
+      - 'status'
+      - 'created_date'
+      - 'order_number'
+      - 'expired_date'
+      - 'purchase_id'
+      - 'paid_date'
+      - 'order_hash'
+
+    expected_columns:
+      - name: order_id
+        type: int
+      - name: merchant_id
+        type: int
+      - name: device_id
+        type: int
+      - name: reg_num
+        type: str
+      - name: sum
+        type: float
+      - name: status
+        type: str
+      - name: created_date
+        type: datetime
+        date_format: "%Y-%m-%d %H:%M:%S.%f"
+      - name: order_number
+        type: str
+      - name: expired_date
+        type: datetime
+        date_format: "%Y-%m-%d %H:%M:%S.%f"
+      - name: purchase_id
+        type: int
+      - name: paid_date
+        type: datetime
+        date_format: "%Y-%m-%d %H:%M:%S.%f"
+      - name: order_hash
+        type: str
+
+    postgres_table: stg_order
+
+####################################################################################################################################################################
+  "tab_referral":
+    oracle_table: SELECT
+                    REFERRAL_ID,
+                    PARTNER_ID,
+                    PROFILE_ID,
+                    REG_DATE,
+                    INVITE_HASH
+                  FROM BPAY_REFERRAL.REFERRAL
+                  where  BPAY_REFERRAL.REFERRAL.REG_DATE  >= trunc(SYSDATE-1) and BPAY_REFERRAL.REFERRAL.REG_DATE < trunc(SYSDATE)
+    select_columns:
+      - 'referral_id'
+      - 'partner_id'
+      - 'profile_id'
+      - 'reg_date'
+      - 'invite_hash'
+
+    expected_columns:
+      - name: referral_id
+        type: int
+      - name: partner_id
+        type: int
+      - name: profile_id
+        type: int
+      - name: reg_date
+        type: datetime
+        date_format: "%Y-%m-%d %H:%M:%S.%f"
+      - name: invite_hash
+        type: str
+
+    postgres_table: stg_referral
+
+  ####################################################################################################################################################################
+  "tab_partner":
+    oracle_table: SELECT
+                    PARTNER_ID,
+                    PROFILE_ID,
+                    NAME,
+                    URL,
+                    CREATE_DATE,
+                    INVITE_HASH,
+                    PARTNER_TYPE
+                  FROM BPAY_REFERRAL.PARTNER
+                  where   BPAY_REFERRAL.PARTNER.CREATE_DATE  >= trunc(SYSDATE-1) and BPAY_REFERRAL.PARTNER.CREATE_DATE < trunc(SYSDATE)
+
+    select_columns:
+      - 'partner_id'
+      - 'profile_id'
+      - 'name'
+      - 'url'
+      - 'create_date'
+      - 'invite_hash'
+      - 'partner_type'
+
+    expected_columns:
+      - name: partner_id
+        type: int
+      - name: profile_id
+        type: int
+      - name: name
+        type: str
+      - name: url
+        type: str
+      - name: create_date
+        type: datetime
+        date_format: "%Y-%m-%d %H:%M:%S.%f"
+      - name: invite_hash
+        type: str
+      - name: partner_type
+        type: str
+
+    postgres_table: stg_partner
+
+####################################################################################################################################################################
+#  "tab_referral_training":
+#    oracle_table: SELECT
+#                    REFERRAL_ID,
+#                    STATUS,
+#                    REWARD_SUM,
+#                    REWARD_DATE
+#                  FROM BPAY_REFERRAL.REFERRAL_TRAINING
+#
+#    select_columns:
+#      - 'referral_id'
+#      - 'status'
+#      - 'reward_sum'
+#      - 'reward_date'
+#
+#    expected_columns:
+#      - name: referral_id
+#        type: int
+#      - name: status
+#        type: str
+#      - name: reward_sum
+#        type: float
+#      - name: reward_date
+#        type: datetime
+#        date_format: "%Y-%m-%d %H:%M:%S.%f"
+#
+#
+#    postgres_table: stg_referral_training
+####################################################################################################################################################################
+
+  "tab_petrol_sale":
+    oracle_table: SELECT
+                    sale_id,
+                    company_id,
+                    create_date,
+                    station_id,
+                    pump,
+                    nozzle,
+                    loyal_card,
+                    alg_calc,
+                    sum,
+                    discount,
+                    dose,
+                    profile_id,
+                    purse_id,
+                    transaction_id,
+                    status,
+                    refund_sum,
+                    refund_transaction_id,
+                    fuel,
+                    phone,
+                    purse_number,
+                    price,
+                    details
+                  FROM bpay_car.sale
+                  where bpay_car.sale.create_date  >= trunc(SYSDATE-1) and bpay_car.sale.create_date < trunc(SYSDATE)
+    select_columns:
+          - 'sale_id'
+          - 'company_id'
+          - 'create_date'
+          - 'station_id'
+          - 'pump'
+          - 'nozzle'
+          - 'loyal_card'
+          - 'alg_calc'
+          - 'sum'
+          - 'discount'
+          - 'dose'
+          - 'profile_id'
+          - 'purse_id'
+          - 'transaction_id'
+          - 'status'
+          - 'refund_sum'
+          - 'refund_transaction_id'
+          - 'fuel'
+          - 'phone'
+          - 'purse_number'
+          - 'price'
+          - 'details'
+
+    expected_columns:
+      - name: sale_id
+        type: int
+      - name: company_id
+        type: int
+      - name: create_date
+        type: datetime
+        date_format: "%Y-%m-%d %H:%M:%S.%f"
+      - name: station_id
+        type: int
+      - name: pump
+        type: int
+      - name: nozzle
+        type: int
+      - name: loyal_card
+        type: str
+      - name: alg_calc
+        type: str
+      - name: sum
+        type: float
+      - name: discount
+        type: float
+      - name: dose
+        type: float
+      - name: profile_id
+        type: int
+      - name: purse_id
+        type: int
+      - name: transaction_id
+        type: int
+      - name: status
+        type: str
+      - name: refund_sum
+        type: float
+      - name: refund_transaction_id
+        type: int
+      - name: fuel
+        type: str
+      - name: phone
+        type: str
+      - name: purse_number
+        type: str
+      - name: price
+        type: float
+      - name: details
+        type: str
+
+    postgres_table: stg_azs_petrol_sale
+####################################################################################################################################################################
+
+  "tab_azs_station":
+    oracle_table: SELECT
+                    station_id,company_id,external_id,name,address,lat,lng,status,update_date,raw_data,parent
+                  FROM bpay_car.station
+    select_columns:
+          - 'station_id'
+          - 'company_id'
+          - 'external_id'
+          - 'name'
+          - 'address'
+          - 'lat'
+          - 'lng'
+          - 'status'
+          - 'update_date'
+          - 'raw_data'
+          - 'parent'
+
+    expected_columns:
+      - name: station_id
+        type: int
+      - name: company_id
+        type: int
+      - name: external_id
+        type: str
+      - name: name
+        type: str
+      - name: address
+        type: str
+      - name: lat
+        type: str
+      - name: lng
+        type: str
+      - name: status
+        type: str
+      - name: update_date
+        type: datetime
+        date_format: "%Y-%m-%d %H:%M:%S.%f"
+      - name: raw_data
+        type: str
+      - name: parent
+        type: str
+
+    postgres_table: stg_azs_station
+
+####################################################################################################################################################################
+
+  "tab_intertaiment_station":
+    oracle_table: SELECT
+                    id,company_id,regnum,cash_id,category_id,name,active,address,site,latitude,longtitude,deleted,company_name
+                  FROM bpay_entt_admin.object
+    select_columns:
+          - 'id'
+          - 'company_id'
+          - 'regnum'
+          - 'cash_id'
+          - 'category_id'
+          - 'name'
+          - 'active'
+          - 'address'
+          - 'site'
+          - 'latitude'
+          - 'longtitude'
+          - 'deleted'
+          - 'company_name'
+
+    expected_columns:
+      - name: id
+        type: int
+      - name: company_id
+        type: int
+      - name: regnum
+        type: str
+      - name: cash_id
+        type: int
+      - name: category_id
+        type: int
+      - name: name
+        type: str
+      - name: active
+        type: int
+      - name: address
+        type: str
+      - name: site
+        type: str
+      - name: latitude
+        type: str
+      - name: longitude
+        type: str
+      - name: deleted
+        type: int
+      - name: company_name
+        type: str
+
+    postgres_table: stg_entertainment
+
+
+####################################################################################################################################################################
+
+  "tab_intertaiment_ticket":
+    oracle_table: select * from bpay_entt_pay.ticket where buy_date  >= trunc(SYSDATE-1) and buy_date < trunc(SYSDATE)
+    select_columns:
+          - 'id'
+          - 'profile_id'
+          - 'purse_id'
+          - 'object_id'
+          - 'object_name'
+          - 'tarif_id'
+          - 'tarif_name'
+          - 'regnum'
+          - 'cashid'
+          - 'transaction_id'
+          - 'price'
+          - 'buy_date'
+          - 'activate_up_to'
+          - 'use_up_to'
+          - 'use_no'
+          - 'visitors_no'
+          - 'use_left'
+          - 'expire_date'
+          - 'activate_date'
+          - 'last_verify'
+          - 'status'
+          - 'company_id'
+          - 'client_name'
+          - 'client_phone'
+          - 'itrg_akova'
+          - 'itrg_akova_id'
+          - 'itrg_akova_qr'
+          - 'payment_id'
+          - 'refund_id'
+          - 'refund_date'
+          - 'refund_status'
+
+    expected_columns:
+      - name: id
+        type: int
+      - name: profile_id
+        type: int
+      - name: purse_id
+        type: int
+      - name: object_id
+        type: str
+      - name: object_name
+        type: str
+      - name: tarif_id
+        type: str
+      - name: tarif_name
+        type: str
+      - name: regnum
+        type: str
+      - name: cashid
+        type: int
+      - name: transaction_id
+        type: str
+      - name: price
+        type: float
+      - name: buy_date
+        type: datetime
+        date_format: "%Y-%m-%d %H:%M:%S.%f"
+      - name: activate_up_to
+        type: str
+      - name: use_up_to
+        type: str
+      - name: use_no
+        type: float
+      - name: visitors_no
+        type: float
+      - name: use_left
+        type: float
+      - name: expire_date
+        type: datetime
+        date_format: "%Y-%m-%d %H:%M:%S.%f"
+      - name: activate_date
+        type: datetime
+        date_format: "%Y-%m-%d %H:%M:%S.%f"
+      - name: last_verify
+        type: datetime
+        date_format: "%Y-%m-%d %H:%M:%S.%f"
+      - name: status
+        type: str
+      - name: company_id
+        type: int
+      - name: client_name
+        type: str
+      - name: client_phone
+        type: str
+      - name: itrg_akova
+        type: float
+      - name: itrg_akova_id
+        type: str
+      - name: itrg_akova_qr
+        type: str
+      - name: payment_id
+        type: int
+      - name: refund_id
+        type: int
+      - name: refund_date
+        type: datetime
+        date_format: "%Y-%m-%d"
+      - name: refund_status
+        type: str
+
+    postgres_table: stg_entertainment_ticket
+
+
+
+####################################################################################################################################################################
+
+  "tab_intertaiment_tarif":
+    oracle_table: select
+                    taf.id,
+                    taf.name,
+                    taf.description,
+                    taf.type_id,
+                    taf.cost,
+                    taf.discount,
+                    taf.activate_up_to,
+                    taf.use_up_to,
+                    taf.use_no,
+                    taf.visitors_no,
+                    taf.active,
+                    taf.active_from,
+                    taf.active_to,
+                    taf.pub,
+                    taf.deleted,
+                    taf.position,
+                    taf.itrg_akova,
+                    taf.itrg_akova_id,
+                    taf.itrg_akova_object_id,
+                    zonf.zone_id,
+                    zon.object_id
+                  from bpay_entt_admin.tariff taf
+                  left join BPAY_ENTT_ADMIN.ZONE2TARIFF zonf
+                  on taf.id = zonf.tariff_id
+                  left join BPAY_ENTT_ADMIN.ZONE zon
+                  on  zon.id = zonf.zone_id
+    select_columns:
+          - 'id'
+          - 'name'
+          - 'description'
+          - 'type_id'
+          - 'cost'
+          - 'discount'
+          - 'activate_up_to'
+          - 'use_up_to'
+          - 'use_no'
+          - 'visitors_no'
+          - 'active'
+          - 'active_from'
+          - 'active_to'
+          - 'pub'
+          - 'deleted'
+          - 'position'
+          - 'itrg_akova'
+          - 'itrg_akova_id'
+          - 'itrg_akova_object_id'
+          - 'zone_id'
+          - 'object_id'
+
+    expected_columns:
+      - name: id
+        type: int
+      - name: name
+        type: str
+      - name: description
+        type: str
+      - name: type_id
+        type: int
+      - name: cost
+        type: int
+      - name: discount
+        type: int
+      - name: activate_up_to
+        type: str
+      - name: use_up_to
+        type: str
+      - name: use_no
+        type: int
+      - name: visitors_no
+        type: int
+      - name: active
+        type: int
+      - name: active_from
+        type: datetime
+        date_format: "%Y-%m-%d %H:%M:%S.%f"
+      - name: active_to
+        type: datetime
+        date_format: "%Y-%m-%d %H:%M:%S.%f"
+      - name: pub
+        type: int
+      - name: deleted
+        type: int
+      - name: position
+        type: int
+      - name: itrg_akova
+        type: int
+      - name: itrg_akova_id
+        type: str
+      - name: itrg_akova_object_id
+        type: str
+      - name: zone_id
+        type: int
+      - name: object_id
+        type: int
+
+    postgres_table: stg_entertainment_tarif
+
+
+####################################################################################################################################################################
+
+  "tab_intertaiment_zone":
+    oracle_table: select * from BPAY_ENTT_ADMIN.ZONE
+
+    select_columns:
+          - 'id'
+          - 'name'
+          - 'description'
+          - 'active'
+          - 'object_id'
+          - 'deleted'
+          - 'position'
+
+    expected_columns:
+      - name: id
+        type: int
+      - name: name
+        type: str
+      - name: description
+        type: str
+      - name: active
+        type: int
+      - name: object_id
+        type: int
+      - name: deleted
+        type: int
+      - name: position
+        type: int
+
+    postgres_table: stg_entertainment_zone
+
+
+####################################################################################################################################################################
+
+  "tab_carwash":
+    oracle_table: select
+                      carw.id,
+                      external_id,
+                      company_name,
+                      name,
+                      address,
+                      lat,
+                      lon,
+                      status,
+                      updated,
+                      original_data,
+                      provider,
+                      company_id,
+                      regnum,
+                      cash_id
+                  from bpay_carwash.carwash carw
+                  left join
+                      bpay_carwash.owner ow
+                  on
+                      ow.carwash_id = carw.id
+
+    select_columns:
+          - 'id'
+          - 'external_id'
+          - 'company_name'
+          - 'name'
+          - 'address'
+          - 'lat'
+          - 'lon'
+          - 'status'
+          - 'updated'
+          - 'original_data'
+          - 'provider'
+          - 'company_id'
+          - 'regnum'
+          - 'cash_id'
+
+    expected_columns:
+      - name: id
+        type: int
+      - name: external_id
+        type: int
+      - name: company_name
+        type: str
+      - name: name
+        type: str
+      - name: address
+        type: str
+      - name: lat
+        type: float
+      - name: lon
+        type: float
+      - name: status
+        type: str
+      - name: updated
+        type: datetime
+        date_format: "%Y-%m-%d %H:%M:%S.%f"
+      - name: original_data
+        type: str
+      - name: provider
+        type: str
+      - name: company_id
+        type: int
+      - name: regnum
+        type: str
+      - name: cash_id
+        type: int
+
+    postgres_table: stg_carwash
+####################################################################################################################################################################
+
+  "tab_sub_payments":
+    oracle_table: select
+                      payment_id,
+                      external_account_id,
+                      profile_id,
+                      purse_id,
+                      provider_id,
+                      external_service_id,
+                      sum,
+                      created_at,
+                      state,
+                      state_message,
+                      transaction_id,
+                      parameters,
+                      external_payment_id
+                  from bpay_subscribe.payments
+                  where created_at  >= trunc(SYSDATE-1) and created_at < trunc(SYSDATE)
+
+
+    select_columns:
+          - 'payment_id'
+          - 'external_account_id'
+          - 'profile_id'
+          - 'purse_id'
+          - 'provider_id'
+          - 'external_service_id'
+          - 'sum'
+          - 'created_at'
+          - 'state'
+          - 'state_message'
+          - 'transaction_id'
+          - 'parameters'
+          - 'external_payment_id'
+
+    expected_columns:
+      - name: payment_id
+        type: int
+      - name: external_account_id
+        type: str
+      - name: profile_id
+        type: int
+      - name: purse_id
+        type: int
+      - name: provider_id
+        type: int
+      - name: external_service_id
+        type: str
+      - name: sum
+        type: float
+      - name: created_at
+        type: datetime
+        date_format: "%Y-%m-%d %H:%M:%S.%f"
+      - name: state
+        type: str
+      - name: state_message
+        type: str
+      - name: transaction_id
+        type: int
+      - name: parameters
+        type: str
+      - name: external_payment_id
+        type: str
+
+
+    postgres_table: stg_subscribe_payments
+
+
+####################################################################################################################################################################
+
+  "tab_sub_provider":
+    oracle_table: select
+                      provider_id,
+                      code,
+                      name,
+                      unn,
+                      status,
+                      org_id,
+                      cash_id,
+                      reg_num,
+                      image
+                  from bpay_subscribe.provider
+
+
+    select_columns:
+          - 'provider_id'
+          - 'code'
+          - 'name'
+          - 'unn'
+          - 'status'
+          - 'org_id'
+          - 'cash_id'
+          - 'reg_num'
+          - 'image'
+
+    expected_columns:
+      - name: provider_id
+        type: int
+      - name: code
+        type: str
+      - name: name
+        type: str
+      - name: unn
+        type: str
+      - name: status
+        type: str
+      - name: org_id
+        type: int
+      - name: cash_id
+        type: int
+      - name: reg_num
+        type: str
+      - name: image
+        type: str
+
+    postgres_table: stg_subscribe_provider
+
+
+####################################################################################################################################################################
+
+  "tab_sub_provider_user":
+    oracle_table: select
+                      provider_user_id,
+                      provider_id,
+                      profile_id,
+                      external_account_id,
+                      external_account_type
+                  from bpay_subscribe.provider_user
+
+    select_columns:
+          - 'provider_user_id'
+          - 'provider_id'
+          - 'profile_id'
+          - 'external_account_id'
+          - 'external_account_type'
+
+    expected_columns:
+      - name: provider_user_id
+        type: int
+      - name: provider_id
+        type: int
+      - name: profile_id
+        type: int
+      - name: external_account_id
+        type: str
+      - name: external_account_type
+        type: str
+
+    postgres_table: stg_subscribe_provider_user
+
+####################################################################################################################################################################
+
+  "tab_sub_subscriptions":
+    oracle_table: select
+                      subscription_id,
+                      provider_id,
+                      profile_id,
+                      external_account_id,
+                      external_account_type,
+                      external_service_id,
+                      activate_date,
+                      expiry_date,
+                      status,
+                      parameters,
+                      deactivate_date
+
+                  from bpay_subscribe.subscriptions
+
+
+    select_columns:
+          - 'subscription_id'
+          - 'provider_id'
+          - 'profile_id'
+          - 'external_account_id'
+          - 'external_account_type'
+          - 'external_service_id'
+          - 'activate_date'
+          - 'expiry_date'
+          - 'status'
+          - 'parameters'
+          - 'deactivate_date'
+
+    expected_columns:
+      - name: subscription_id
+        type: int
+      - name: provider_id
+        type: int
+      - name: profile_id
+        type: int
+      - name: external_account_id
+        type: str
+      - name: external_account_type
+        type: str
+      - name: external_service_id
+        type: str
+      - name: activate_date
+        type: datetime
+        date_format: "%Y-%m-%d %H:%M:%S.%f"
+      - name: expiry_date
+        type: datetime
+        date_format: "%Y-%m-%d %H:%M:%S.%f"
+      - name: status
+        type: str
+      - name: parameters
+        type: str
+      - name: deactivate_date
+        type: datetime
+        date_format: "%Y-%m-%d %H:%M:%S.%f"
+
+    postgres_table: stg_subscribe_subscriptions
+
+####################################################################################################################################################################
+
+####################################################################################################################################################################
+  "tab_operation":
+    oracle_table: select * from BPAY_MDES_TRANSACTION.OPERATION o where trunc(o.CREATED_DATE)=trunc(sysdate-1)
+                  and substr(json_value(o.DESCRIPTION,'$.pointCode'),7,1) = 'M'
+
+    select_columns:
+          - 'id'
+          - 'profile_id'
+          - 'purse_id'
+          - 'purse_transaction_id'
+          - 'bank_card_transaction_id'
+          - 'sum'
+          - 'status'
+          - 'operation_type'
+          - 'created_date'
+          - 'description'
+          - 'source'
+          - 'error'
+
+    expected_columns:
+      - name: id
+        type: int
+      - name: profile_id
+        type: int
+      - name: purse_id
+        type: int
+      - name: purse_transaction_id
+        type: int
+      - name: bank_card_transaction_id
+        type: int
+      - name: sum
+        type: float
+      - name: status
+        type: int
+      - name: operation_type
+        type: int
+      - name: created_date
+        type: datetime
+        date_format: "%Y-%m-%d %H:%M:%S.%f"
+      - name: description
+        type: str
+      - name: source
+        type: int
+      - name: error
+        type: str
+
+    postgres_table: stg_operations
+
+#####################################################################################################################################################################
+  "tab_profile_package":
+    oracle_table: select id, profile_id,package_code,activate_date,expire_date,promo_code, renewal_date  from BPAY_SPBI.PROFILE_PACKAGE
+                  where  activate_date < trunc(SYSDATE)
+
+    select_columns:
+          - 'id'
+          - 'profile_id'
+          - 'package_code'
+          - 'activate_date'
+          - 'expire_date'
+          - 'promo_code'
+          - 'renewal_date'
+
+    expected_columns:
+      - name: id
+        type: int
+      - name: profile_id
+        type: int
+      - name: package_code
+        type: str
+      - name: activate_date
+        type: datetime
+        date_format: "%Y-%m-%d %H:%M:%S.%f"
+      - name: expire_date
+        type: datetime
+        date_format: "%Y-%m-%d %H:%M:%S.%f"
+      - name: promo_code
+        type: str
+      - name: renewal_date
+        type: datetime
+        date_format: "%Y-%m-%d %H:%M:%S.%f"
+
+    postgres_table: stg_profile_package
+
+
+####################################################################################################################################################################
+  "tab_mcc_code":
+    oracle_table: select dim_id, parent_id, dim_type_code, code, name, open_date, close_date from bpay_dim.dimension where dim_type_code = 'MCC'
+
+    select_columns:
+          - 'dim_id'
+          - 'parent_id'
+          - 'dim_type_code'
+          - 'code'
+          - 'name'
+          - 'open_date'
+          - 'close_date'
+
+    expected_columns:
+      - name: dim_id
+        type: int
+      - name: parent_id
+        type: int
+      - name: dim_type_code
+        type: str
+      - name: code
+        type: str
+      - name: name
+        type: str
+      - name: open_date
+        type: datetime
+        date_format: "%Y-%m-%d %H:%M:%S.%f"
+      - name: close_date
+        type: datetime
+        date_format: "%Y-%m-%d %H:%M:%S.%f"
+
+    postgres_table: stg_mcc_code
+
+####################################################################################################################################################################
+  "tab_log_history":
+    oracle_table: select log_history_id,login,profile_id,action,action_date,action_person,action_reason,action_detail from bpay_spbi.log_history  
+                  where action_date  >= trunc(SYSDATE-1) and action_date < trunc(SYSDATE)
+
+
+    select_columns:
+          - 'log_history_id'
+          - 'login'
+          - 'profile_id'
+          - 'action'
+          - 'action_date'
+          - 'action_person'
+          - 'action_reason'
+          - 'action_detail'
+
+    expected_columns:
+      - name: log_history_id
+        type: int
+      - name: login
+        type: str
+      - name: profile_id
+        type: int
+      - name: action
+        type: str
+      - name: action_date
+        type: datetime
+        date_format: "%Y-%m-%d %H:%M:%S.%f"
+      - name: action_person
+        type: str
+      - name: action_reason
+        type: str
+      - name: action_detail
+        type: str
+
+    postgres_table: stg_log_history
+
+####################################################################################################################################################################
+
+  "tab_credit_request":
+    oracle_table: select request_id,product_id,profile_id,provider,provider_client_id,create_date,sum,status from BPAY_CREDIT.REQUEST  
+                    where create_date  >= trunc(SYSDATE-1) and create_date < trunc(SYSDATE)
+
+
+    select_columns:
+          - 'request_id'
+          - 'product_id'
+          - 'profile_id'
+          - 'provider'
+          - 'provider_client_id'
+          - 'create_date'
+          - 'sum'
+          - 'status'
+
+    expected_columns:
+      - name: request_id
+        type: int
+      - name: product_id
+        type: int
+      - name: profile_id
+        type: int
+      - name: provider
+        type: str
+      - name: provider_client_id
+        type: str
+      - name: create_date
+        type: datetime
+        date_format: "%Y-%m-%d %H:%M:%S.%f"
+      - name: sum
+        type: int
+      - name: status
+        type: str
+
+    postgres_table: stg_credit_request
+
+####################################################################################################################################################################
+
+  "tab_credit_product":
+    oracle_table: select product_id,product_code,provider,product_name,image_url,status,update_date,rate,product_url from BPAY_CREDIT.PRODUCT  
+                    where update_date  >= trunc(SYSDATE-1) and update_date < trunc(SYSDATE)
+
+
+    select_columns:
+          - 'product_id'
+          - 'product_code'
+          - 'provider'
+          - 'product_name'
+          - 'image_url'
+          - 'status'
+          - 'update_date'
+          - 'rate'
+          - 'product_url'
+
+    expected_columns:
+      - name: product_id
+        type: int
+      - name: product_code
+        type: str
+      - name: provider
+        type: str
+      - name: product_name
+        type: str
+      - name: image_url
+        type: str
+      - name: status
+        type: str
+      - name: update_date
+        type: datetime
+        date_format: "%Y-%m-%d %H:%M:%S.%f"
+      - name: rate
+        type: str
+      - name: product_url
+        type: str
+
+    postgres_table: stg_credit_product
+
+####################################################################################################################################################################
+
+  "tab_purse_settings":
+    oracle_table: SELECT PURSE_ID,PROFILE_ID,PURSE_CARD_VIEW,IS_NOTIFY,DAY_PAYMENT_COUNT,DAY_PAYMENT_SUM from BPAY_PAY.PURSE_SETTINGS
+    select_columns:
+        - 'purse_id'
+        - 'profile_id'
+        - 'purse_card_view'
+        - 'is_notify'
+        - 'day_payment_count'
+        - 'day_payment_sum'
+
+    expected_columns:
+      - name: purse_id
+        type: int
+      - name: profile_id
+        type: int
+      - name: purse_card_view
+        type: str
+      - name: is_notify
+        type: str
+      - name: day_payment_count
+        type: int
+      - name: day_payment_sum
+        type: int
+
+    postgres_table: stg_purse_settings
+
+
+####################################################################################################################################################################
+
+#  "tab_acc_balance":
+#    oracle_table: SELECT ID, ACCOUNT_ID, BALANCE_DATE, BALANCE_SUM FROM BPAY_SPBI.ACCOUNT_BALANCE where BALANCE_DATE = TRUNC(SYSDATE - 1)
+#    select_columns:
+#        - 'id'
+#        - 'account_id'
+#        - 'balance_date'
+#        - 'balance_sum'
+#
+#    expected_columns:
+#      - name: id
+#        type: int
+#      - name: account_id
+#        type: int
+#      - name: balance_date
+#        type: datetime
+#        date_format: "%Y-%m-%d %H:%M:%S.%f"
+#      - name: balance_sum
+#        type: float
+#
+#    postgres_table: stg_account_balance
+
+#  "tab_acc_balance_not_zero":
+#    oracle_table: SELECT ID, ACCOUNT_ID, BALANCE_DATE, BALANCE_SUM FROM BPAY_SPBI.ACCOUNT_BALANCE where BALANCE_DATE = TRUNC(SYSDATE - 1) AND BALANCE_SUM <> 0
+#    select_columns:
+#        - 'id'
+#        - 'account_id'
+#        - 'balance_date'
+#        - 'balance_sum'
+#
+#    expected_columns:
+#      - name: id
+#        type: int
+#      - name: account_id
+#        type: int
+#      - name: balance_date
+#        type: datetime
+#        date_format: "%Y-%m-%d %H:%M:%S.%f"
+#      - name: balance_sum
+#        type: float
+#
+#    postgres_table: stg_account_balance
+
+#  "tab_acc_balance_zero":
+#    oracle_table: SELECT ID, ACCOUNT_ID, BALANCE_DATE, BALANCE_SUM FROM BPAY_SPBI.ACCOUNT_BALANCE where BALANCE_DATE = TRUNC(SYSDATE - 1) AND BALANCE_SUM = 0
+#    select_columns:
+#        - 'id'
+#        - 'account_id'
+#        - 'balance_date'
+#        - 'balance_sum'
+#
+#    expected_columns:
+#      - name: id
+#        type: int
+#      - name: account_id
+#        type: int
+#      - name: balance_date
+#        type: datetime
+#        date_format: "%Y-%m-%d %H:%M:%S.%f"
+#      - name: balance_sum
+#        type: float
+#
+#    postgres_table: stg_account_balance
+
+####################################################################################################################################################################
+  "tab_acc_balance_begin":
+    oracle_table: SELECT ID, ACCOUNT_ID, BALANCE_DATE, BALANCE_SUM FROM BPAY_SPBI.ACCOUNT_BALANCE where BALANCE_DATE = TRUNC(SYSDATE - 1) AND account_id  between 0 and 500000
+    select_columns:
+        - 'id'
+        - 'account_id'
+        - 'balance_date'
+        - 'balance_sum'
+
+    expected_columns:
+      - name: id
+        type: int
+      - name: account_id
+        type: int
+      - name: balance_date
+        type: datetime
+        date_format: "%Y-%m-%d %H:%M:%S.%f"
+      - name: balance_sum
+        type: float
+
+    postgres_table: stg_account_balance
+
+  "tab_acc_balance_between_5_10":
+    oracle_table: SELECT ID, ACCOUNT_ID, BALANCE_DATE, BALANCE_SUM FROM BPAY_SPBI.ACCOUNT_BALANCE where BALANCE_DATE = TRUNC(SYSDATE - 1) AND account_id  between 500001 and 1000000
+    select_columns:
+        - 'id'
+        - 'account_id'
+        - 'balance_date'
+        - 'balance_sum'
+
+    expected_columns:
+      - name: id
+        type: int
+      - name: account_id
+        type: int
+      - name: balance_date
+        type: datetime
+        date_format: "%Y-%m-%d %H:%M:%S.%f"
+      - name: balance_sum
+        type: float
+
+    postgres_table: stg_account_balance
+
+  "tab_acc_balance_max":
+    oracle_table: SELECT ID, ACCOUNT_ID, BALANCE_DATE, BALANCE_SUM FROM BPAY_SPBI.ACCOUNT_BALANCE where BALANCE_DATE = TRUNC(SYSDATE - 1) AND account_id   > 1000000
+    select_columns:
+        - 'id'
+        - 'account_id'
+        - 'balance_date'
+        - 'balance_sum'
+
+    expected_columns:
+      - name: id
+        type: int
+      - name: account_id
+        type: int
+      - name: balance_date
+        type: datetime
+        date_format: "%Y-%m-%d %H:%M:%S.%f"
+      - name: balance_sum
+        type: float
+
+    postgres_table: stg_account_balance
+
+
+
+
+#  "tab_training_condition":
+#    oracle_table: SELECT TRAINING_CONDITION_ID, REFERRAL_ID, CONDITION_CODE, TRANSACTION_ID, COMPLETE_DATE, STATUS FROM BPAY_REFERRAL.TRAINING_CONDITION
+#
+#    select_columns:
+#      - 'training_condition_id'
+#      - 'referral_id'
+#      - 'condition_code'
+#      - 'transaction_id'
+#      - 'complete_date'
+#      - 'status'
+#
+#    expected_columns:
+#      - name: training_condition_id
+#        type: int
+#      - name: referral_id
+#        type: int
+#      - name: condition_code
+#        type: str
+#      - name: transaction_id
+#        type: int
+#      - name: complete_date
+#        type: datetime
+#        date_format: "%Y-%m-%d %H:%M:%S.%f"
+#      - name: status
+#        type: str
+#
+#
+#    postgres_table: stg_training_condition
+####################################################################################################################################################################
+
+  "tab_azs_company":
+    oracle_table: SELECT
+                    company_id,name,unn,status,org_id,cash_id,reg_num,center_number,code
+                  FROM bpay_car.company
+
+    select_columns:
+          - 'company_id'
+          - 'name'
+          - 'unn'
+          - 'status'
+          - 'org_id'
+          - 'cash_id'
+          - 'reg_num'
+          - 'center_number'
+          - 'code'
+
+    expected_columns:
+      - name: company_id
+        type: int
+      - name: name
+        type: str
+      - name: unn
+        type: str
+      - name: status
+        type: int
+      - name: org_id
+        type: int
+      - name: cash_id
+        type: int
+      - name: reg_num
+        type: str
+      - name: center_number
+        type: str
+      - name: code
+        type: str
+
+    postgres_table: stg_azs_company
+
+
+####################################################################################################################################################################
+
+  "tab_arrest_info":
+    oracle_table: SELECT arrest_info_id, account_id, create_date, cancel_date, arrest_date, arrest_authority, arrest_num, sum, resume_date, resume_authority, resume_num, arrest_type, arrest_authority_name, resume_authority_name FROM BPAY_SPBI.ARREST_INFO
+                                    
+    select_columns:
+          - 'arrest_info_id'
+          - 'account_id'
+          - 'create_date'
+          - 'cancel_date'
+          - 'arrest_date'
+          - 'arrest_authority'
+          - 'arrest_num'
+          - 'sum'
+          - 'resume_date'
+          - 'resume_authority'
+          - 'resume_num'
+          - 'arrest_type'
+          - 'arrest_authority_name'
+          - 'resume_authority_name'
+
+
+    expected_columns:
+      - name: arrest_info_id
+        type: int
+      - name: account_id
+        type: int
+      - name: create_date
+        type: datetime
+        date_format: "%Y-%m-%d %H:%M:%S.%f"
+      - name: cancel_date
+        type: datetime
+        date_format: "%Y-%m-%d %H:%M:%S.%f"
+      - name: arrest_date
+        type: datetime
+        date_format: "%Y-%m-%d %H:%M:%S.%f"
+      - name: arrest_authority
+        type: str
+      - name: arrest_num
+        type: str
+      - name: sum
+        type: float
+      - name: resume_date
+        type: datetime
+        date_format: "%Y-%m-%d %H:%M:%S.%f"
+      - name: resume_authority
+        type: str
+      - name: resume_num
+        type: str
+      - name: arrest_type
+        type: str
+      - name: arrest_authority_name
+        type: str
+      - name: resume_authority_name
+        type: str
+
+
+    postgres_table: stg_arrest_info

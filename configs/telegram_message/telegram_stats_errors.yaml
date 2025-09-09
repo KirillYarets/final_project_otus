@@ -1,0 +1,3 @@
+﻿error_log_message: SELECT count(*)
+                    FROM oplati_statistic_error.error_log_message
+                    WHERE DATE(error_date) = CURRENT_DATE

@@ -1,0 +1,9 @@
+
+####################################################################################################################################################################
+"tab_customer_activity":
+    oracle_table: select profile_id,activity_date  from BPAY_SPBI.CUSTOMER_ACTIVITY where to_char(activity_date,'DD.MM.YYYY')  =  to_char(SYSDATE-1,'DD.MM.YYYY')
+    select_columns:
+        - 'profile_id'
+        - 'activity_date'
+
+    postgres_table: stg_customer_activity

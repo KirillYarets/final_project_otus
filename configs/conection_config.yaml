@@ -1,0 +1,61 @@
+﻿#Подключение к Orcle
+
+  username_oracle: "username_oracle"
+  password_oracle: "password_oracle"
+  host_oracle: "000.00.000.00"
+  port_oracle: "1521"
+  service_name_oracle: "service_name_oracle"
+
+#Подключение к Postgres#
+
+
+  host_postgres: "111.11.111.11"
+  port_postgres: "5432"
+  password_postgres: "password_postgres"
+  user_postgres: "user_postgres"
+  database_postgres: "database_postgres"
+  shema_postgres: "shema_postgres"
+
+
+#Подключение к Bitrix
+
+
+  host_mysql: "333.333.33.333"
+  #port_mysql: "5432"
+  password_mysql: "password_mysql"
+  user_mysql: "user_mysql"
+  database_mysql: "database_mysql"
+  charset: "charset"
+  cursorclass: "pymysql.cursors.DictCursor"
+
+
+
+#Подключение к Postgres (Прокопович)
+
+  host_postgres_out: "444.44.444.44" 
+  port_postgres_out: "5433"  
+  password_postgres_out: "password_postgres_out"
+  user_postgres_out: "user_postgres_out"
+  database_postgres_out: "database_postgres_out"
+
+
+#Подключение к Postgres (Apache Superset)
+
+  host_superset_out: "555.55.555.55"
+  port_superset_out: "5432"
+  password_superset_out: "password_superset_out"
+  user_superset_out: "user_superset_out"
+  database_superset_out: "database_superset_out"
+
+
+  cnxn_eng : postgresql+psycopg2://test:password@666.66.666.66:5432/test2
+
+  #Подключение к Clickhouse#
+
+  host_clickhouse: "777.777.777.777"
+  port_clickhouse: 8123
+  user_clickhouse: "user_clickhouse"
+  password_clickhouse: "password_clickhouse"
+  database_clickhouse: "database_clickhouse"
+
+  clickhouse_eng: clickhousedb://test9:password@666.666.666.666:8123

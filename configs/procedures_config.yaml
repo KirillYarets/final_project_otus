@@ -1,0 +1,61 @@
+﻿arch_keys: 
+    - 'oplati_stage_level.proc_oplati_archives'
+
+del_keys: 
+    - 'oplati_stage_level.proc_stg_delete'
+    - 'oplati_dimention_level.proc_dim_delete'
+
+upload_keys:
+    - 'oplati_dimention_level.proc_0_poi_app'
+    - 'oplati_dimention_level.proc_1_customer_individual'
+    - 'oplati_dimention_level.proc_7_organisation'
+    - 'oplati_dimention_level.proc_2_customer_payments'
+    - 'oplati_dimention_level.proc_3_customer_tickets'
+    - 'oplati_dimention_level.proc_4_customer_travel_card'
+    - 'oplati_dimention_level.proc_5_virtual_cards'
+    - 'oplati_dimention_level.proc_6_account_balance'
+    - 'oplati_dimention_level.proc_8_catalog_order'
+    - 'oplati_dimention_level.proc_9_organisation_transactions'
+    - 'oplati_dimention_level.proc_10_organisation_type'
+    - 'oplati_dimention_level.proc_11_bi_bitrix_upload'
+
+
+
+agregate_keys:
+  
+    - 'oplati_dimention_level.proc_12_bi_activity_upload'
+    - 'oplati_dimention_level.proc_18_agr_stats'
+    - 'oplati_dimention_level.proc_15_agr_customer'
+    - 'oplati_dimention_level.proc_15_agr_clickhouse'
+    - 'oplati_dimention_level.proc_13_default_flags'
+    - 'oplati_dimention_level.proc_14_default_flags_5min'
+
+    - 'oplati_dimention_level.proc_19_agr_direction'
+    - 'oplati_dimention_level.proc_19_1_agr_analitical'
+    - 'oplati_dimention_level.proc_20_agr_customer_nerez'
+
+
+mBack_keys:
+    - 'oplati_dimention_level.proc_21_agr_moneyback'
+
+###########################################################################
+
+check_upload_keys:
+    - 'oplati_dimention_level.proc_000_update_cashbox'
+
+check_del_keys:
+    - 'oplati_dimention_level.proc_000_del_update_cashbox'
+
+
+###########################################################################
+
+crm_upload_keys:
+    - 'oplati_data_crm.proc_crm_customer_new_func'
+    - 'oplati_data_crm.proc_crm_customer_balance'
+    - 'oplati_data_crm.proc_crm_customer_groups'
+    - 'oplati_data_crm.proc_crm_customer_analyse'
+
+###########################################################################
+
+del_activity:
+    - 'oplati_stage_level.proc_stg_delete_activity'

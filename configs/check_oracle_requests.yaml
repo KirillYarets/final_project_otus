@@ -1,0 +1,134 @@
+  "tab_customer_organisation":
+    oracle_table: SELECT
+                    OPENED_ON as open_date,
+                    BPAY_SPBI.CUSTOMER.profile_id,
+                    customer_type,LAST_NAME as organization_name,
+                    address as adress,
+                    DOCUMENT_NUMBER as region_cod,
+                    null as region_name,
+                    null as locality_type,
+                    null as locality_name,
+                    SUBSTR (BPAY_SPBI.CUSTOMER.MOBILE_PHONE,1,6) as operator_cod,
+                    pan,
+                    soato,
+                    info
+                  FROM BPAY_SPBI.CUSTOMER
+                  LEFT JOIN
+                    BPAY_SPBI.ACCOUNT
+                   ON
+                    BPAY_SPBI.CUSTOMER.PROFILE_ID= BPAY_SPBI.ACCOUNT.PROFiLE_ID
+                  where BPAY_SPBI.CUSTOMER.CUSTOMER_TYPE <> 'INDIVIDUAL'
+
+    select_columns:
+      - 'open_date'
+      - 'profile_id'
+      - 'customer_type'
+      - 'organization_name'
+      - 'adress'
+      - 'region_cod'
+      - 'region_name'
+      - 'locality_type'
+      - 'locality_name'
+      - 'operator_cod'
+      - 'pan'
+      - 'soato'
+      - 'info'
+
+    postgres_table: stg_customer_organisation_check
+
+####################################################################################################################################################################
+
+
+####################################################################################################################################################################
+
+  "tab_merchant_pos":
+    oracle_table: SELECT
+                    pos_id,
+                    org_id,
+                    name,
+                    open_date,
+                    close_date,
+                    latitude,
+                    longitude
+                  FROM BPAY_SPBI.MERCHANT_POS
+    select_columns:
+      - 'pos_id'
+      - 'org_id'
+      - 'name'
+      - 'open_date'
+      - 'close_date'
+      - 'latitude'
+      - 'longitude'
+
+    postgres_table: stg_merchant_pos_check
+
+####################################################################################################################################################################
+
+  "tab_organisation":
+    oracle_table: select
+                    org_id,
+                    name,
+                    open_date,
+                    close_date,
+                    address,
+                    vat_payer,
+                    itn,
+                    status,
+                    eds_public_key,
+                    eds_serial,
+                    bank_agr_id,
+                    soato,
+                    ownership_form,
+                    private_number,
+                    document_type,
+                    document_number,
+                    document_issue_date,
+                    document_issuer,
+                    eds_first_name,
+                    eds_last_name,
+                    phone,
+                    org_type,
+                    bank_client_id
+                    from
+                    (
+                    SELECT org_id, name,open_date,close_date,address,vat_payer,eee.itn,status,eds_public_key,
+                        eds_serial,bank_agr_id,soato,ownership_form,private_number,
+                        document_type,document_number, document_issue_date,document_issuer, eds_first_name,
+                        eds_last_name,phone,org_type,bank_client_id,cf
+                    FROM BPAY_SPBI.ORGANIZATION eee
+                      left join
+                      (select itn, count(*) as cf from bpay_spbi.organization
+                      group by itn) rrr
+                      on eee.itn = rrr.itn
+                      where bank_client_id is not null and status = 'ACTIVE'
+                    ) sss where cf=1 or (cf>1 and status = 'ACTIVE' )
+    select_columns:
+      - 'org_id'
+      - 'name'
+      - 'open_date'
+      - 'close_date'
+      - 'address'
+      - 'vat_payer'
+      - 'itn'
+      - 'status'
+      - 'eds_public_key'
+      - 'eds_serial'
+      - 'bank_agr_id'
+      - 'soato'
+      - 'ownership_form'
+      - 'private_number'
+      - 'document_type'
+      - 'document_number'
+      - 'document_issue_date'
+      - 'document_issuer'
+      - 'eds_first_name'
+      - 'eds_last_name'
+      - 'phone'
+      - 'org_type'
+      - 'bank_client_id'
+
+
+    postgres_table: stg_organisation_check
+
+
+####################################################################################################################################################################
