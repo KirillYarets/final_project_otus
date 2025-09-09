@@ -152,8 +152,8 @@ upload_oracle = DataLoader(ora_config, tab_keys, 'oracle')
 upload_postgres = DataLoader(postgresOut_config, postgres_out_keys, 'postgres_out')
 
 with DAG(
-        '1_COPY_total_data_new_final',
-        start_date=datetime(year=2024, month=10, day=9),
+        '1_total_data_new_final',
+        start_date=datetime(year=2025, month=9, day=9),
         # end_date=  datetime(2999, 10, 11,15, 56),
         schedule_interval='30 21 * * *',
         # schedule_interval='@once',
@@ -188,16 +188,6 @@ with DAG(
         python_callable=data_transfer.send_message
     )
 
-    # @task_group(group_id='telegram_error_log_message')
-    # def tg5():
-    #     tel_error_log_message = PythonOperator(
-    #         task_id='telegram_error_log_message',
-    #         python_callable=telegram_error_log_message
-    #     )
-    # 
-    #     tel_error_log_message_task = DummyOperator(task_id='telegram_stream', dag=ora_dag, trigger_rule='all_done')
-    # 
-    #     [tel_error_log_message >> tel_error_log_message_task]
 
     with TaskGroup(group_id='telegram_error_log_message') as tg5:
         tel_error_log_message_task = PythonOperator(
@@ -216,20 +206,6 @@ with DAG(
 
     # ############################----API data tasks---###########################################
 
-    # @task_group(group_id='api_cur_nbrb')
-    # def tg1():
-    #
-    #     api_nbrb = PythonOperator(
-    #         task_id='api_nbrb',
-    #         python_callable=nbrb_api
-    #     )
-    #
-    #     t_api_nbrb = DummyOperator(task_id='strim_api', dag=ora_dag, trigger_rule='all_done')
-    #
-    #     [api_nbrb >> t_api_nbrb]
-    #
-    #
-    # groups.append(tg1())
 
     with TaskGroup(group_id='api_cur_nbrb') as tg1:
         api_nbrb = PythonOperator(task_id='api_nbrb', python_callable=nbrb_api)
@@ -267,15 +243,6 @@ with DAG(
                 bitrix_range_index[b_index - 1] >> bitrix_range_index[b_index]
 
 
-    # @task_group(group_id='bitrix_fail_check')
-    # def bitrix_fail_check():
-    # 
-    #     bitrix_check = DummyOperator(task_id='bitrix_check', dag=ora_dag, trigger_rule=TriggerRule.ALL_DONE)
-    # 
-    #     [bitrix_check]
-    # 
-    # 
-    # groups_2.append(bitrix_fail_check())
 
     with TaskGroup(group_id='bitrix_fail_check') as bitrix_fail_check:
         bitrix_check = DummyOperator(task_id='bitrix_check', trigger_rule=TriggerRule.ALL_DONE)
@@ -426,8 +393,6 @@ with DAG(
             python_callable=pos_coordinates
         )
 
-        
-
         t_api_pos = DummyOperator(task_id='strim_api_pos', dag=ora_dag, trigger_rule='all_done')
 
         [api_cord >> t_api_pos]
@@ -484,11 +449,7 @@ with DAG(
 
 tStart = DummyOperator(task_id='start', dag=ora_dag)
 tEnd = DummyOperator(task_id='end', dag=ora_dag)
-# tPass = DummyOperator(task_id='pass', dag=ora_dag)
-# tPass2 = DummyOperator(task_id='pass_2', dag=ora_dag)
-# tTest = DummyOperator(task_id='test', dag=ora_dag)
 
-# tApiNBRB = DummyOperator(task_id='strim_api', dag=ora_dag, trigger_rule = 'all_done')
 
 tStart >> tdel >> tg2 >> tel_stg_upload >> diff_data >> tel_diff_data_upload >> tgProcData >> tel_proc_data_upload >> [
     tgAgrData] >> tel_task >> [
